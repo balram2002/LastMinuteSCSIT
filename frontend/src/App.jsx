@@ -4,15 +4,17 @@ import FloatingShape from "./components/FloatingShape";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import EmailVerificationPage from "./pages/EmailVerificationPage";
-import DashboardPage from "./pages/DashboardPage";
+// import DashboardPage from "./pages/DashboardPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-
+import Home from "./pages/Home";
 import LoadingSpinner from "./components/LoadingSpinner";
 
 import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
 
 // protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -42,6 +44,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
 
 function App() {
 	const { isCheckingAuth, checkAuth } = useAuthStore();
+	const location = useLocation();
 
 	useEffect(() => {
 		checkAuth();
@@ -49,21 +52,48 @@ function App() {
 
 	if (isCheckingAuth) return <LoadingSpinner />;
 
+	// Define routes that should have floating shapes
+	const floatingRoutes = [
+		"/login",
+		"/signup",
+		"/forgot-password",
+		"/reset-password",
+		"/verify-email"
+	];
+
+	// Check if current route matches any floating route (including /reset-password/:token)
+	const isFloatingPage = floatingRoutes.some(route => {
+		if (route.includes(":")) {
+			// handle dynamic route
+			const base = route.split(":")[0];
+			return location.pathname.startsWith(base);
+		}
+		return location.pathname === route;
+	}) || location.pathname.startsWith("/reset-password");
+
 	return (
 		<div
-			className='min-h-screen bg-gradient-to-br
-    from-gray-900 via-blue-900 to-black-900 flex items-center justify-center relative overflow-hidden'
+			className={`min-h-screen flex items-center justify-center relative overflow-hidden ${
+				isFloatingPage
+					? "bg-gradient-to-br from-gray-900 via-blue-900 to-black-900"
+					: "bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900"
+			}`}
 		>
-			<FloatingShape color='bg-blue-500' size='w-64 h-64' top='-5%' left='10%' delay={0} />
-			<FloatingShape color='bg-black-500' size='w-48 h-48' top='70%' left='80%' delay={5} />
-			<FloatingShape color='bg-gray-500' size='w-32 h-32' top='40%' left='-10%' delay={2} />
+			{isFloatingPage && (
+				<>
+					<FloatingShape color='bg-blue-500' size='w-64 h-64' top='-5%' left='10%' delay={0} />
+					<FloatingShape color='bg-black-500' size='w-48 h-48' top='70%' left='80%' delay={5} />
+					<FloatingShape color='bg-gray-500' size='w-32 h-32' top='40%' left='-10%' delay={2} />
+				</>
+			)}
 
 			<Routes>
 				<Route
 					path='/'
 					element={
 						<ProtectedRoute>
-							<DashboardPage />
+						<Home/>
+						{/* <DashboardPage/> */}
 						</ProtectedRoute>
 					}
 				/>

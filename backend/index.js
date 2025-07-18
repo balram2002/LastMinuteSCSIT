@@ -7,7 +7,7 @@ import path from "path";
 import { connectDB } from "./db/connectDB.js";
 
 import authRoutes from "./routes/auth.route.js";
-
+import fileRoutes from "./routes/file.route.js"
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -34,7 +34,7 @@ app.use("/api/auth", authRoutes);
 // app.get("*", (req, res) => {
 // 	res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
 // });
-
+app.use('/api/files', fileRoutes);
 app.listen(PORT, () => {
 	console.log("Server is running on port: ", PORT);
 });
