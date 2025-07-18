@@ -1,6 +1,4 @@
-<h1 align="center">📚 SCSIT Previous Year Papers Portal</h1>
 
-A lightweight MERN stack web app to access and manage previous year question papers of **SCSIT, DAVV**.
 
 ---
 
