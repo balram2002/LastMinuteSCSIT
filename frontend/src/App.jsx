@@ -14,6 +14,10 @@ import { Toaster } from "react-hot-toast";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import Header from "./components/Header";
+import Courses from "./pages/Courses";
+import SemestersPage from "./pages/Semesters";
+import UploadDocumentPage from "./pages/UploadDocumentPage";
 
 
 // protect routes that require authentication
@@ -72,8 +76,10 @@ function App() {
 	}) || location.pathname.startsWith("/reset-password");
 
 	return (
-		<div
-			className={`min-h-screen flex items-center justify-center relative overflow-hidden ${
+	<>
+	  <Header />
+	  	<div
+			className={`min-h-full flex items-center justify-center relative overflow-hidden ${
 				isFloatingPage
 					? "bg-gradient-to-br from-gray-900 via-blue-900 to-black-900"
 					: "bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900"
@@ -86,7 +92,7 @@ function App() {
 					<FloatingShape color='bg-gray-500' size='w-32 h-32' top='40%' left='-10%' delay={2} />
 				</>
 			)}
-
+			</div>
 			<Routes>
 				<Route
 					path='/'
@@ -113,6 +119,30 @@ function App() {
 						</RedirectAuthenticatedUser>
 					}
 				/>
+					<Route
+					path='/upload'
+					element={
+						<ProtectedRoute>
+							<UploadDocumentPage />
+						</ProtectedRoute>
+					}
+				/>
+				<Route
+					path='/scsit/courses'
+					element={
+						<ProtectedRoute>
+						<Courses/>
+						</ProtectedRoute>
+					}
+				/>
+					<Route
+					path='/scsit/:course/semesters'
+					element={
+						<ProtectedRoute>
+						<SemestersPage />
+						</ProtectedRoute>
+					}
+				/>
 				<Route path='/verify-email' element={<EmailVerificationPage />} />
 				<Route
 					path='/forgot-password'
@@ -135,7 +165,7 @@ function App() {
 				<Route path='*' element={<Navigate to='/' replace />} />
 			</Routes>
 			<Toaster />
-		</div>
+	</>
 	);
 }
 

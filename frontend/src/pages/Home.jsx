@@ -1,120 +1,106 @@
 "use client"
 
-import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { BookOpen, FileText, GraduationCap } from "lucide-react"
-import SemesterPage from "../fileComponents/SemesterPage"
-import FileViewer from "../fileComponents/FileViewer"
-import UploadPage from "../fileComponents/UploadPage"
+import { BookOpen, Upload, FileText, Users } from "lucide-react"
+import { useEffect } from "react"
 
 const HomePage = () => {
-  const [selectedSemester, setSelectedSemester] = useState(null)
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [showUploadPage, setShowUploadPage] = useState(false)
+  const navigate = useNavigate()
 
-  const semesters = [
+    useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }, [])
+
+  const features = [
     {
       id: 1,
-      title: "1st Semester",
-      description: "Foundation courses and programming fundamentals",
-      icon: BookOpen,
-      paperCount: 8,
+      title: "Access Previous Papers",
+      description: "Explore a comprehensive collection of previous year question papers for MCA and other programs at SCSIT, Indore.",
+      icon: FileText,
+      path: "/courses",
+      linkText: "Browse Courses",
     },
     {
       id: 2,
-      title: "2nd Semester",
-      description: "Advanced programming and system concepts",
-      icon: FileText,
-      paperCount: 7,
+      title: "Upload Documents",
+      description: "Contribute to the community by uploading question papers and study materials to help fellow students.",
+      icon: Upload,
+      path: "/upload",
+      linkText: "Upload Now",
     },
     {
       id: 3,
-      title: "3rd Semester",
-      description: "Specialized subjects and project work",
-      icon: GraduationCap,
-      paperCount: 6,
+      title: "Student Community",
+      description: "Join a vibrant community of learners at SCSIT, Indore, to share resources and succeed together.",
+      icon: Users,
+      path: "/about",
+      linkText: "Learn More",
     },
   ]
 
-  const handleSemesterClick = (semesterId) => {
-    setSelectedSemester(semesterId)
-  }
-
-  const handleBackToHome = () => {
-    setSelectedSemester(null)
-    setSelectedFile(null)
-  }
-
-  const handleFileSelect = (file) => {
-    setSelectedFile(file)
-  }
-
-  const handleCloseViewer = () => {
-    setSelectedFile(null)
-  }
-
-  if (selectedFile) {
-    return <FileViewer file={selectedFile} onClose={handleCloseViewer} />
-  }
-
-  if (showUploadPage) {
-    return <UploadPage onBack={() => setShowUploadPage(false)} />
-  }
-
-  if (selectedSemester) {
-    return <SemesterPage semester={selectedSemester} onBack={handleBackToHome} onFileSelect={handleFileSelect} />
-  }
-
   return (
-    <div className="min-h-screen w-full h-full bg-gradient-to-br from-gray-900 via-blue-900 to-black-900 flex flex-col items-center justify-center p-0">
-      <div className="w-full h-full flex flex-col flex-1">
-        <div className="text-center mb-12 mt-12">
-          <motion.h1
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-5xl font-bold mb-4 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text"
-          >
-            MCA Examination Papers
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-xl text-gray-300 max-w-2xl mx-auto"
-          >
-            Access previous year examination papers for Master of Computer Applications program
-          </motion.p>
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-blue-900 to-slate-500 flex flex-col items-center p-0 pb-8">
+      {/* Hero Section */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text tracking-tight mb-6">
+            lastMinuteSCSIT
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">
+            Your one-stop platform for accessing and sharing previous year question papers and study resources for the School of Computer Science and Information Technology, Indore.
+          </p>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-8"
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex justify-center gap-4"
           >
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setShowUploadPage(true)}
+              onClick={() => navigate("/scsit/courses")}
               className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
+            >
+              Explore Courses
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/upload")}
+              className="px-6 py-3 bg-gray-800 bg-opacity-50 text-green-400 font-bold rounded-lg border border-gray-700 hover:border-green-500 transition duration-200"
             >
               Upload Papers
             </motion.button>
           </motion.div>
-        </div>
+        </motion.div>
+      </div>
 
-        <div className="grid md:grid-cols-3 gap-8 w-full px-8 flex-1">
-          {semesters.map((semester, index) => {
-            const IconComponent = semester.icon
+      {/* Features Section */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="text-4xl font-bold text-white text-center mb-12"
+        >
+          Why Choose lastMinuteSCSIT?
+        </motion.h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          {features.map((feature, index) => {
+            const IconComponent = feature.icon
             return (
               <motion.div
-                key={semester.id}
+                key={feature.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 * (index + 1) }}
                 whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => handleSemesterClick(semester.id)}
-                className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl overflow-hidden cursor-pointer border border-gray-700 hover:border-green-500 transition-all duration-300 h-full"
+                className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl overflow-hidden border border-gray-700 hover:border-green-500 transition-all duration-300 h-full flex flex-col justify-between"
               >
                 <div className="p-8 text-center">
                   <div className="mb-6">
@@ -122,20 +108,15 @@ const HomePage = () => {
                       <IconComponent className="w-10 h-10 text-white" />
                     </div>
                   </div>
-
-                  <h3 className="text-2xl font-bold mb-3 text-white">{semester.title}</h3>
-
-                  <p className="text-gray-300 mb-4 leading-relaxed">{semester.description}</p>
-
-                  <div className="flex items-center justify-center space-x-2 text-green-400">
-                    <FileText className="w-4 h-4" />
-                    <span className="text-sm font-medium">{semester.paperCount} Papers Available</span>
-                  </div>
+                  <h3 className="text-2xl font-bold mb-3 text-white">{feature.title}</h3>
+                  <p className="text-gray-300 mb-4 leading-relaxed">{feature.description}</p>
                 </div>
-
                 <div className="px-8 py-4 bg-gray-900 bg-opacity-50">
-                  <div className="w-full py-2 text-center text-green-400 font-semibold hover:text-green-300 transition-colors">
-                    View Papers →
+                  <div
+                    onClick={() => navigate(feature.path)}
+                    className="w-full py-2 text-center text-green-400 font-semibold hover:text-green-300 transition-colors cursor-pointer"
+                  >
+                    {feature.linkText} →
                   </div>
                 </div>
               </motion.div>
