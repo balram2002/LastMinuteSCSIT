@@ -2,7 +2,7 @@
 
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { BookOpen, Upload, FileText, Users } from "lucide-react"
+import {  Upload, FileText, Users } from "lucide-react"
 import { useEffect } from "react"
 
 const HomePage = () => {
@@ -18,7 +18,7 @@ const HomePage = () => {
       title: "Access Previous Papers",
       description: "Explore a comprehensive collection of previous year question papers for MCA and other programs at SCSIT, Indore.",
       icon: FileText,
-      path: "/courses",
+      path: "scsit/courses",
       linkText: "Browse Courses",
     },
     {

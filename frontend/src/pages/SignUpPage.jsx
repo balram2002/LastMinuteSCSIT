@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import Input from "../components/Input";
-import { Loader, Lock, Mail, User } from "lucide-react";
+import { Eye, Loader, Lock, Mail, User } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PasswordStrengthMeter from "../components/PasswordStrengthMeter";
@@ -11,7 +11,7 @@ const SignUpPage = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const navigate = useNavigate();
-
+    const [lockPass,SetLockPass]=useState(true);
 	const { signup, error, isLoading } = useAuthStore();
 
 	const handleSignUp = async (e) => {
@@ -24,11 +24,11 @@ const SignUpPage = () => {
 			console.log(error);
 		}
 	};
-	return (
-		  	<div
+	const flag=true;
+	return ( 	<div
 			className={`min-h-full flex items-center justify-center relative overflow-hidden py-10 ${
-				true
-					? "bg-gradient-to-br from-gray-900 via-blue-900 to-black-900"
+			
+					flag? "bg-gradient-to-br from-gray-900 via-blue-900 to-black-900"
 					: "bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900"
 			}`}
 		>
@@ -60,9 +60,10 @@ const SignUpPage = () => {
 						onChange={(e) => setEmail(e.target.value)}
 					/>
 					<Input
-						icon={Lock}
-						type='password'
+						icon={(lockPass)?Lock:Eye}
+						type={(lockPass)?'password':'text'}
 						placeholder='Password'
+						onClick={()=>SetLockPass(!lockPass)}
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
 					/>

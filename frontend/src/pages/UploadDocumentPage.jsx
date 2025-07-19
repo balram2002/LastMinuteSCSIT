@@ -105,48 +105,53 @@ const UploadDocumentPage = () => {
       handleFileSelect(files[0])
     }
   }
-
-  const handleUpload = async () => {
-    if (!selectedFile || !fileName || !selectedSemester || !selectedCourse) {
-      setUploadStatus("error")
-      setUploadMessage("Please fill in all fields and select a file")
-      return
-    }
-
-    setIsUploading(true)
-    setUploadStatus("idle")
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-
-      console.log("Uploading:", {
-        file: selectedFile,
-        fileName,
-        semester: selectedSemester,
-        course: selectedCourse,
-      })
-
-      setUploadStatus("success")
-      setUploadMessage("File uploaded successfully!")
-
-      setTimeout(() => {
-        setFileName("")
-        setSelectedSemester("")
-        setSelectedCourse("")
-        setSelectedFile(null)
-        setUploadStatus("idle")
-        setUploadMessage("")
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ""
-        }
-      }, 2000)
-    } catch (error) {
-      setUploadStatus("error")
-      setUploadMessage("Upload failed. Please try again.")
-    } finally {
-      setIsUploading(false)
-    }
+const handleUpload = async () => {
+  if (!selectedFile || !fileName || !selectedSemester || !selectedCourse) {
+    setUploadStatus("error");
+    setUploadMessage("Please fill in all fields and select a file");
+    return;
   }
+
+  setIsUploading(true);
+  setUploadStatus("idle");
+
+  try {
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("name", fileName);
+    formData.append("semester", selectedSemester);
+    formData.append("course", selectedCourse);
+
+    const res = await fetch("http://localhost:5000/api/files/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const json = await res.json();
+
+    if (!res.ok || !json.success) {
+      throw new Error(json.message || "Upload failed");
+    }
+
+    console.log("Uploaded:", json.data);
+    setUploadStatus("success");
+    setUploadMessage("File uploaded successfully!");
+  } catch (err) {
+    setUploadStatus("error");
+    setUploadMessage(err.message || "Upload failed. Please try again.");
+  } finally {
+    setIsUploading(false);
+    setTimeout(() => {
+      removeFile();
+      setFileName("");
+      setSelectedSemester("");
+      setSelectedCourse("");
+      setUploadStatus("idle");
+      setUploadMessage("");
+    }, 2000);
+  }
+};
+
 
   const removeFile = () => {
     setSelectedFile(null)

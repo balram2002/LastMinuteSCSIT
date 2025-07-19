@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Lock, Loader } from "lucide-react";
+import { Mail, Lock, Loader, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Input from "../components/Input";
 import { useAuthStore } from "../store/authStore";
@@ -9,7 +9,7 @@ const LoginPage = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isAdmin, setIsAdmin] = useState(false);
-
+    const [lockPass,SetLockPass]=useState(true);
 
 	const { login, isLoading, error } = useAuthStore();
 
@@ -19,10 +19,11 @@ const LoginPage = () => {
 
 
 	};
+	const flag=true;
 
 	return (
 		<div
-			className={`min-h-screen max-h-full flex items-center justify-center relative overflow-hidden py-10 ${true
+			className={`min-h-screen max-h-full flex items-center justify-center relative overflow-hidden py-10 ${flag
 					? "bg-gradient-to-br from-gray-900 via-blue-900 to-black-900"
 					: "bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900"
 				}`}
@@ -48,12 +49,13 @@ const LoginPage = () => {
 						/>
 
 						<Input
-							icon={Lock}
-							type='password'
-							placeholder='Password'
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-						/>
+						icon={(lockPass)?Lock:Eye}
+						type={(lockPass)?'password':'text'}
+						placeholder='Password'
+						onClick={()=>SetLockPass(!lockPass)}
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+					/>
 
 						<div className='flex items-center mb-6'>
 							<Link to='/forgot-password' className='text-sm text-green-400 hover:underline'>

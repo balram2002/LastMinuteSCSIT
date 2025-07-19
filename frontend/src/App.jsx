@@ -77,8 +77,8 @@ function App() {
 
 	return (
 	<>
-	  <Header />
-	  	<div
+<Header />
+	<div
 			className={`min-h-full flex items-center justify-center relative overflow-hidden ${
 				isFloatingPage
 					? "bg-gradient-to-br from-gray-900 via-blue-900 to-black-900"
