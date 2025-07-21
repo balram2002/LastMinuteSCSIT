@@ -18,6 +18,7 @@ import Header from "./components/Header";
 import Courses from "./pages/Courses";
 import SemestersPage from "./pages/Semesters";
 import UploadDocumentPage from "./pages/UploadDocumentPage";
+import DocumentsPage from "./pages/DocumentsPage";
 
 
 // protect routes that require authentication
@@ -140,6 +141,14 @@ function App() {
 					element={
 						<ProtectedRoute>
 						<SemestersPage />
+						</ProtectedRoute>
+					}
+				/>
+					<Route
+					path='/scsit/:course/semesters/:semesterId'
+					element={
+						<ProtectedRoute>
+						<DocumentsPage />
 						</ProtectedRoute>
 					}
 				/>
