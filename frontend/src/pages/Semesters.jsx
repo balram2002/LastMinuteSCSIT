@@ -98,6 +98,7 @@ const navigate = useNavigate();
 
   const handleSemesterClick = (semesterId) => {
     setSelectedSemester(semesterId)
+    navigate(`/scsit/${selectedCourse}/semesters/${semesterId}`)
   }
 
   const handleBackToHome = () => {
@@ -119,10 +120,6 @@ const navigate = useNavigate();
 
   if (showUploadPage) {
     return <UploadPage onBack={() => setShowUploadPage(false)} />
-  }
-
-  if (selectedSemester) {
-    return <SemesterPage semester={selectedSemester} onBack={handleBackToHome} onFileSelect={handleFileSelect} />
   }
 
   return (
