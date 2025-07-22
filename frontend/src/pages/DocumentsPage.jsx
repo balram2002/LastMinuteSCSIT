@@ -167,8 +167,7 @@ const DocumentsPage = ({ onFileSelect }) => {
         fetchFiles();
     }, [course, semester]);
 
-    const handlePaperClick = (paper, subject) => {
-    };
+    
 
     const handleFileClick = (file, subject) => {
         setSelectedFile(file);
@@ -325,7 +324,10 @@ const DocumentsPage = ({ onFileSelect }) => {
                     </div>
                 )}
             </div>
-            {selectedFile && <FileViewer file={selectedFile} onClose={handleCloseViewer} />}
+            
+            
+
+            {window.open("/pdfjs/web/viewer.html?file=" + encodeURIComponent(selectedFile), "", "resizable=yes, scrollbars=yes, titlebar=yes, width=1024, height=900, top=10, left=10")}
         </div>
     );
 };
