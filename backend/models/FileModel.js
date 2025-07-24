@@ -33,13 +33,22 @@ const fileSchema = new mongoose.Schema(
             enum: ['free', 'paid'],
             default: 'free'
         },
-        fileUrl:{
+        fileUrl: {
             type: String,
             required: true,
         },
         contentType: {
             type: String,
         },
+        category: {
+            type: String,
+            required: true,
+            enum: ['notes', 'paper', 'syllabus'],
+        },
+        uploadedBy:{
+            type: String,
+            ref: "users",
+        }
     },
     { timestamps: true }
 );

@@ -86,6 +86,6 @@ export const sendMail = async (mailOptions, retries = 3) => {
 };
 
 export const sender = {
-	email: process.env.SMTP_MAIL || "itopsbalram1208@gmail.com",
-	name: "Authix",
+	email: process.env.SMTP_MAIL || "lastminutescsit0@gmail.com",
+	name: "Last Minute SCSIT",
 };
