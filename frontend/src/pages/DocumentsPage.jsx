@@ -76,7 +76,7 @@ const DocumentsPage = ({ onFileSelect }) => {
             }
 
             try {
-                const response = await fetch(`http://localhost:5000/api/files/fetchCourseAndSemester`, {
+                const response = await fetch(`https://lastminutescsit-api.vercel.app/api/files/fetchCourseAndSemester`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

@@ -225,7 +225,7 @@ const UploadDocumentPage = () => {
       formData.append("types", JSON.stringify(selectedTypes))
       formData.append("year", selectedYear)
 
-      const res = await fetch("http://localhost:5000/api/files/upload", {
+      const res = await fetch("https://lastminutescsit-api.vercel.app/api/files/upload", {
         method: "POST",
         body: formData,
       })

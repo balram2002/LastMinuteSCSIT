@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import axios from "axios";
 
-const API_URL ="http://localhost:5000/api/auth";
+const API_URL ="https://lastminutescsit-api.vercel.app/api/auth";
 
 axios.defaults.withCredentials = true;
 
