@@ -1,4 +1,5 @@
 import {
+	ADMIN_LOGIN_OTP_EMAIL_TEMPLATE,
 	PASSWORD_RESET_REQUEST_TEMPLATE,
 	PASSWORD_RESET_SUCCESS_TEMPLATE,
 	VERIFICATION_EMAIL_TEMPLATE,
@@ -14,6 +15,25 @@ export const sendVerificationEmail = async (email, verificationToken) => {
 			to: email,
 			subject: "Verify your email",
 			html: VERIFICATION_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
+		});
+
+		console.log("Email sent successfully", response);
+	} catch (error) {
+		console.error(`Error sending verification`, error);
+
+		throw new Error(`Error sending verification email: ${error}`);
+	}
+};
+
+export const sendAdminLoginOtpEmail = async (email, verificationToken) => {
+	const recipient = [{ email }];
+
+	try {
+		const response = await sendMail({
+			from: sender,
+			to: email,
+			subject: "Verify your admin login",
+			html: ADMIN_LOGIN_OTP_EMAIL_TEMPLATE.replace("{verificationCode}", verificationToken),
 		});
 
 		console.log("Email sent successfully", response);

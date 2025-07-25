@@ -4,6 +4,9 @@ import mongoose from "mongoose";
 import { File } from '../models/FileModel.js';
 import axios from 'axios';
 
+const API_URL = "https://lastminutescsit-api.vercel.app";
+// const API_URL = "http://localhost:5000";
+
 export const uploadFile = async (req, res) => {
   try {
     const { name, course, semester, subject, types, year, category, uploadedBy } = req.body;
@@ -123,7 +126,7 @@ export const fetchFilesCourseAndSemester = async (req, res) => {
       if (file.type === "document") {
         return {
           ...file,
-          fileUrl: `https://lastminutescsit-api.vercel.app/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
+          fileUrl: `${API_URL}/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
         };
       }
       return file;
@@ -168,7 +171,7 @@ export const fetchAllFiles = async (req, res) => {
       if (file.type === "document") {
         return {
           ...file,
-          fileUrl: `https://lastminutescsit-api.vercel.app/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
+          fileUrl: `${API_URL}/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
         };
       }
       return file;
@@ -199,7 +202,7 @@ export const fetchAdminFiles = async (req, res) => {
       if (file.type === "document") {
         return {
           ...file,
-          fileUrl: `https://lastminutescsit-api.vercel.app/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
+          fileUrl: `${API_URL}/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
         };
       }
       return file;
@@ -214,6 +217,35 @@ export const fetchAdminFiles = async (req, res) => {
   } catch (err) {
     console.error('Fetch admin files error:', err);
     res.status(500).json({ success: false, message: 'Failed to fetch admin files', error: err.message });
+  }
+};
+
+export const fetchfileById = async (req, res) => {
+  try {
+    const { id } = req.body;
+    if (!id) {
+      return res.status(400).json({ success: false, message: 'File ID is required' });
+    }
+
+    const file = await File.findById(id).lean();
+
+    if (!file) {
+      return res.status(404).json({ success: false, message: 'File not found' });
+    }
+
+    if (file.type === "document") {
+      file.fileUrl = `${API_URL}/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'File retrieved successfully',
+      data: file,
+    });
+
+  } catch (err) {
+    console.error('Fetch file by ID error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch file', error: err.message });
   }
 };
 
