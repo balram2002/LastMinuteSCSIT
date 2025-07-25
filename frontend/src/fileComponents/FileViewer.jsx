@@ -50,6 +50,22 @@ const FileViewer = ({ file, onClose }) => {
     setRotation(0)
   }
 
+  useEffect(() => {
+  const handleKeyDown = (e) => {
+    if (
+      e.key === "F12" ||
+      (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(e.key)) ||
+      (e.ctrlKey && e.key === "U") // View Source
+    ) {
+      e.preventDefault();
+    }
+  };
+  document.addEventListener("keydown", handleKeyDown);
+  return () => {
+    document.removeEventListener("keydown", handleKeyDown);
+  };
+}, []);
+
   const baseUrl = window.location.origin
 
   return (
@@ -92,7 +108,7 @@ const FileViewer = ({ file, onClose }) => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto bg-gray-900 flex items-center justify-center p-4 relative pb-20 sm:pb-4">
+      <div className="flex-1 overflow-auto bg-gray-900 flex items-center justify-center p-4 relative pb-20 sm:pb-4" style={{ WebkitUserDrag: 'none', WebkitUserSelect: 'none' }}>
         <motion.div
           animate={{ scale: zoom / 100, rotate: rotation }}
           transition={{ duration: 0.3 }}
