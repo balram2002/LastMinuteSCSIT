@@ -123,7 +123,7 @@ export const fetchFilesCourseAndSemester = async (req, res) => {
       if (file.type === "document") {
         return {
           ...file,
-          fileUrl: `http://localhost:5000/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
+          fileUrl: `https://lastminutescsit-api.vercel.app/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
         };
       }
       return file;
@@ -168,7 +168,7 @@ export const fetchAllFiles = async (req, res) => {
       if (file.type === "document") {
         return {
           ...file,
-          fileUrl: `http://localhost:5000/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
+          fileUrl: `https://lastminutescsit-api.vercel.app/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
         };
       }
       return file;
@@ -199,7 +199,7 @@ export const fetchAdminFiles = async (req, res) => {
       if (file.type === "document") {
         return {
           ...file,
-          fileUrl: `http://localhost:5000/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
+          fileUrl: `https://lastminutescsit-api.vercel.app/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
         };
       }
       return file;
