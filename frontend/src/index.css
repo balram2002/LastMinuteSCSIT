@@ -19,3 +19,9 @@ h1, h2, h3, .heading {
 .react-select__option{
   z-index: 9999 !important;
 }
+
+img {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+}
