@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Helmet } from "react-helmet-async"
 import { useAuthStore } from "../store/authStore"
 import { useNavigate } from "react-router-dom"
-import { User, Mail, FileText, Calendar, Book, Tag, Edit, Trash2, X, Loader, AlertCircle, ShieldCheck, GraduationCap, FileX, Upload, View } from "lucide-react"
+import { User, Mail, FileText, Calendar, Book, Tag, Edit, Trash2, X, Loader, AlertCircle, ShieldCheck, GraduationCap, FileX, Upload, View, BookDashed } from "lucide-react"
 import FileViewer from "../fileComponents/FileViewer"
 import { API_URL } from "../utils/urls"
 
@@ -218,6 +218,7 @@ const MyFilesPage = () => {
                                     <div className="p-6 flex-grow">
                                         <h3 className="text-xl font-bold text-white mb-2">{file.name}</h3>
                                         <div className="space-y-2 text-gray-300 text-sm">
+                                             <p className="flex items-center gap-2"><BookDashed size={14} className="text-green-400" /> {file.course}</p>
                                             <p className="flex items-center gap-2"><Book size={14} className="text-green-400" /> {file.subject}</p>
                                             <p className="flex items-center gap-2"><GraduationCap size={14} className="text-green-400" /> {file.course} - Sem {file.semester}</p>
                                             <p className="flex items-center gap-2"><Calendar size={14} className="text-green-400" /> Year: {file.year}</p>

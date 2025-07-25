@@ -3,6 +3,7 @@ import crypto from "crypto";
 
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import {
+	sendAdminLoginOtpEmail,
 	sendPasswordResetEmail,
 	sendResetSuccessEmail,
 	sendVerificationEmail,
@@ -90,35 +91,92 @@ export const verifyEmail = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-const { email, password, role } = req.body;
 	try {
+		const { email, password, role } = req.body;
 		const user = await User.findOne({ email });
+
 		if (!user) {
-			return res.status(400).json({ success: false, message: "User not found" });
+			return res.status(400).json({ success: false, message: "Invalid credentials" });
 		}
+
 		const isPasswordValid = await bcryptjs.compare(password, user.password);
 		if (!isPasswordValid) {
-			return res.status(400).json({ success: false, message: "Incorrect Password" });
+			return res.status(400).json({ success: false, message: "Invalid credentials" });
 		}
-if (role === "admin" && user.isAdmin !== "admin") {
-	return res.status(403).json({ success: false, message: "Not authorized as admin" });
-}
+
+		if(user?.isAdmin === 'admin' && role !== 'admin') {
+			return res.status(403).json({ success: false, message: "Admins are required to check the box!" });
+		}
+
+		if(user?.isAdmin !== 'admin' && role === 'admin') {
+			return res.status(403).json({ success: false, message: "You are not authorized to access this admin resource." });
+		}
+		
+		if (user?.isAdmin === 'admin' && user?.isAdmin) {
+			const otp = Math.floor(100000 + Math.random() * 900000).toString();
+			user.verificationToken = otp;
+			user.verificationTokenExpiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+			await user.save();
+
+			await sendAdminLoginOtpEmail(user?.email, otp);
+			
+			return res.status(200).json({
+				success: true,
+				message: "OTP sent to your email.",
+				user: user
+			});
+		}
+
 		generateTokenAndSetCookie(res, user._id);
 
 		user.lastLogin = new Date();
 		await user.save();
 
+		const userResponse = { ...user._doc };
+        delete userResponse.password;
+
 		res.status(200).json({
 			success: true,
 			message: "Logged in successfully",
-			user: {
-				...user._doc,
-				password: undefined,
-			},
+			user: userResponse,
 		});
 	} catch (error) {
-		console.log("Error in login ", error);
-		res.status(400).json({ success: false, message: error.message });
+		console.log("Error in login controller: ", error);
+		res.status(500).json({ success: false, message: "Server error" });
+	}
+};
+
+export const verifyAdminOtp = async (req, res) => {
+	const { email, code } = req.body;
+	try {
+		const user = await User.findOne({
+			email: email,
+			verificationToken: code,
+			verificationTokenExpiresAt: { $gt: Date.now() },
+		});
+
+		if (!user || !user.isAdmin) {
+			return res.status(400).json({ success: false, message: "Invalid or expired OTP code" });
+		}
+
+		user.verificationToken = undefined;
+		user.verificationTokenExpiresAt = undefined;
+		user.lastLogin = new Date();
+		await user.save();
+
+		generateTokenAndSetCookie(res, user._id);
+
+        const userResponse = { ...user._doc };
+        delete userResponse.password;
+
+		res.status(200).json({
+			success: true,
+			message: "Admin verified successfully",
+			user: userResponse,
+		});
+	} catch (error) {
+		console.log("Error in verifyAdminOtp controller: ", error);
+		res.status(500).json({ success: false, message: "Server error" });
 	}
 };
 

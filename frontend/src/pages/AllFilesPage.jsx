@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Helmet } from "react-helmet-async"
 import Select from "react-select"
-import { Loader, AlertCircle, Calendar, Book, Tag, GraduationCap, X, Search, File as FileIcon, Filter } from "lucide-react"
+import { Loader, AlertCircle, Calendar, Book, Tag, GraduationCap, X, Search, File as FileIcon, Filter, BookDashed } from "lucide-react"
 import FileViewer from "../fileComponents/FileViewer"
 import { API_URL } from "../utils/urls"
 
@@ -222,6 +222,7 @@ const AllFilesPage = () => {
                                         <div className="p-6 flex-grow">
                                             <h3 className="text-xl font-bold text-white mb-2">{file.name}</h3>
                                             <div className="space-y-2 text-gray-300 text-sm">
+                                                <p className="flex items-center gap-2"><BookDashed size={14} className="text-green-400" /> {file.course}</p>
                                                 <p className="flex items-center gap-2"><Book size={14} className="text-green-400" /> {file.subject}</p>
                                                 <p className="flex items-center gap-2"><GraduationCap size={14} className="text-green-400" /> {file.course} - Sem {file.semester}</p>
                                                 <p className="flex items-center gap-2"><Calendar size={14} className="text-green-400" /> Year: {file.year}</p>

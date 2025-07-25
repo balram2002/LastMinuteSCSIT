@@ -214,6 +214,23 @@ const DocumentsPage = () => {
         navigate(`/scsit/${course}/semesters/`);
     };
 
+     useEffect(() => {
+        const handleContextMenu = (e) => {
+            e.preventDefault()
+        }
+        const handleKeyDown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+                e.preventDefault()
+            }
+        }
+        document.addEventListener("contextmenu", handleContextMenu)
+        document.addEventListener("keydown", handleKeyDown)
+        return () => {
+            document.removeEventListener("contextmenu", handleContextMenu)
+            document.removeEventListener("keydown", handleKeyDown)
+        }
+    }, [])
+
     if (loading) {
         return (
             <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-blue-900 to-black-900 flex items-center justify-center text-white">

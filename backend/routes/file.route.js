@@ -1,5 +1,5 @@
 import express from 'express'
-import { deleteFile, fetchAdminFiles, fetchAllFiles, fetchFilesCourseAndSemester, proxyPdf, updateFile, uploadFile } from '../controllers/file.controller.js';
+import { deleteFile, fetchAdminFiles, fetchAllFiles, fetchfileById, fetchFilesCourseAndSemester, proxyPdf, updateFile, uploadFile } from '../controllers/file.controller.js';
 
 import multer from 'multer';
 
@@ -13,6 +13,7 @@ router.post('/fetchCourseAndSemester', fetchFilesCourseAndSemester);
 router.get('/proxy', proxyPdf);
 router.get('/allfiles', fetchAllFiles);
 router.post('/adminfiles', fetchAdminFiles);
+router.post('/getfilebyid', fetchfileById)
 router.put('/update', updateFile);
 router.post('/delete', deleteFile);
 

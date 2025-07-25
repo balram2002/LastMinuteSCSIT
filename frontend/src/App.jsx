@@ -23,6 +23,7 @@ import MyFilesPage from "./pages/UserFilesPage";
 import AllFilesPage from "./pages/AllFilesPage";
 import Footer from "./components/Footer";
 import AboutPage from "./pages/About";
+import ShareFilePage from "./pages/ShareFilePage";
 
 // protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -161,6 +162,12 @@ function App() {
 						<ProtectedRoute>
 						<MyFilesPage />
 						</ProtectedRoute>
+					}
+				/>
+					<Route
+					path='/share/file/:id'
+					element={
+						<ShareFilePage />
 					}
 				/>
 					<Route

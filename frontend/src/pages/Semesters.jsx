@@ -157,7 +157,7 @@ const SemestersPage = () => {
   }
 
   return (
-    <div className="min-h-full w-full h-full bg-gradient-to-br from-gray-900 via-blue-900 to-slate-500 flex flex-col items-center justify-center p-0 pb-8 pt-16">
+    <div className="min-h-screen w-full h-full bg-gradient-to-br from-gray-900 via-blue-900 to-slate-500 flex flex-col items-center justify-center p-0 pb-8 pt-16">
       <Helmet>
         <title>{`${course?.toUpperCase().replace(/_/g, ' ')} Semesters - SCSIT Indore`}</title>
         <meta name="description" content={`Explore semesters for the ${course?.toUpperCase().replace(/_/g, ' ')} program at the School of Computer Science and IT, Indore.`} />
