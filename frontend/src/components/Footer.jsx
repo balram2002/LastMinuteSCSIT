@@ -14,6 +14,7 @@ const Footer = () => {
           <a href="/" className="hover:text-green-400 transition-colors">Home</a>
           <a href="/scsit/courses" className="hover:text-green-400 transition-colors">Courses</a>
            <a href="/allfiles" className="hover:text-green-400 transition-colors">All Files</a>
+             <a href="/about" className="hover:text-green-400 transition-colors">About</a>
         </div>
       </div>
     </footer>

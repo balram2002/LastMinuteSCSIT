@@ -14,7 +14,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
     const [lockPass, setLockPass] = useState(true);
-    
+
     const [loginStep, setLoginStep] = useState('credentials');
     const [code, setCode] = useState(["", "", "", "", "", ""]);
     const inputRefs = useRef([]);
@@ -34,14 +34,14 @@ const LoginPage = () => {
             if (isAdmin && response?.data?.user?.isAdmin === 'admin') {
                 setLoginStep('otp');
             }
-			if(response?.data?.user?.isAdmin !== 'admin') {
-				toast.success("User Login successfully!");
-			}
+            if (response?.data?.user?.isAdmin !== 'admin') {
+                toast.success("User Login successfully!");
+            }
         } catch (err) {
             // Error is handled by the store and displayed via the `error` state
         }
     };
-    
+
     const handleOtpChange = (index, value) => {
         if (isNaN(value)) return;
         const newCode = [...code];
@@ -71,10 +71,10 @@ const LoginPage = () => {
         e.preventDefault();
         const verificationCode = code.join("");
         if (verificationCode.length !== 6) return;
-        
+
         try {
             await verifyAdminOtp(email, verificationCode);
-			toast.success("Admin Login successfully!");
+            toast.success("Admin Login successfully!");
         } catch (err) {
             // Error is handled by the store
         }
@@ -121,9 +121,19 @@ const LoginPage = () => {
                                     </div>
                                 </div>
                                 <div className='flex items-center justify-between mb-6'>
-                                    <label htmlFor='isAdmin' className='flex items-center text-sm text-gray-300 cursor-pointer'>
-                                        <input type='checkbox' id='isAdmin' checked={isAdmin} onChange={(e) => setIsAdmin(e.target.checked)} className='mr-2 h-4 w-4 rounded bg-gray-700 border-gray-600 text-green-500 focus:ring-green-500' />
-                                        Login as Admin
+                                    <label htmlFor='isAdmin' className='relative inline-flex items-center cursor-pointer group'>
+                                        <input
+                                            type='checkbox'
+                                            id='isAdmin'
+                                            checked={isAdmin}
+                                            onChange={(e) => setIsAdmin(e.target.checked)}
+                                            className='sr-only peer'
+                                        />
+                                        <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500/50 peer-checked:bg-green-600 transition-colors duration-300"></div>
+                                        <div className="absolute top-0.5 left-[2px] w-5 h-5 bg-white rounded-full transition-transform duration-300 ease-in-out peer-checked:translate-x-5"></div>
+                                        <span className="ml-3 text-sm font-[550] text-gray-300 group-hover:text-white transition-colors">
+                                            Login as Admin
+                                        </span>
                                     </label>
                                     <Link to='/forgot-password' className='text-sm text-green-400 hover:underline'>Forgot password?</Link>
                                 </div>
@@ -145,7 +155,7 @@ const LoginPage = () => {
                         <h2 className='text-3xl font-bold mb-4 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
                             Admin Verification
                         </h2>
-                        <p className='text-center text-gray-300 mb-6'>A 6-digit code has been sent to <br/> <span className="font-semibold text-white">{maskEmail(email)}</span></p>
+                        <p className='text-center text-gray-300 mb-6'>A 6-digit code has been sent to <br /> <span className="font-semibold text-white">{maskEmail(email)}</span></p>
                         <form onSubmit={handleOtpSubmit}>
                             <div className='flex justify-center gap-2 mb-6'>
                                 {code.map((digit, index) => (
