@@ -19,7 +19,10 @@ import Courses from "./pages/Courses";
 import SemestersPage from "./pages/Semesters";
 import UploadDocumentPage from "./pages/UploadDocumentPage";
 import DocumentsPage from "./pages/DocumentsPage";
-
+import MyFilesPage from "./pages/UserFilesPage";
+import AllFilesPage from "./pages/AllFilesPage";
+import Footer from "./components/Footer";
+import AboutPage from "./pages/About";
 
 // protect routes that require authentication
 const ProtectedRoute = ({ children }) => {
@@ -152,6 +155,30 @@ function App() {
 						</ProtectedRoute>
 					}
 				/>
+					<Route
+					path='/profile/files'
+					element={
+						<ProtectedRoute>
+						<MyFilesPage />
+						</ProtectedRoute>
+					}
+				/>
+					<Route
+					path='/allfiles'
+					element={
+						<ProtectedRoute>
+						<AllFilesPage />
+						</ProtectedRoute>
+					}
+				/>
+					<Route
+					path='/about'
+					element={
+						<ProtectedRoute>
+						<AboutPage />
+						</ProtectedRoute>
+					}
+				/>
 				<Route path='/verify-email' element={<EmailVerificationPage />} />
 				<Route
 					path='/forgot-password'
@@ -173,6 +200,7 @@ function App() {
 				{/* catch all routes */}
 				<Route path='*' element={<Navigate to='/' replace />} />
 			</Routes>
+			<Footer />
 			<Toaster />
 	</>
 	);
