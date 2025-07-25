@@ -97,7 +97,7 @@ const FileViewer = ({ file, onClose }) => {
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleReset} className="hidden sm:block px-3 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors text-sm font-medium">
             Reset
           </motion.button>
-          <RWebShare data={{ text: `Check out this file from SCSIT: ${file?.name || file?.title}`, url: file.url || file.fileUrl, title: "SCSIT File" }}>
+          <RWebShare data={{ text: `Check out this file from SCSIT: ${file?.name || file?.title}`, url: `https://last-minute-scsit.vercel.app/scsit/${course}/semesters/${semesterId}`, title: "LastMinute SCSIT" + " " + course + "File" }}>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="p-2 sm:p-3 text-gray-300 hover:text-white hover:bg-gray-600 transition-colors bg-gray-700 rounded-lg">
               <Share2 className="w-4 h-4" />
             </motion.button>
