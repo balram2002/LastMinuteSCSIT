@@ -119,7 +119,7 @@ const FileViewer = ({ file, onClose }) => {
           ) : file?.type === "document" ? (
             <div className="text-white text-center">Loading PDF...</div>
           ) : (
-            <Img src={file.fileUrl || file.url} alt={file.title} className="max-w-full max-h-full object-contain rounded-lg shadow-2xl" />
+            <Img src={file.fileUrl || file.url} alt={file.title} className="max-w-full max-h-full object-contain rounded-lg shadow-2xl" style={{ WebkitUserDrag: 'none', WebkitUserSelect: 'none' }} />
           )}
         </motion.div>
       </div>
