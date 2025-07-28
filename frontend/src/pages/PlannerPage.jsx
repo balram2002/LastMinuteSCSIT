@@ -295,6 +295,7 @@ const PlannerPage = () => {
       "&:hover": { borderColor: "#14B8A6" },
       transition: "all 0.2s ease",
       minHeight: "48px",
+      cursor: "pointer",
     }),
     menu: (provided) => ({
       ...provided,
@@ -834,7 +835,7 @@ const generateRecurringTasks = useCallback((task, viewStart, viewEnd) => {
   });
 
   return (
-    <div {...swipeHandlers} className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-blue-950 to-indigo-900 p-4 sm:p-6 pb-10 pt-24">
+    <div {...swipeHandlers} className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-blue-950 to-indigo-900 p-4 sm:p-6 pb-10 pt-8">
       <Helmet>
         <title>Professional Task Planner - Organize Your Life</title>
         <meta
@@ -872,7 +873,7 @@ const generateRecurringTasks = useCallback((task, viewStart, viewEnd) => {
           }
         `}</style>
       </Helmet>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto pt-16">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

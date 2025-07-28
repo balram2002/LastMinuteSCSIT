@@ -1515,7 +1515,7 @@ const ScientificCalculator = ({ showToast, showSCSIT, setShowSCSIT }) => {
         setHistory([...history.slice(-9), `${display} = ${formattedResult}`]);
         if (isSCSIT || isSCSIT2 || isSCSIT3 || isSCSIT4 || isSCSIT5 || isSCSIT6 || isSCSIT7) {
           setShowSCSIT(true);
-          setTimeout(() => setShowSCSIT(false), 3000);
+          setTimeout(() => setShowSCSIT(false), 4000);
         }
       } else if (value === "MC") {
         setMemory(0);
@@ -1634,7 +1634,7 @@ const ScientificCalculator = ({ showToast, showSCSIT, setShowSCSIT }) => {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            className="absolute inset-0 top-[37px] h-fit flex items-center justify-center pointer-events-none"
           >
             <AnimatePresence>
               <motion.span
@@ -2045,6 +2045,7 @@ const CalculatorPage = () => {
       boxShadow: "none",
       "&:hover": { borderColor: "#00A3B5" },
       transition: "all 0.2s ease",
+      cursor: "pointer",
     }),
     menu: (provided) => ({
       ...provided,
@@ -2147,7 +2148,7 @@ const CalculatorPage = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 text-teal-400 hover:text-teal-300 transition-all duration-200"
+            className="flex items-center gap-3 text-teal-400 hover:text-teal-300 transition-all duration-300 hover:scale-105 bg-gray-800/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-gray-700/50"
             aria-label="Back to home"
           >
             <ArrowLeft size={20} /> Back to Home
@@ -2158,11 +2159,12 @@ const CalculatorPage = () => {
               value={selectedMode}
               onChange={(option) => {
                 setSelectedMode(option);
+                navigate(`/calculations/tools/${option.value}`);
               }}
               styles={customSelectStyles}
               placeholder="Select a calculator..."
               aria-label="Select calculator tool"
-              className="react-select-container"
+              className="react-select-container cursor-pointer"
               classNamePrefix="react-select"
             />
           </div>
