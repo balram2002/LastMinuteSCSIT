@@ -107,7 +107,7 @@ const Header = () => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.3 }}
-            className="fixed top-0 right-0 h-full w-80 bg-slate-800 shadow-2xl z-50 overflow-y-auto"
+            className="fixed top-0 right-0 h-full w-80 bg-slate-800 shadow-2xl z-50 overflow-y-hidden flex flex-col"
           >
             <div className="flex items-center justify-between p-6 border-b border-slate-700">
               <div className="flex items-center space-x-3">
@@ -125,7 +125,7 @@ const Header = () => {
             </div>
 
             <div className="py-6">
-              <nav className="space-y-2 px-4">
+              <nav className="space-y-2 px-4 h-[calc(100vh-260px)] overflow-y-auto">
                 {navigationItems.map((item, index) => (
                   <motion.a
                     key={item.href}
