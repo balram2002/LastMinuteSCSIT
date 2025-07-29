@@ -2,8 +2,9 @@ import { Todo } from "../models/TodoModel.js";
 import mongoose from 'mongoose';
 
 export const getTodos = async (req, res) => {
+  const userId = req.params.userId;
   try {
-    const todos = await Todo.find();
+    const todos = await Todo.find({ user: userId }).sort({ createdAt: -1 });
     res.status(200).json({ success: true, todos });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -131,6 +132,7 @@ export const toggleTaskStatus = async (req, res) => {
     if (!todo) {
       return res.status(404).json({ success: false, message: 'Todo not found' });
     }
+    console.log(todo.user.toString(), userId);
     if (todo.user && todo.user.toString() !== userId) {
       return res.status(403).json({ success: false, message: 'Unauthorized to modify this task' });
     }

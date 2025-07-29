@@ -3,7 +3,7 @@ import { createTodo, deleteTodo, getTodo, getTodos, toggleTaskStatus, updateTodo
 
 const router = express.Router();
 
-router.get('/', getTodos);
+router.get('/user/:userId', getTodos);
 router.post('/', createTodo);
 router.get('/:id', getTodo);
 router.put('/:id', updateTodo);

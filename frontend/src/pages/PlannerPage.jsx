@@ -793,7 +793,7 @@ const generateRecurringTasks = useCallback((task, viewStart, viewEnd) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/todos`);
+        const response = await fetch(`${API_URL}/api/todos/user/${user?._id}`);
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`Failed to fetch tasks: ${response.status} ${errorText}`);
@@ -808,7 +808,7 @@ const generateRecurringTasks = useCallback((task, viewStart, viewEnd) => {
     };
     fetchData();
     console.log("todos fetched successfully : ", tasks);
-  }, [showToast]);
+  }, [showToast, user]);
 
   useEffect(() => {
     setFilterDate(new Date().toISOString().split("T")[0]);

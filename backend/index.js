@@ -16,16 +16,27 @@ const PORT = process.env.PORT || 5000;
 
 connectDB();
 
+const allowedOrigins =
+  process.env.NODE_ENV === "production"
+    ? [
+        "https://last-minute-scsit.vercel.app",
+        "https://lastminutescsit.vercel.app"
+      ]
+    : ["http://localhost:5173"];
+
 app.use(cors({
-    origin: ["https://last-minute-scsit.vercel.app", "https://lastminutescsit-api.vercel.app", "https://lastminutescsit.vercel.app"],
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
 }));
-// app.use(cors({
-//     origin: ["http://localhost:5000", "http://localhost:5173"],
-//     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-//     credentials: true,
-// }));
 app.use(express.json());
 app.use(cookieParser());
 

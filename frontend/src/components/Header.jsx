@@ -125,7 +125,7 @@ const Header = () => {
             </div>
 
             <div className="py-6">
-              <nav className="space-y-2 px-4 h-[calc(100vh-260px)] overflow-y-auto">
+              <nav className="space-y-2 px-4 h-[calc(100vh-260px)] overflow-y-auto pb-2">
                 {navigationItems.map((item, index) => (
                   <motion.a
                     key={item.href}
