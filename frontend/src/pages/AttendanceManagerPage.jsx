@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef, useContext, useCallback } from "r
 import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Check, X, Info, Edit2, Save, XCircle, List, Cog, RotateCcw, Target, Calendar, AlertTriangle, Trash2, Filter, ArrowUpDown, Undo2, Loader2, RefreshCw, Home } from "lucide-react";
+import { ArrowLeft, Check, X, Info, Edit2, Save, XCircle, List, Cog, RotateCcw, Target, Calendar, AlertTriangle, Trash2, Filter, ArrowUpDown, Undo2, Loader2, RefreshCw, Home, FileCheck2 } from "lucide-react";
 import { DayPicker } from "react-day-picker";
 import { format, isValid, startOfMonth, parseISO, compareAsc, addDays, subDays, differenceInDays, isSameDay, startOfDay, endOfDay } from 'date-fns';
 import 'react-day-picker/dist/style.css';
@@ -725,7 +725,7 @@ const AttendanceManager = () => {
             className="mt-6 flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mx-auto"
             aria-label="Set Course and Sem Data"
           >
-            <CircleCheck size={18} /> Set Course and Sem Data
+            <FileCheck2 size={18} /> Set Course and Sem Data
           </button>
         </motion.div>
         {editModalOpen && (
