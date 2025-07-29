@@ -18,7 +18,7 @@ connectDB();
 
 app.use(cors({
     origin: ["https://last-minute-scsit.vercel.app", "https://lastminutescsit-api.vercel.app", "https://lastminutescsit.vercel.app"],
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
 }));
 // app.use(cors({
