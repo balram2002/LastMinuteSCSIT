@@ -87,7 +87,7 @@ const HomePage = () => {
   ];
 
   const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
-  
+
   const isExcludedRoute = location.pathname.startsWith("/login") || location.pathname === "/signup";
   const isMobile = window.innerWidth <= 768;
   const swipeHandlers = useSwipeable({
@@ -115,7 +115,7 @@ const HomePage = () => {
 
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-[#0a0a0a]" />
-        <motion.div 
+        <motion.div
           style={{ y }}
           className="absolute inset-0"
         >
@@ -123,9 +123,9 @@ const HomePage = () => {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent" />
         </motion.div>
-        
+
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,black_40%,transparent)]" />
-        
+
         <div className="absolute inset-0">
           {[...Array(20)].map((_, i) => (
             <motion.div
@@ -175,7 +175,7 @@ const HomePage = () => {
                 SCSIT
               </span>
             </span>
-            
+
             <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-emerald-400/20 to-cyan-400/20 blur-3xl" />
           </motion.h1>
 
@@ -272,20 +272,20 @@ const HomePage = () => {
                 >
                   <div className="relative h-full bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden hover:border-white/20 transition-all duration-300">
                     <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-                    
+
                     <div className="relative p-8">
                       <div className={`w-16 h-16 bg-gradient-to-r ${feature.gradient} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                         <IconComponent className="w-8 h-8 text-white" />
                       </div>
-                      
+
                       <h3 className="text-2xl font-bold text-white mb-3">
                         {feature.title}
                       </h3>
-                      
+
                       <p className="text-gray-400 mb-6 leading-relaxed">
                         {feature.description}
                       </p>
-                      
+
                       <button
                         onClick={() => navigate(feature.path)}
                         className={`inline-flex items-center gap-2 text-white font-semibold bg-gradient-to-r ${feature.gradient} bg-clip-text text-transparent group-hover:gap-3 transition-all duration-300`}
@@ -294,7 +294,7 @@ const HomePage = () => {
                         <ArrowRight className="w-5 h-5" />
                       </button>
                     </div>
-                    
+
                     <div className={`absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br ${feature.gradient} rounded-full opacity-10 group-hover:opacity-20 group-hover:scale-150 transition-all duration-500`} />
                   </div>
                 </motion.div>
@@ -303,6 +303,50 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      <div className="relative z-10 py-24 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-white to-gray-300 text-transparent bg-clip-text">
+                See It in Action
+              </span>
+            </h2>
+            <p className="text-gray-400 text-lg max-w-3xl mx-auto">
+              Watch a quick overview of how LastMinuteSCSIT helps you stay organized and prepared for your exams.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 50 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="relative bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-2xl shadow-green-500/10"
+          >
+            <div className="relative w-full overflow-hidden rounded-2xl" style={{ paddingTop: "56.25%" }}>
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/StnOGs-kOiE?autoplay=1&mute=1&rel=0"
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                loading="lazy"
+              ></iframe>
+            </div>
+            <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full opacity-10 group-hover:opacity-20 group-hover:scale-150 transition-all duration-500" />
+            <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full opacity-10 group-hover:opacity-20 group-hover:scale-150 transition-all duration-500" />
+          </motion.div>
+        </div>
+      </div>
+
 
       <div className="relative z-10 py-24 px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -314,7 +358,7 @@ const HomePage = () => {
         >
           <div className="relative bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-3xl border border-green-500/20 p-12 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5" />
-            
+
             <div className="relative z-10">
               <Star className="w-12 h-12 text-green-400 mx-auto mb-6" />
               <h3 className="text-3xl font-bold text-white mb-4">
