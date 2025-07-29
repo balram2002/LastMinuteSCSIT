@@ -126,7 +126,7 @@ const HomePage = () => {
 
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,black_40%,transparent)]" />
 
-        {/* <div className="absolute inset-0">
+        <div className="absolute inset-0">
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
@@ -146,7 +146,7 @@ const HomePage = () => {
               }}
             />
           ))}
-        </div> */}
+        </div>
       </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
