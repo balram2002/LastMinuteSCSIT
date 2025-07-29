@@ -9,12 +9,14 @@ import {
 	checkAuth,
 	verifyAdminOtp,
 	updateProfile,
+	fetchUser,
 } from "../controllers/auth.controller.js";
 import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.get("/check-auth", verifyToken, checkAuth);
+router.get("/check-auth", checkAuth);
+router.get("/fetchuser/:userId", fetchUser);
 
 router.post("/signup", signup);
 router.post("/login", login);

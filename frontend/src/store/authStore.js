@@ -7,7 +7,7 @@ const URL = `${API_URL}/api/auth`;
 axios.defaults.withCredentials = true;
 
 export const useAuthStore = create((set) => ({
-    user: JSON.parse(localStorage.getItem("user")) || null,
+    user: localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")) || null,
     isAuthenticated: !!localStorage.getItem("user"),
     error: null,
     isLoading: false,
@@ -122,5 +122,9 @@ export const useAuthStore = create((set) => ({
             });
             throw error;
         }
+    },
+    setUser: (user) => {
+        localStorage.setItem("user", JSON.stringify(user));
+        set({ user, isAuthenticated: true });
     },
 }));

@@ -96,12 +96,12 @@ export const login = async (req, res) => {
 		const user = await User.findOne({ email });
 
 		if (!user) {
-			return res.status(400).json({ success: false, message: "Invalid credentials" });
+			return res.status(400).json({ success: false, message: "Invalid Email!" });
 		}
 
 		const isPasswordValid = await bcryptjs.compare(password, user.password);
 		if (!isPasswordValid) {
-			return res.status(400).json({ success: false, message: "Invalid credentials" });
+			return res.status(400).json({ success: false, message: "Invalid Password!" });
 		}
 
 		if(user?.isAdmin === 'admin' && role !== 'admin') {
@@ -273,9 +273,9 @@ export const updateProfile = async (req, res) => {
             return res.status(404).json({ success: false, message: "User not found." });
         }
         
-        user.name = username ?? user.name;
-        user.course = course ?? user.course;
-        user.semester = semester ?? user.semester;
+        user.name = username || user.name;
+        user.course = course || user.course;
+        user.semester = semester || user.semester;
 
         await user.save({ validateModifiedOnly: true });
 
@@ -296,3 +296,17 @@ export const updateProfile = async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error while updating profile." });
     }
 };
+
+export const fetchUser = async (req, res) => {
+	const userId = req.params.userId || req.body.userId;
+	try {
+		const user = await User.findById(userId).select("-password");
+		if (!user) {
+			return res.status(404).json({ success: false, message: "User not found." });
+		}
+		return res.status(200).json({ success: true, user });
+	} catch (error) {
+		console.log("Error in fetchUser controller: ", error);
+		return res.status(500).json({ success: false, message: "Server error while fetching user." });
+	}
+}

@@ -6,7 +6,7 @@ export const getAttendance = async (req, res) => {
 		const courseKey = course.toUpperCase().replace('-', '_');
 		const attendance = await Attendance.findOne({ course: courseKey, semester });
 		if (!attendance) {
-			return res.status(404).json({ success: false, message: "Attendance data not found", data: [] });
+			return res.status(200).json({ success: true, message: "Attendance data not found", data: [] });
 		}
 		res.status(200).json({ success: true, data: attendance.subjects });
 	} catch (error) {

@@ -12,6 +12,7 @@ import { useAuthStore } from "../store/authStore";
 import { API_URL } from "../utils/urls";
 import { useSwipeable } from "react-swipeable";
 import { ValuesContext } from "../context/ValuesContext";
+import { EditProfileModal } from "../components/EditProfileModal";
 
 const ALL_SEMESTER_DATA = {
   "BCA": {
@@ -167,6 +168,7 @@ const AttendanceManager = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
   const [editData, setEditData] = useState({ attended: 0, total: 0, startDate: format(subDays(new Date(), 30), 'yyyy-MM-dd') });
   const [lastAction, setLastAction] = useState(null);
@@ -267,7 +269,7 @@ const AttendanceManager = () => {
     }
 
     if (showLoader) setIsLoading(true);
-
+    console.log()
     try {
       const response = await fetch(`${API_URL}/api/attendance/${user.course}/${semester}`, {
         headers: {
@@ -717,14 +719,22 @@ const AttendanceManager = () => {
           <AlertTriangle className="mx-auto h-12 w-12 text-yellow-400" aria-hidden="true" />
           <h2 className="mt-4 text-2xl font-semibold text-white">Data Not Found</h2>
           <p className="mt-2 text-gray-300">Unable to load course or semester information.</p>
+          <p className="mt-2 text-gray-300">Set Course and Sem Data if not set.</p>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => setEditModalOpen(true)}
             className="mt-6 flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mx-auto"
-            aria-label="Back to dashboard"
+            aria-label="Set Course and Sem Data"
           >
-            <ArrowLeft size={18} /> Back to Dashboard
+            <CircleCheck size={18} /> Set Course and Sem Data
           </button>
         </motion.div>
+        {editModalOpen && (
+          <EditProfileModal
+            isOpen={editModalOpen}
+            onClose={() => setEditModalOpen(false)}
+            user={user}
+          />
+        )}
       </div>
     );
   }
@@ -838,14 +848,14 @@ const AttendanceManager = () => {
           transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4 mt-4 sm:mt-3"
         >
-         <button
-              onClick={() => navigate("/")}
-              className="flex items-center gap-3 text-teal-400 hover:text-teal-300 transition-all duration-300 hover:scale-105 bg-gray-800/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-gray-700/50"
-              aria-label="Navigate back to home"
-            >
-              <Home size={20} />
-              <span className="font-medium">Back to Home</span>
-            </button>
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-3 text-teal-400 hover:text-teal-300 transition-all duration-300 hover:scale-105 bg-gray-800/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-gray-700/50"
+            aria-label="Navigate back to home"
+          >
+            <Home size={20} />
+            <span className="font-medium">Back to Home</span>
+          </button>
           <div className="w-full sm:w-auto text-white text-lg font-semibold transition-all duration-300 hover:scale-105 bg-gray-800/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-gray-700/50 text-center sm:text-left">
             {user.course?.toUpperCase()} - {semester}{getOrdinalSuffix(parseInt(semester, 10))} Semester
           </div>
@@ -896,8 +906,8 @@ const AttendanceManager = () => {
                   <div key={rec.subject} className="flex justify-between items-center text-sm">
                     <span className="text-gray-300 truncate pr-2">{rec.subject}</span>
                     <span className={`font-semibold px-2 py-0.5 rounded-full text-xs ${rec.status === 'present' ? 'bg-green-500/20 text-green-300' :
-                        rec.status === 'absent' ? 'bg-red-500/20 text-red-300' :
-                          'bg-gray-500/20 text-gray-300'
+                      rec.status === 'absent' ? 'bg-red-500/20 text-red-300' :
+                        'bg-gray-500/20 text-gray-300'
                       }`}>
                       {rec.status.charAt(0).toUpperCase() + rec.status.slice(1).replace('-', ' ')}
                     </span>
@@ -1116,8 +1126,8 @@ const AttendanceManager = () => {
                           </div>
                           <div
                             className={`p-3 rounded-lg text-center text-sm font-medium flex items-center justify-center gap-2 ${subject.status === 'safe' ? 'bg-green-500/10 text-green-300' :
-                                subject.status === 'danger' ? 'bg-red-500/10 text-red-300' :
-                                  'bg-gray-500/10 text-gray-400'
+                              subject.status === 'danger' ? 'bg-red-500/10 text-red-300' :
+                                'bg-gray-500/10 text-gray-400'
                               }`}
                             role="alert"
                           >
@@ -1194,11 +1204,11 @@ const AttendanceManager = () => {
                         key={type}
                         onClick={() => setFilter({ ...filter, type })}
                         className={`px-3 py-1.5 rounded-lg text-sm font-medium ${filter.type === type
-                            ? type === 'present' ? 'bg-green-600 text-white' :
-                              type === 'absent' ? 'bg-red-600 text-white' :
-                                type === 'no-class' ? 'bg-gray-600 text-white' :
-                                  'bg-blue-600 text-white'
-                            : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600'
+                          ? type === 'present' ? 'bg-green-600 text-white' :
+                            type === 'absent' ? 'bg-red-600 text-white' :
+                              type === 'no-class' ? 'bg-gray-600 text-white' :
+                                'bg-blue-600 text-white'
+                          : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600'
                           }`}
                         aria-label={`Show ${type === 'no-class' ? 'no class' : type} attendance records`}
                       >
@@ -1294,8 +1304,8 @@ const AttendanceManager = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`px-2 py-1 rounded text-xs font-medium ${entry.status === 'present' ? 'bg-green-500/20 text-green-300' :
-                              entry.status === 'absent' ? 'bg-red-500/20 text-red-300' :
-                                'bg-gray-500/20 text-gray-300'
+                            entry.status === 'absent' ? 'bg-red-500/20 text-red-300' :
+                              'bg-gray-500/20 text-gray-300'
                             }`}>
                             {entry.status.charAt(0).toUpperCase() + entry.status.slice(1).replace('-', ' ')}
                           </span>
@@ -1368,12 +1378,12 @@ const AttendanceManager = () => {
                               key={status}
                               onClick={() => setModalInput({ ...modalInput, [subject.name]: status })}
                               className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${(modalInput[subject.name] || currentStatus) === status
-                                  ? status === 'present'
-                                    ? 'bg-green-500/80 text-white hover:bg-green-600'
-                                    : status === 'absent'
-                                      ? 'bg-red-500/80 text-white hover:bg-red-600'
-                                      : 'bg-gray-500/80 text-white hover:bg-gray-600'
-                                  : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600'
+                                ? status === 'present'
+                                  ? 'bg-green-500/80 text-white hover:bg-green-600'
+                                  : status === 'absent'
+                                    ? 'bg-red-500/80 text-white hover:bg-red-600'
+                                    : 'bg-gray-500/80 text-white hover:bg-gray-600'
+                                : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600'
                                 } disabled:opacity-50 disabled:cursor-not-allowed`}
                               disabled={!isSameDay(activeModal.data, currentDate)}
                               aria-label={`Mark ${subject.name} as ${status.replace('-', ' ')} for current day`}

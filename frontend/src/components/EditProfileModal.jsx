@@ -1,13 +1,12 @@
-import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
-import Select from "react-select";
+import { useState, useMemo, useEffect } from "react";
 import { User, Mail, ShieldCheck, BookOpen, GraduationCap, Save, X } from "lucide-react";
-import { API_URL } from "../utils/urls";
 import { useAuthStore } from "../store/authStore";
+import { API_URL } from "../utils/urls";
+import toast from "react-hot-toast";
 
 const Modal = ({ children, onClose, title }) => (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 z-50" onClick={onClose}>
-        <motion.div initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl border border-gray-600/50 shadow-2xl shadow-teal-500/10 overflow-hidden w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 z-50" onClick={onClose}>
+        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl border border-gray-600/50 shadow-2xl shadow-teal-500/10 overflow-hidden w-full max-w-2xl transform transition-all duration-200 scale-100" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center p-6 border-b border-gray-700/50 bg-gradient-to-r from-gray-800 to-gray-900">
                 <h3 className="text-2xl font-bold text-white flex items-center gap-3"><User /> {title}</h3>
                 <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors rounded-full p-2 hover:bg-gray-700/50" aria-label={`Close ${title} modal`}>
@@ -15,59 +14,66 @@ const Modal = ({ children, onClose, title }) => (
                 </button>
             </div>
             <div className="p-8">{children}</div>
-        </motion.div>
-    </motion.div>
+        </div>
+    </div>
 );
 
-const customSelectStyles = {
-    control: (provided, state) => ({
-        ...provided,
-        backgroundColor: "rgba(31, 41, 55, 0.9)",
-        borderColor: state.isFocused ? "#14B8A6" : "#4B5563",
-        color: "#E5E7EB",
-        borderRadius: "1rem",
-        padding: "0.5rem",
-        paddingLeft: "2.5rem",
-        boxShadow: state.isFocused ? "0 0 0 3px rgba(20, 184, 166, 0.1)" : "none",
-        "&:hover": { borderColor: "#14B8A6" },
-        transition: "all 0.2s ease",
-        minHeight: "56px",
-        cursor: state.isDisabled ? 'not-allowed' : 'default',
-        opacity: state.isDisabled ? 0.6 : 1,
-    }),
-    menu: (provided) => ({
-        ...provided,
-        backgroundColor: "rgba(31, 41, 55, 0.98)",
-        borderRadius: "1rem",
-        border: "1px solid #4B5563",
-        backdropFilter: "blur(16px)",
-        zIndex: 50,
-    }),
-    option: (provided, state) => ({
-        ...provided,
-        backgroundColor: state.isSelected ? "#14B8A6" : state.isFocused ? "rgba(55, 65, 81, 0.8)" : "transparent",
-        color: state.isSelected ? "#FFFFFF" : "#E5E7EB",
-        "&:hover": { backgroundColor: "rgba(55, 65, 81, 0.8)", color: "#FFFFFF" },
-    }),
-    singleValue: (provided) => ({ ...provided, color: "#E5E7EB" }),
-    placeholder: (provided) => ({ ...provided, color: "#9CA3AF" }),
+const CustomSelect = ({ options, value, onChange, placeholder, disabled, icon: Icon }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedOption, setSelectedOption] = useState(value);
+
+    useEffect(() => {
+        setSelectedOption(value);
+    }, [value]);
+
+    const handleSelect = (option) => {
+        setSelectedOption(option);
+        onChange(option);
+        setIsOpen(false);
+    };
+
+    return (
+        <div className="relative">
+            {Icon && <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10" size={20} />}
+            <button
+                type="button"
+                onClick={() => !disabled && setIsOpen(!isOpen)}
+                disabled={disabled}
+                className={`w-full pl-12 pr-10 py-4 bg-gray-700/90 rounded-xl border ${isOpen ? 'border-teal-500' : 'border-gray-600/50'} text-left text-white placeholder-gray-400 transition-all min-h-[56px] flex items-center ${disabled ? 'opacity-60 cursor-not-allowed' : 'hover:border-teal-500 cursor-pointer'}`}
+            >
+                <span className={selectedOption ? 'text-white' : 'text-gray-400'}>
+                    {selectedOption ? selectedOption.label : placeholder}
+                </span>
+                <svg className={`absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            
+            {isOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-gray-800/98 border border-gray-600/50 rounded-xl backdrop-blur-lg z-50 max-h-60 overflow-y-auto">
+                    {options.map((option) => (
+                        <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => handleSelect(option)}
+                            className="w-full px-4 py-3 text-left text-gray-200 hover:bg-gray-700/80 hover:text-white transition-colors first:rounded-t-xl last:rounded-b-xl"
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                    {options.length === 0 && (
+                        <div className="px-4 py-3 text-gray-400 text-center">No options available</div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
 };
 
-const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: { staggerChildren: 0.1, delayChildren: 0.1 },
-    },
-};
+export const EditProfileModal = ({ user, onClose }) => {
+    const { checkAuth, setUser } = useAuthStore();
+    const [userSemester, setUserSemester] = useState(null);
 
-const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } },
-};
-
-export const EditProfileModal = ({ user, onClose, onSave }) => {
-    const { checkAuth } = useAuthStore();
     const staticSemesterData = {
         1: { title: "1st Semester" },
         2: { title: "2nd Semester" },
@@ -91,56 +97,67 @@ export const EditProfileModal = ({ user, onClose, onSave }) => {
         "PGDCA": { "1": [], "2": [] },
     };
 
+    useEffect(() => {
+        const formatSemester = (semester) => {
+            if (!semester) return null;
+            const s = String(semester);
+            let label = `${s}${s === '1' ? 'st' : s === '2' ? 'nd' : s === '3' ? 'rd' : 'th'} Semester`;
+            
+            if (user?.course === 'MCA' && staticSemesterData[semester]?.title) {
+                label = staticSemesterData[semester].title;
+            }
+            
+            return { value: s, label };
+        };
+        setUserSemester(formatSemester(user?.semester));
+    }, [user]);
+
     const [profileData, setProfileData] = useState({
-        username: user?.username || '',
+        username: user?.username || user?.name || '',
         course: user?.course || null,
         semester: user?.semester || null,
     });
     const [isSaving, setIsSaving] = useState(false);
 
-    const handleSave = async () => {
-        setIsSaving(true);
+   const handleSave = async () => {
+    setIsSaving(true);
+    try {
+        const response = await fetch(`${API_URL}/api/auth/update-profile`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: user._id, ...profileData }),
+        });
+        
+        const data = await response.json();
+        console.log("Response:", data.user);
 
-        try {
-            const response = await fetch(`${API_URL}/api/auth/update-profile`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    userId: user._id,
-                    ...profileData,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                checkAuth();
-            } else {
-                console.error("Error updating profile:", data.message);
-            }
-        } catch (error) {
-            console.error("Error updating profile:", error);
-        } finally {
-            setIsSaving(false);
+        if (data.message === "Profile updated successfully.") {
+            checkAuth();
             onClose();
+            setUser(data.user);
+            toast.success("Profile updated successfully!");
+        } else {
+            console.error("Error updating profile:", data.message);
         }
-    };
+    } catch (error) {
+        console.error("Error updating profile:", error);
+    } finally {
+        setIsSaving(false);
+    }
+};
 
     const courseOptions = useMemo(() =>
         Object.keys(subjectsByCourseAndSemester).map(course => ({
             value: course,
             label: course.replace(/_/g, ' ')
         })),
-        []);
+        []
+    );
 
     const semesterOptions = useMemo(() => {
         if (!profileData.course) return [];
-
         const courseData = subjectsByCourseAndSemester[profileData.course];
         if (!courseData) return [];
-
         return Object.keys(courseData).map(sem => {
             let label = `${sem}${sem === '1' ? 'st' : sem === '2' ? 'nd' : sem === '3' ? 'rd' : 'th'} Semester`;
             if (profileData.course === 'MCA' && courseData[sem]?.title) {
@@ -158,65 +175,59 @@ export const EditProfileModal = ({ user, onClose, onSave }) => {
         });
     };
 
+    const handleSemesterChange = (selectedOption) => {
+        setProfileData({
+            ...profileData,
+            semester: selectedOption ? selectedOption.value : null
+        });
+    };
+
+    const currentCourse = courseOptions.find(c => c.value === profileData.course) || courseOptions.find(c => c.value === user?.course?.toUpperCase());
+    const currentSemester = semesterOptions.find(s => s.value === profileData.semester) || userSemester;
+
     return (
         <Modal title="Edit Profile" onClose={onClose}>
             <div className="space-y-8">
-
-                <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="visible">
-
+                <div className="space-y-6 opacity-100">
                     <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 w-full justify-between">
-                        <motion.div variants={itemVariants}>
+                        <div className="w-full opacity-100">
                             <label htmlFor="course" className="text-sm font-semibold text-gray-300 mb-2 block">Course</label>
-                            <div className="relative w-full min-w-full">
-                                <BookOpen className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10" size={20} />
-                                <Select
-                                    id="course"
-                                    styles={customSelectStyles}
-                                    options={courseOptions}
-                                    value={courseOptions.find(c => c.value === profileData.course) || user?.course ? { value: user.course, label: user.course.replace(/_/g, ' ') } : null}
-                                    onChange={handleCourseChange}
-                                    placeholder="Select your course..."
-                                    isClearable
-                                />
-                            </div>
-                        </motion.div>
-
-                        <motion.div variants={itemVariants}>
+                            <CustomSelect
+                                options={courseOptions}
+                                value={currentCourse}
+                                onChange={handleCourseChange}
+                                placeholder="Select your course..."
+                                icon={BookOpen}
+                            />
+                        </div>
+                        <div className="w-full opacity-100">
                             <label htmlFor="semester" className="text-sm font-semibold text-gray-300 mb-2 block">Semester</label>
-                            <div className="relative">
-                                <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10" size={20} />
-                                <Select
-                                    id="semester"
-                                    styles={customSelectStyles}
-                                    options={semesterOptions}
-                                    value={semesterOptions.find(s => s.value === profileData.semester) || user?.semester ? { value: user.semester, label: user.semester } : null}
-                                    onChange={(option) => setProfileData({ ...profileData, semester: option ? option.value : null })}
-                                    placeholder={!profileData.course ? "Select a course first" : "Select your semester..."}
-                                    isDisabled={!profileData.course}
-                                    isClearable
-                                />
-                            </div>
-                        </motion.div>
+                            <CustomSelect
+                                options={semesterOptions}
+                                value={currentSemester}
+                                onChange={handleSemesterChange}
+                                placeholder={!profileData.course ? "Select a course first" : "Select your semester..."}
+                                disabled={!profileData.course}
+                                icon={GraduationCap}
+                            />
+                        </div>
                     </div>
-
-                    <motion.div variants={itemVariants}>
+                    <div className="opacity-100">
                         <label htmlFor="username" className="text-sm font-semibold text-gray-300 mb-2 block">Username</label>
                         <div className="relative">
                             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                             <input
                                 id="username"
                                 type="text"
-                                value={profileData.username || user?.name}
+                                value={profileData.username}
                                 onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
                                 className="w-full pl-12 pr-4 py-4 bg-gray-700/50 rounded-xl border border-gray-600/50 text-white placeholder-gray-400 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                                 placeholder="Enter your full name"
                             />
                         </div>
-                    </motion.div>
-
-                </motion.div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-2xl border border-gray-700/50">
+                    </div>
+                </div>
+                <div className="flex items-center justify-between p-4 bg-gray-800/50 rounded-2xl border border-gray-700/50 flex-col sm:flex-row gap-4">
                     <div className="flex items-center gap-4">
                         <Mail size={20} className="text-teal-400" />
                         <span className="font-medium text-gray-200">{user?.email}</span>
@@ -228,18 +239,17 @@ export const EditProfileModal = ({ user, onClose, onSave }) => {
                         </div>
                     )}
                 </div>
-
                 <div className="flex justify-end gap-4 pt-6 border-t border-gray-700/50">
-                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                    <button
                         onClick={onClose}
-                        className="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-xl transition-all duration-200"
+                        className="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                     >
                         Cancel
-                    </motion.button>
-                    <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                    </button>
+                    <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="px-8 py-3 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-8 py-3 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-500 hover:to-teal-600 text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
                     >
                         {isSaving ? (
                             <>
@@ -252,9 +262,41 @@ export const EditProfileModal = ({ user, onClose, onSave }) => {
                                 Save Changes
                             </>
                         )}
-                    </motion.button>
+                    </button>
                 </div>
             </div>
         </Modal>
     );
 };
+
+export default function App() {
+    const [showModal, setShowModal] = useState(true);
+    
+    const mockUser = {
+        username: "John Doe",
+        name: "John Doe",
+        email: "john.doe@example.com",
+        course: "BCA",
+        semester: "3",
+        isAdmin: true
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+            {showModal && (
+                <EditProfileModal 
+                    user={mockUser} 
+                    onClose={() => setShowModal(false)} 
+                />
+            )}
+            {!showModal && (
+                <button 
+                    onClick={() => setShowModal(true)}
+                    className="px-6 py-3 bg-teal-600 hover:bg-teal-500 text-white font-semibold rounded-xl transition-all"
+                >
+                    Show Edit Profile Modal
+                </button>
+            )}
+        </div>
+    );
+}
