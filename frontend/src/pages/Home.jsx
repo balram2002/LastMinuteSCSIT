@@ -1,29 +1,21 @@
 "use client"
 
 import { useNavigate } from "react-router-dom"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { motion } from "framer-motion"
 import { Upload, FileText, Users, ListTodo, Calculator, CheckSquare, ArrowRight, Sparkles, Star } from "lucide-react"
-import { useContext, useEffect, useRef } from "react"
+import { useContext, useEffect, useMemo } from "react"
 import { Helmet } from 'react-helmet-async';
 import { useSwipeable } from "react-swipeable"
 import { ValuesContext } from "../context/ValuesContext"
 
 const HomePage = () => {
   const navigate = useNavigate()
-  const containerRef = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
-  })
-
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }, [])
 
-  const features = [
+  const features = useMemo(() => [
     {
       id: 1,
       title: "Access Question Papers",
@@ -84,7 +76,7 @@ const HomePage = () => {
       gradient: "from-teal-500 to-cyan-500",
       delay: 0.6
     },
-  ];
+  ], []);
 
   const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
 
@@ -106,59 +98,60 @@ const HomePage = () => {
     delta: 30,
   });
 
+  const floatingParticles = useMemo(() => 
+    [...Array(25)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="absolute w-1 h-1 bg-green-400/30 rounded-full"
+        style={{
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+        }}
+        animate={{
+          y: [0, -50, 0],
+          opacity: [0, 0.7, 0],
+          scale: [0, 1, 0],
+        }}
+        transition={{
+          duration: Math.random() * 6 + 4,
+          repeat: Infinity,
+          delay: Math.random() * 5,
+        }}
+      />
+    )), []);
+
   return (
-    <div ref={containerRef} {...swipeHandlers} className="min-h-screen w-full relative overflow-hidden mt-18">
+    <div {...swipeHandlers} className="min-h-screen w-full relative overflow-hidden mt-18">
       <Helmet>
         <title>lastMinuteSCSIT - Home</title>
         <meta name="description" content="Access and share previous year question papers and study resources for SCSIT, Indore." />
       </Helmet>
 
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-[#0a0a0a]" />
-        <motion.div
-          style={{ y }}
-          className="absolute inset-0"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-emerald-900/20" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-500/10 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent" />
-        </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-slate-900" />
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-emerald-900/30" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-500/15 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-green-500/15 via-transparent to-transparent" />
+        </div>
 
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,black_40%,transparent)]" />
 
         <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white/20 rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -30, 0],
-                opacity: [0, 1, 0],
-              }}
-              transition={{
-                duration: Math.random() * 5 + 5,
-                repeat: Infinity,
-                delay: Math.random() * 5,
-              }}
-            />
-          ))}
+          {floatingParticles}
         </div>
       </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <motion.div style={{ opacity }} className="w-full max-w-7xl mx-auto text-center">
+        <div className="w-full max-w-7xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-full mb-8"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500/15 to-emerald-500/15 backdrop-filter backdrop-blur-xl border border-green-500/30 rounded-full mb-8 shadow-lg"
           >
-            <Sparkles className="w-4 h-4 text-green-400" />
-            <span className="text-sm text-green-400 font-medium">Your Academic Success Partner</span>
+            <Sparkles className="w-5 h-5 text-green-400" />
+            <span className="text-sm text-green-300 font-semibold tracking-wide">Your Academic Success Partner</span>
           </motion.div>
 
           <motion.h1
@@ -167,11 +160,11 @@ const HomePage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative"
           >
-            <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black">
-              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 text-transparent bg-clip-text">
+            <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight">
+              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-lg">
                 LastMinute{" "}
               </span>
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text drop-shadow-lg">
                 SCSIT
               </span>
             </span>
@@ -183,7 +176,7 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="mt-6 text-lg sm:text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed"
+            className="mt-8 text-lg sm:text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light"
           >
             Your comprehensive platform for accessing and sharing previous year question papers and study resources for the School of Computer Science and Information Technology, Indore.
           </motion.p>
@@ -192,35 +185,35 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
+            className="mt-12 flex flex-col sm:flex-row gap-6 justify-center"
           >
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/scsit/courses")}
-              className="group relative px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl overflow-hidden shadow-lg hover:shadow-green-500/25 transition-all duration-300"
+              className="group relative px-10 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-2xl overflow-hidden shadow-2xl hover:shadow-green-500/30 transition-all duration-300"
             >
-              <span className="relative z-10 flex items-center justify-center gap-2">
+              <span className="relative z-10 flex items-center justify-center gap-3">
                 Explore Courses
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-green-600 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.button>
 
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/upload")}
-              className="group px-8 py-4 bg-white/5 backdrop-blur-sm text-white font-bold rounded-xl border border-white/10 hover:border-green-500/50 hover:bg-white/10 transition-all duration-300"
+              className="group px-10 py-4 bg-white/10 backdrop-filter backdrop-blur-xl text-white font-bold rounded-2xl border border-white/20 hover:border-green-500/50 hover:bg-white/15 transition-all duration-300 shadow-lg"
             >
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-3">
                 <Upload className="w-5 h-5" />
                 Upload Papers
               </span>
             </motion.button>
           </motion.div>
 
-        </motion.div>
+        </div>
 
         <motion.div
           initial={{ opacity: 0 }}
@@ -231,32 +224,31 @@ const HomePage = () => {
           <motion.div
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 2, repeat: Infinity }}
-            className="w-6 h-10 border-2 border-white/20 rounded-full flex justify-center"
+            className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center"
           >
-            <div className="w-1 h-3 bg-white/40 rounded-full mt-2" />
+            <div className="w-1 h-3 bg-green-400/60 rounded-full mt-2" />
           </motion.div>
         </motion.div>
       </div>
 
-      <div className="relative z-10 py-24 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-l from-blue-500 via-teal-500 to-green-500 text-transparent bg-clip-text">
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 text-transparent bg-clip-text">
                 Why Choose lastMinuteSCSIT?
               </span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-400 text-xl max-w-3xl mx-auto leading-relaxed">
               Everything you need to excel in your academic journey, all in one place.
             </p>
           </motion.div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature) => {
               const IconComponent = feature.icon
@@ -304,21 +296,21 @@ const HomePage = () => {
         </div>
       </div>
 
-      <div className="relative z-10 py-24 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 py-32 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-l from-blue-500 via-teal-500 to-green-500 text-transparent bg-clip-text">
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 text-transparent bg-clip-text">
                 See It in Action
               </span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-3xl mx-auto">
+            <p className="text-gray-400 text-xl max-w-3xl mx-auto leading-relaxed">
               Watch a quick overview of how LastMinuteSCSIT helps you stay organized and prepared for your exams.
             </p>
           </motion.div>
@@ -328,11 +320,11 @@ const HomePage = () => {
             whileInView={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
-            className="relative bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 shadow-2xl shadow-green-500/10"
+            className="relative bg-gray-800/30 backdrop-filter backdrop-blur-xl rounded-3xl border border-gray-700/50 shadow-2xl shadow-green-500/10 overflow-hidden"
           >
-            <div className="relative w-full overflow-hidden rounded-2xl" style={{ paddingTop: "56.25%" }}>
+            <div className="relative w-full overflow-hidden rounded-3xl" style={{ paddingTop: "56.25%" }}>
               <iframe
-                className="absolute top-0 left-0 w-full h-full"
+                className="absolute top-0 left-0 w-full h-full rounded-3xl"
                 src="https://www.youtube.com/embed/StnOGs-kOiE?autoplay=1&mute=1&rel=0"
                 title="YouTube video player"
                 frameBorder="0"
@@ -341,41 +333,48 @@ const HomePage = () => {
                 loading="lazy"
               ></iframe>
             </div>
-            <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full opacity-10 group-hover:opacity-20 group-hover:scale-150 transition-all duration-500" />
-            <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full opacity-10 group-hover:opacity-20 group-hover:scale-150 transition-all duration-500" />
+            <div className="absolute -top-20 -left-20 w-40 h-40 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full opacity-15 group-hover:opacity-25 group-hover:scale-150 transition-all duration-700" />
+            <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full opacity-15 group-hover:opacity-25 group-hover:scale-150 transition-all duration-700" />
           </motion.div>
         </div>
       </div>
 
-
-      <div className="relative z-10 py-24 px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 py-32 px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="max-w-4xl mx-auto text-center"
+          className="max-w-5xl mx-auto text-center"
         >
-          <div className="relative bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-sm rounded-3xl border border-green-500/20 p-12 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5" />
+          <div className="relative bg-gradient-to-r from-green-500/15 to-emerald-500/15 backdrop-filter backdrop-blur-xl rounded-3xl border border-green-500/30 p-16 overflow-hidden shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10" />
 
             <div className="relative z-10">
-              <Star className="w-12 h-12 text-green-400 mx-auto mb-6" />
-              <h3 className="text-3xl font-bold text-white mb-4">
+              <motion.div
+                whileHover={{ rotate: 360, scale: 1.2 }}
+                transition={{ duration: 0.6 }}
+              >
+                <Star className="w-16 h-16 text-green-400 mx-auto mb-8" />
+              </motion.div>
+              <h3 className="text-4xl font-bold text-white mb-6">
                 Ready to Excel in Your Studies?
               </h3>
-              <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-                Join thousands of students who are already benefiting from our comprehensive collection of resources.
+              <p className="text-gray-300 text-lg mb-10 max-w-3xl mx-auto leading-relaxed">
+                Join thousands of students who are already benefiting from our comprehensive collection of resources and advanced academic tools.
               </p>
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, y: -3 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/scsit/courses")}
-                className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl shadow-lg hover:shadow-green-500/25 transition-all duration-300"
+                className="px-10 py-5 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-2xl shadow-2xl hover:shadow-green-500/30 transition-all duration-300 text-lg"
               >
                 Get Started Now
               </motion.button>
             </div>
+            
+            <div className="absolute -top-32 -right-32 w-64 h-64 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl" />
           </div>
         </motion.div>
       </div>

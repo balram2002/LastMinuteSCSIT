@@ -36,10 +36,48 @@ const FileViewer = ({ file, onClose }) => {
   const [zoom, setZoom] = useState(100);
   const [rotation, setRotation] = useState(0);
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
   const mainRef = useRef(null);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    const originalPosition = document.body.style.position;
+    const originalHeight = document.body.style.height;
+    const originalTouchAction = document.body.style.touchAction;
+    
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.height = '100%';
+    document.body.style.width = '100%';
+    document.body.style.touchAction = 'none';
     document.body.classList.add('no-scroll', 'no-select');
+    
+    const preventScroll = (e) => {
+      e.preventDefault();
+      return false;
+    };
+    
+    const preventTouchMove = (e) => {
+      if (e.target.closest('.file-viewer-content')) {
+        return;
+      }
+      e.preventDefault();
+      return false;
+    };
+    
+    document.addEventListener('wheel', preventScroll, { passive: false });
+    document.addEventListener('touchmove', preventTouchMove, { passive: false });
+    document.addEventListener('scroll', preventScroll, { passive: false });
+
     const handleKeyDown = (e) => {
       if (
         e.key === "F12" ||
@@ -54,8 +92,16 @@ const FileViewer = ({ file, onClose }) => {
     const handleContextMenu = (e) => e.preventDefault();
     document.addEventListener("contextmenu", handleContextMenu);
     document.addEventListener("keydown", handleKeyDown);
+    
     return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.position = originalPosition;
+      document.body.style.height = originalHeight;
+      document.body.style.touchAction = originalTouchAction;
       document.body.classList.remove('no-scroll', 'no-select');
+      document.removeEventListener('wheel', preventScroll);
+      document.removeEventListener('touchmove', preventTouchMove);
+      document.removeEventListener('scroll', preventScroll);
       document.removeEventListener("contextmenu", handleContextMenu);
       document.removeEventListener("keydown", handleKeyDown);
     };
@@ -67,7 +113,7 @@ const FileViewer = ({ file, onClose }) => {
     }
   }, [file]);
 
-  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 25, 150));
+  const handleZoomIn = () => setZoom((prev) => Math.min(prev + 25, 300));
   const handleZoomOut = () => setZoom((prev) => Math.max(prev - 25, 50));
   const handleRotate = () => setRotation((prev) => (prev + 90) % 360);
   const handleReset = () => {
@@ -118,17 +164,22 @@ const FileViewer = ({ file, onClose }) => {
 
       <main 
         ref={mainRef}
-        className="relative overflow-auto flex items-center justify-center p-4"
+        className="relative overflow-auto flex items-center justify-center p-4 file-viewer-content"
         onDoubleClick={(e) => e.preventDefault()}
       >
         <motion.div
-            animate={{ rotate: rotation }}
-            style={{ 
+            animate={{ 
+                rotate: rotation,
+                ...(isMobile ? { scale: zoom / 100 } : {})
+            }}
+            style={!isMobile ? { 
                 width: zoom === 100 ? '100%' : `${zoom}%`, 
                 height: zoom === 100 ? '100%' : `${zoom}%`
+            } : {
+                transformOrigin: 'center center'
             }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }} 
-            className="relative flex items-center justify-center"
+            className={`relative flex items-center justify-center ${isMobile ? 'max-w-full max-h-full' : ''}`}
         >
             <Watermark />
             <div 
@@ -136,12 +187,16 @@ const FileViewer = ({ file, onClose }) => {
                 onContextMenu={(e) => e.preventDefault()}
             >
                 {file?.type === "document" && pdfUrl ? (
-                    <iframe src={pdfUrl} title={file.title} className="w-full h-full border-0 rounded-lg bg-white shadow-2xl" />
+                    <iframe 
+                        src={pdfUrl} 
+                        title={file.title} 
+                        className="w-full h-full border-0 rounded-lg bg-white shadow-2xl" 
+                    />
                 ) : file?.type === "image" ? (
                     <Img 
                         src={file.fileUrl || file.url} 
                         alt={file.title} 
-                        className="w-full h-full object-contain"
+                        className={`object-contain ${isMobile ? 'max-w-full max-h-full' : 'w-full h-full'}`}
                         onContextMenu={(e) => e.preventDefault()}
                         onDragStart={(e) => e.preventDefault()}
                     />
@@ -154,11 +209,11 @@ const FileViewer = ({ file, onClose }) => {
       
       <footer className="z-30">
           <div className="sm:hidden bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl border-t border-gray-700 p-2 flex items-center justify-around">
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleZoomOut} className="p-3 bg-gray-700 text-gray-300 rounded-lg" disabled={zoom <= 50}>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleZoomOut} className={`p-3 rounded-lg ${zoom <= 50 ? 'bg-gray-600 text-gray-500 cursor-not-allowed' : 'bg-gray-700 text-gray-300'}`} disabled={zoom <= 50}>
                 <ZoomOut className="w-5 h-5" />
             </motion.button>
             <span className="text-gray-200 text-base font-semibold px-4 py-2 bg-gray-700 rounded-lg min-w-[70px] text-center">{zoom}%</span>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleZoomIn} className="p-3 bg-gray-700 text-gray-300 rounded-lg" disabled={zoom >= 300}>
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleZoomIn} className={`p-3 rounded-lg ${zoom >= 300 ? 'bg-gray-600 text-gray-500 cursor-not-allowed' : 'bg-gray-700 text-gray-300'}`} disabled={zoom >= 300}>
                 <ZoomIn className="w-5 h-5" />
             </motion.button>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleReset} className="p-3 bg-green-600 text-white rounded-lg">

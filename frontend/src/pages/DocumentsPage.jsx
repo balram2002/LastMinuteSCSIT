@@ -285,7 +285,7 @@ const DocumentsPage = () => {
                 <meta name="description" content={`Documents for ${courseLabel} ${semesterData.title}.`} />
             </Helmet>
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="sticky top-0 z-20 bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-b-2xl border-b border-gray-700 pt-16 sm:pt-20 px-4 sm:px-6 md:px-8">
-                <div className="flex flex-col sm:flex-row items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-center justify-between pt-2">
                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
                         {courseLabel}
                     </h1>
