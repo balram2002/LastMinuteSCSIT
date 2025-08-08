@@ -52,9 +52,9 @@ const Header = () => {
     ]
 
     if (user?.isAdmin) {
-      items.push({ href: "/upload", label: "Upload", icon: Upload })
-      items.push({ href: "/profile/files", label: "Uploaded Files", icon: File })
-    }
+  items.push({ href: "/upload", label: "Upload", icon: Upload });
+  items.push({ href: "/profile/files", label: "Uploaded Files", icon: File });
+}
 
     return items
   }, [user])
