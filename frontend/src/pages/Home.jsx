@@ -15,50 +15,49 @@ const HomePage = () => {
     window.scrollTo({ top: 0, behavior: "smooth" })
   }, [])
 
-  const features = useMemo(() => [
-    {
-      id: 1,
-      title: "Access Question Papers",
-      description: "Explore a comprehensive collection of previous year question papers for MCA and other programs at SCSIT, Indore.",
-      icon: FileText,
-      path: "/scsit/courses",
-      linkText: "Browse Courses",
-      gradient: "from-blue-500 to-cyan-500",
-      delay: 0.1
-    },
-    {
-      id: 2,
-      title: "Upload Documents",
-      description: "Contribute to the community by uploading question papers and study materials to help fellow students.",
-      icon: Upload,
-      path: "/upload",
-      linkText: "Upload Now",
-      gradient: "from-purple-500 to-pink-500",
-      delay: 0.2
-    },
-    {
-      id: 3,
-      title: "About This Website",
-      description: "Learn more about our mission to provide a centralized hub for academic resources for all students at SCSIT, Indore.",
-      icon: Users,
-      path: "/about",
-      linkText: "Learn More",
-      gradient: "from-orange-500 to-red-500",
-      delay: 0.3
-    },
-    
-    {
-      id: 5,
-      title: "Advanced Tools",
-      description: "Calculate your CGPA, SGPA, attendance, and percentages with our suite of powerful scientific and academic calculators.",
-      icon: Calculator,
-      path: "/calculations/tools/scientific",
-      linkText: "Access Tools",
-      gradient: "from-indigo-500 to-purple-500",
-      delay: 0.5
-    },
-   
-  ], []);
+const features = useMemo(() => [
+  {
+    id: 1,
+    title: "Access Question Papers",
+    description: "Explore a comprehensive collection of previous year question papers for MCA and other programs at SCSIT, Indore.",
+    icon: FileText,
+    path: "/scsit/courses",
+    linkText: "Browse Courses",
+    gradient: "from-blue-500 to-cyan-500",
+    delay: 0.1
+  },
+  {
+    id: 2,
+    title: "Upload Documents",
+    description: "Contribute to the community by uploading question papers and study materials to help fellow students.",
+    icon: Upload,
+    path: "/upload",
+    linkText: "Upload Now",
+    gradient: "from-purple-500 to-pink-500",
+    delay: 0.2
+  },
+  {
+    id: 3,
+    title: "About This Website",
+    description: "Learn more about our mission to provide a centralized hub for academic resources for all students at SCSIT, Indore.",
+    icon: Users,
+    path: "/about",
+    linkText: "Learn More",
+    gradient: "from-orange-500 to-red-500",
+    delay: 0.3
+  },
+  {
+    id: 4,
+    title: "Advanced Tools",
+    description: "Calculate your CGPA, SGPA, attendance, and percentages with our suite of powerful scientific and academic calculators.",
+    icon: Calculator,
+    path: "/calculations/tools/scientific",
+    linkText: "Access Tools",
+    gradient: "from-indigo-500 to-purple-500",
+    delay: 0.5
+  }
+], []);
+
 
   const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
 
@@ -103,7 +102,7 @@ const HomePage = () => {
     )), []);
 
   return (
-    <div {...swipeHandlers} className="min-h-screen w-full relative overflow-hidden mt-18">
+   <div {...swipeHandlers} className="min-h-screen w-full relative overflow-hidden mt-18">
       <Helmet>
         <title>lastMinuteSCSIT - Home</title>
         <meta name="description" content="Access and share previous year question papers and study resources for SCSIT, Indore." />
@@ -142,15 +141,13 @@ const HomePage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative"
           >
-          
             <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight">
-             <span className="text-green-400 drop-shadow-lg">
-           LastMinute{" "}
-                </span>
-
-              <span className="text-green-400 drop-shadow-lg">
-                 SCSIT
-                  </span>
+              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-lg">
+                LastMinute{" "}
+              </span>
+              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text drop-shadow-lg">
+                SCSIT
+              </span>
             </span>
 
             <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-emerald-400/20 to-cyan-400/20 blur-3xl" />
@@ -225,9 +222,9 @@ const HomePage = () => {
             className="text-center mb-20"
           >
             <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-             <span className="text-green-400">
-             Why Choose lastMinuteSCSIT?
-                   </span>
+              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 text-transparent bg-clip-text">
+                Why Choose lastMinuteSCSIT?
+              </span>
             </h2>
             <p className="text-gray-400 text-xl max-w-3xl mx-auto leading-relaxed">
               Everything you need to excel in your academic journey, all in one place.
