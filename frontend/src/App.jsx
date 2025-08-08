@@ -44,7 +44,7 @@ const AdminRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (!user?.isVerified) return <Navigate to="/verify-email" replace />;
-  if (!user?.isAdmin=="admin") return <Navigate to="/" replace />;
+    if (!user?.isAdmin=="admin") return <Navigate to="/" replace />;
   return children;
 };
 
