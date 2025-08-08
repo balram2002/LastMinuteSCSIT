@@ -7,11 +7,11 @@ const URL = `${API_URL}/api/auth`;
 axios.defaults.withCredentials = true;
 
 export const useAuthStore = create((set) => ({
-    user: null,
-    isAuthenticated: false,
+    user: localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")) || null,
+    isAuthenticated: !!localStorage.getItem("user"),
     error: null,
     isLoading: false,
-    isCheckingAuth: true,
+    isCheckingAuth: false,
     message: null,
 
     clearError: () => set({ error: null }),
@@ -20,6 +20,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await axios.post(`${URL}/signup`, { email, password, name });
+            localStorage.setItem("user", JSON.stringify(response.data.user));
             set({ user: response.data.user, isAuthenticated: true, isLoading: false });
         } catch (error) {
             set({ error: error.response.data.message || "Error signing up", isLoading: false });
@@ -36,6 +37,7 @@ export const useAuthStore = create((set) => ({
                 return response;
             }
 
+            localStorage.setItem("user", JSON.stringify(response.data.user));
             set({
                 isAuthenticated: true,
                 user: response.data.user,
@@ -51,6 +53,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await axios.post(`${URL}/verify-admin-otp`, { email, code });
+            localStorage.setItem("user", JSON.stringify(response.data.user));
             set({
                 isAuthenticated: true,
                 user: response.data.user,
@@ -66,6 +69,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null });
         try {
             await axios.post(`${URL}/logout`);
+            localStorage.removeItem("user");
             set({ user: null, isAuthenticated: false, error: null, isLoading: false });
         } catch (error) {
             set({ error: "Error logging out", isLoading: false });
@@ -76,6 +80,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await axios.post(`${URL}/verify-email`, { code });
+            localStorage.setItem("user", JSON.stringify(response.data.user));
             set({ user: response.data.user, isAuthenticated: true, isLoading: false });
             return response.data;
         } catch (error) {
@@ -85,11 +90,11 @@ export const useAuthStore = create((set) => ({
     },
     checkAuth: async () => {
         set({ isCheckingAuth: true, error: null });
-        try {
-            const response = await axios.get(`${URL}/check-auth`);
-            set({ user: response.data.user, isAuthenticated: true, isCheckingAuth: false });
-        } catch (error) {
-            set({ error: null, isCheckingAuth: false, isAuthenticated: false });
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            set({ user: JSON.parse(storedUser), isAuthenticated: true, isCheckingAuth: false });
+        } else {
+            set({ user: null, isAuthenticated: false, isCheckingAuth: false });
         }
     },
     forgotPassword: async (email) => {
@@ -117,5 +122,9 @@ export const useAuthStore = create((set) => ({
             });
             throw error;
         }
+    },
+    setUser: (user) => {
+        localStorage.setItem("user", JSON.stringify(user));
+        set({ user, isAuthenticated: true });
     },
 }));
