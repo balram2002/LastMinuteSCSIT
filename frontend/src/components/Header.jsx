@@ -51,7 +51,7 @@ const Header = () => {
       { href: "/calculations/tools/cgpa", label: "Tools", icon: PanelTopClose },
     ]
 
-    if (user?.isAdmin) {
+    if (user?.isAdmin === "admin") {
   items.push({ href: "/upload", label: "Upload", icon: Upload });
   items.push({ href: "/profile/files", label: "Uploaded Files", icon: File });
 }
