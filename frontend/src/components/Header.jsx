@@ -47,14 +47,12 @@ const Header = () => {
     const items = [
       { href: "/", label: "Home", icon: Home },
       { href: "/scsit/courses", label: "Courses", icon: GraduationCap },
-      { href: "/upload", label: "Upload", icon: Upload },
       { href: "/allfiles", label: "All Files", icon: Files },
       { href: "/calculations/tools/cgpa", label: "Tools", icon: PanelTopClose },
-      { href: `/attendance/manager/user/${user?.id}`, label: "Attendance Manager", icon: BookMarked },
-      { href: "/planner/todos", label: "Task Planner", icon: Workflow },
     ]
 
     if (user?.isAdmin) {
+      items.push({ href: "/upload", label: "Upload", icon: Upload })
       items.push({ href: "/profile/files", label: "Uploaded Files", icon: File })
     }
 
