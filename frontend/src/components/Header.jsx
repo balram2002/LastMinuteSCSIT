@@ -27,20 +27,21 @@ const Header = () => {
     setIsSidebarOpen(false)
   }
 
-  const navigationItems = useMemo(() => {
-   const items = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/scsit/courses", label: "Courses", icon: GraduationCap },
-  { href: "/allfiles", label: "All Files", icon: Files },
-];
+ const navigationItems = useMemo(() => {
+    const items = [
+      { href: "/", label: "Home", icon: Home },
+      { href: "/scsit/courses", label: "Courses", icon: GraduationCap },
+      { href: "/upload", label: "Upload", icon: Upload },
+      { href: "/allfiles", label: "All Files", icon: Files },
+    ]
 
-if (user?.isAdmin) {
-  items.push({ href: "/upload", label: "Upload", icon: Upload });
-  items.push({ href: "/profile/files", label: "Uploaded Files", icon: File });
-}
+    if (user?.isAdmin) {
+      items.push({ href: "/profile/files", label: "Uploaded Files", icon: File })
+    }
 
     return items
   }, [user])
+
 
   return (
     <>
