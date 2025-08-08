@@ -41,6 +41,8 @@ const RedirectAuthenticatedUser = ({ children }) => {
 	if (isAuthenticated && user?.isVerified) return <Navigate to='/' replace />;
 	return children;
 };
+// Only allow verified admin users
+
 
 function App() {
 	const { isCheckingAuth, checkAuth } = useAuthStore();
@@ -92,14 +94,32 @@ function App() {
 					)}
 				</div>
 				<Routes>
-					<Route
-						path='/'
-						element={
-							<ProtectedRoute>
-								<Home />
-							</ProtectedRoute>
-						}
-					/>
+			<Route
+    path='/'
+    element={
+        <ProtectedRoute>
+            <Home />
+        </ProtectedRoute>
+    }
+/>
+<Route
+    path='/upload'
+    element={
+        <ProtectedRoute>
+            <UploadDocumentPage />
+        </ProtectedRoute>
+    }
+/>
+<Route
+    path='/scsit/courses'
+    element={
+        <ProtectedRoute>
+            <Courses/>
+        </ProtectedRoute>
+    }
+/>
+
+
 					<Route
 						path='/signup'
 						element={
