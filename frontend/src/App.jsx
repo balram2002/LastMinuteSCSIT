@@ -43,6 +43,16 @@ const RedirectAuthenticatedUser = ({ children }) => {
 };
 // Only allow verified admin users
 
+// Only allow verified admin users
+const AdminRoute = ({ children }) => {
+	const { isAuthenticated, user } = useAuthStore();
+
+	if (!isAuthenticated) return <Navigate to='/login' replace />;
+	if (!user?.isVerified) return <Navigate to='/verify-email' replace />;
+	if (!user?.isAdmin) return <Navigate to='/' replace />;
+
+	return children;
+};
 
 function App() {
 	const { isCheckingAuth, checkAuth } = useAuthStore();
@@ -137,13 +147,14 @@ function App() {
 						}
 					/>
 					<Route
-						path='/upload'
-						element={
-							<ProtectedRoute>
-								<UploadDocumentPage />
-							</ProtectedRoute>
-						}
-					/>
+	path='/upload'
+	element={
+		<AdminRoute>
+			<UploadDocumentPage />
+		</AdminRoute>
+	}
+/>
+
 					<Route
 						path='/scsit/courses'
 						element={
@@ -185,22 +196,22 @@ function App() {
 							</ProtectedRoute>
 						}
 					/>
-					<Route
+{/* 					<Route
 						path='/attendance/manager/user/:userId'
 						element={
 							<ProtectedRoute>
 								<AttendanceManager />
 							</ProtectedRoute>
-						}
+						} */}
 					/>
-					<Route
+{/* 					<Route
 						path='/planner/todos'
 						element={
 							<ProtectedRoute>
 								<PlannerPage />
 							</ProtectedRoute>
 						}
-					/>
+					/> */}
 					<Route path='/calculations/tools/:toolName' element={<CalculatorPage />} />
 					<Route
 						path='/about'
