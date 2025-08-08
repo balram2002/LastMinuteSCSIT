@@ -2,7 +2,7 @@
 
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { Upload, FileText, Users, ListTodo, Calculator, CheckSquare, ArrowRight, Sparkles, Star } from "lucide-react"
+import { Upload, FileText, Users, Calculator, ArrowRight, Sparkles, Star } from "lucide-react"
 import { useContext, useEffect, useMemo } from "react"
 import { Helmet } from 'react-helmet-async';
 import { useSwipeable } from "react-swipeable"
@@ -46,16 +46,7 @@ const HomePage = () => {
       gradient: "from-orange-500 to-red-500",
       delay: 0.3
     },
-    {
-      id: 4,
-      title: "Attendance Manager",
-      description: "Easily track your attendance for each subject and receive timely alerts to stay on top of your academic requirements.",
-      icon: CheckSquare,
-      path: "/tools/attendance-manager",
-      linkText: "Track Attendance",
-      gradient: "from-green-500 to-emerald-500",
-      delay: 0.4
-    },
+    
     {
       id: 5,
       title: "Advanced Tools",
@@ -66,16 +57,7 @@ const HomePage = () => {
       gradient: "from-indigo-500 to-purple-500",
       delay: 0.5
     },
-    {
-      id: 6,
-      title: "Task Planner",
-      description: "Organize your assignments, projects, and study schedule with an intuitive task planner to boost your productivity.",
-      icon: ListTodo,
-      path: "/planner/todos",
-      linkText: "Organize Tasks",
-      gradient: "from-teal-500 to-cyan-500",
-      delay: 0.6
-    },
+   
   ], []);
 
   const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
@@ -160,13 +142,15 @@ const HomePage = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="relative"
           >
+          
             <span className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tight">
-              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 text-transparent bg-clip-text drop-shadow-lg">
-                LastMinute{" "}
-              </span>
-              <span className="bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text drop-shadow-lg">
-                SCSIT
-              </span>
+             <span className="text-green-400 drop-shadow-lg">
+           LastMinute{" "}
+                </span>
+
+              <span className="text-green-400 drop-shadow-lg">
+                 SCSIT
+                  </span>
             </span>
 
             <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 via-emerald-400/20 to-cyan-400/20 blur-3xl" />
@@ -241,9 +225,9 @@ const HomePage = () => {
             className="text-center mb-20"
           >
             <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-green-400 via-emerald-400 to-cyan-400 text-transparent bg-clip-text">
-                Why Choose lastMinuteSCSIT?
-              </span>
+             <span className="text-green-400">
+             Why Choose lastMinuteSCSIT?
+                   </span>
             </h2>
             <p className="text-gray-400 text-xl max-w-3xl mx-auto leading-relaxed">
               Everything you need to excel in your academic journey, all in one place.

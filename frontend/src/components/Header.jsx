@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useContext, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { BookOpen, User, LogOut, Menu, X, Home, Upload, GraduationCap, File, Files, PanelTopClose, BookMarked, Workflow, Edit } from "lucide-react"
+import { BookOpen, User, LogOut, Menu, X, Home, Upload, GraduationCap, File, Files, PanelTopClose, Edit } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuthStore } from "../store/authStore"
 import { ValuesContext } from "../context/ValuesContext"
