@@ -235,7 +235,7 @@ export const EditProfileModal = ({ user, onClose }) => {
                     {user?.isAdmin && (
                         <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm font-semibold border border-green-500/20">
                             <ShieldCheck size={16} />
-                            <span>Admin</span>
+                            <span>{user?.isAdmin || "User"}</span>
                         </div>
                     )}
                 </div>
