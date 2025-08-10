@@ -47,26 +47,55 @@ export const uploadFile = async (req, res) => {
       });
     }
 
-    // Resolve proper content type
+    // Improved content type resolution
     let resolvedContentType;
-    if (contentType === 'image') {
-      resolvedContentType = `image/${format}`;
-    } else if (contentType === 'raw' && format === 'pdf') {
-      resolvedContentType = 'application/pdf';
-    } else if (contentType && contentType.startsWith('image/')) {
-      resolvedContentType = contentType;
-    } else if (contentType && contentType === 'application/pdf') {
-      resolvedContentType = 'application/pdf';
+    
+    // Handle different Cloudinary response formats
+    if (contentType === 'image' || (contentType && contentType.startsWith('image'))) {
+      // For images
+      if (format) {
+        resolvedContentType = `image/${format}`;
+      } else {
+        resolvedContentType = contentType.startsWith('image') ? contentType : 'image/jpeg';
+      }
+    } else if (contentType === 'raw' || contentType === 'application/pdf') {
+      // For PDFs (Cloudinary returns 'raw' for PDFs)
+      if (format === 'pdf' || contentType === 'application/pdf') {
+        resolvedContentType = 'application/pdf';
+      } else {
+        resolvedContentType = 'application/octet-stream';
+      }
     } else {
-      resolvedContentType = 'application/octet-stream';
+      // Fallback: try to determine from format
+      if (format === 'pdf') {
+        resolvedContentType = 'application/pdf';
+      } else if (format && ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(format.toLowerCase())) {
+        resolvedContentType = `image/${format}`;
+      } else {
+        resolvedContentType = 'application/octet-stream';
+      }
     }
 
-    // Validate file type
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
+    console.log('Content type resolution:', {
+      original_contentType: contentType,
+      format: format,
+      resolved: resolvedContentType
+    });
+
+    // Validate file type - Updated allowed types
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg', 
+      'image/jpg', 
+      'image/png', 
+      'image/gif',
+      'image/webp'
+    ];
+    
     if (!allowedTypes.includes(resolvedContentType)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid file type. Only PDF, JPG, PNG are allowed'
+        message: `Invalid file type: ${resolvedContentType}. Only PDF, JPG, PNG, GIF, WEBP are allowed`
       });
     }
 
@@ -76,6 +105,22 @@ export const uploadFile = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Invalid file type. Must be "image" or "document"'
+      });
+    }
+
+    // Additional validation: ensure PDFs are marked as documents
+    if (resolvedContentType === 'application/pdf' && types.toLowerCase() !== 'document') {
+      return res.status(400).json({
+        success: false,
+        message: 'PDF files must be marked as "document" type'
+      });
+    }
+
+    // Additional validation: ensure images are marked correctly
+    if (resolvedContentType.startsWith('image/') && types.toLowerCase() !== 'image') {
+      return res.status(400).json({
+        success: false,
+        message: 'Image files must be marked as "image" type'
       });
     }
 
@@ -92,7 +137,7 @@ export const uploadFile = async (req, res) => {
       contentType: resolvedContentType,
       category,
       uploadedBy: uploadedBy || "anonymous",
-      format
+      format: format || (resolvedContentType === 'application/pdf' ? 'pdf' : 'unknown')
     });
 
     await newFile.save();
@@ -109,10 +154,12 @@ export const uploadFile = async (req, res) => {
         year,
         types: types.toLowerCase(),
         url: fileUrl,
-        format,
-        category
+        format: format || (resolvedContentType === 'application/pdf' ? 'pdf' : 'unknown'),
+        category,
+        contentType: resolvedContentType
       },
     });
+
   } catch (err) {
     console.error('Upload error:', err);
     res.status(500).json({
