@@ -190,7 +190,7 @@ export const fetchFilesCourseAndSemester = async (req, res) => {
     }
 
     const files = await File.find({ course, semester: semesterNum })
-      .select('name type course subject semester year fileUrl category contentType')
+      .select('name type course subject semester year fileUrl category contentType format')
       .lean();
 
     if (!files.length) {
@@ -202,11 +202,31 @@ export const fetchFilesCourseAndSemester = async (req, res) => {
     }
 
     const modifiedFiles = files.map(file => {
-      if (file.type === "document") {
-        return {
-          ...file,
-          fileUrl: file.fileUrl,
-        };
+      if (file.type === "document" && file.fileUrl && file.fileUrl.includes('cloudinary.com')) {
+        if (file.contentType === 'application/pdf' || file.format === 'pdf') {
+          const urlParts = file.fileUrl.split('/');
+          const uploadIndex = urlParts.findIndex(part => part === 'upload');
+          
+          if (uploadIndex !== -1 && uploadIndex < urlParts.length - 1) {
+            const afterUpload = urlParts.slice(uploadIndex + 1).join('/');
+            const publicId = afterUpload.replace(/\.[^/.]+$/, '');
+            const cloudName = file.fileUrl.match(/https:\/\/res\.cloudinary\.com\/([^\/]+)/)?.[1];
+            
+            if (cloudName) {
+              return {
+                ...file,
+                fileUrl: `https://res.cloudinary.com/${cloudName}/raw/upload/fl_attachment:inline/${publicId}.pdf`
+              };
+            }
+          }
+          
+          if (file.fileUrl.includes('/upload/')) {
+            return {
+              ...file,
+              fileUrl: file.fileUrl.replace('/upload/', '/upload/fl_attachment:inline/')
+            };
+          }
+        }
       }
       return file;
     });
