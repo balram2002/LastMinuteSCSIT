@@ -329,10 +329,27 @@ const UploadDocumentPage = () => {
       formData.append("fileUrl", cloudData?.secure_url || cloudData?.url);
       formData.append("contentType", cloudData?.resource_type);
       formData.append("format", cloudData?.format);
-     const res = await fetch(`${API_URL}/api/files/upload`, {
+     const payload = {
+        name: fileName,
+        course: selectedCourse,
+        semester: selectedSemester,
+        subject: selectedSubject,
+        types: selectedTypes,
+        year: selectedYear,
+        category: selectedCategory,
+        uploadedBy: user?._id || user?.id,
+        fileUrl: cloudData?.secure_url || cloudData?.url,
+        contentType: cloudData?.resource_type,
+        format: cloudData?.format
+      }
+
+      const res = await fetch(`${API_URL}/api/files/upload`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
       })
+      
       const json = await res?.json()
       if (!res?.ok || !json?.success) {
         throw new Error(json?.message || "Upload failed")
