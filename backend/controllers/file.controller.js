@@ -11,16 +11,16 @@ export const uploadFile = async (req, res) => {
   try {
     let { name, course, semester, subject, types, year, category, uploadedBy, cloudData } = req.body;
 
-    // Handle cloudData parsing if it's a JSON string
+    // Parse cloudData if it's a string
     if (typeof cloudData === "string") {
       try {
         cloudData = JSON.parse(cloudData);
-      } catch (err) {
+      } catch (e) {
         return res.status(400).json({ success: false, message: "Invalid Cloudinary data format" });
       }
     }
 
-    const cloudinaryFile = cloudData; // just for readability
+    const cloudinaryFile = cloudData;
 
     // Basic checks
     if (!cloudinaryFile?.secure_url) {
@@ -31,7 +31,7 @@ export const uploadFile = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-    // Build contentType from resource_type and format
+    // Build contentType
     const contentType =
       cloudinaryFile.resource_type === 'image'
         ? `image/${cloudinaryFile.format}`
@@ -50,7 +50,7 @@ export const uploadFile = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid year format' });
     }
 
-    // Validate file "types" field
+    // Validate types
     const validTypes = ['image', 'document'];
     if (typeof types !== 'string' || !validTypes.includes(types.toLowerCase())) {
       return res.status(400).json({ success: false, message: 'Invalid file type. Must be "image" or "document"' });
