@@ -11,14 +11,6 @@ export const uploadFile = async (req, res) => {
   try {
     const { name, course, semester, subject, types, year, category, uploadedBy, cloudData } = req.body;
 
-    // Parse Cloudinary object
-    let cloudinaryFile;
-    try {
-      cloudinaryFile = JSON.parse(cloudData);
-    } catch (err) {
-      return res.status(400).json({ success: false, message: 'Invalid Cloudinary data format' });
-    }
-
     // Basic checks
     if (!cloudinaryFile?.secure_url) {
       return res.status(400).json({ success: false, message: 'No file URL found in Cloudinary data' });
