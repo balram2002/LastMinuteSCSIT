@@ -23,6 +23,12 @@ export const uploadFile = async (req, res) => {
       format
     } = req.body;
 
+    // Quick fix for invalid MIME types
+if (contentType === 'image/pdf' || (contentType === 'image' && format === 'pdf')) {
+  contentType = 'raw';
+  format = 'pdf';
+}
+
     // Check if file URL exists
     if (!fileUrl || typeof fileUrl !== 'string') {
       return res.status(400).json({
