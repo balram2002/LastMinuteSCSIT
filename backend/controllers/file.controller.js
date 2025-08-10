@@ -205,7 +205,7 @@ export const fetchFilesCourseAndSemester = async (req, res) => {
       if (file.type === "document") {
         return {
           ...file,
-          fileUrl: `${API_URL}/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
+          fileUrl: file.fileUrl,
         };
       }
       return file;
