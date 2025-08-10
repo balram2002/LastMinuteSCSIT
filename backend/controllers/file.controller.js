@@ -9,7 +9,18 @@ const API_URL = "https://lastminutescsit-api.vercel.app";
 
 export const uploadFile = async (req, res) => {
   try {
-    const { name, course, semester, subject, types, year, category, uploadedBy, cloudData } = req.body;
+    let { name, course, semester, subject, types, year, category, uploadedBy, cloudData } = req.body;
+
+    // Handle cloudData parsing if it's a JSON string
+    if (typeof cloudData === "string") {
+      try {
+        cloudData = JSON.parse(cloudData);
+      } catch (err) {
+        return res.status(400).json({ success: false, message: "Invalid Cloudinary data format" });
+      }
+    }
+
+    const cloudinaryFile = cloudData; // just for readability
 
     // Basic checks
     if (!cloudinaryFile?.secure_url) {
@@ -67,7 +78,6 @@ export const uploadFile = async (req, res) => {
 
     await newFile.save();
 
-    // Respond with success
     res.status(200).json({
       success: true,
       message: 'File saved successfully',
