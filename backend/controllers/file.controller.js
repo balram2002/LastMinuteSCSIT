@@ -9,37 +9,77 @@ const API_URL = "https://lastminutescsit-api.vercel.app";
 
 export const uploadFile = async (req, res) => {
   try {
-    let { name, course, semester, subject, types, year, category, uploadedBy, fileUrl, contentType, format } = req.body;
+    let {
+      name,
+      course,
+      semester,
+      subject,
+      types,
+      year,
+      category,
+      uploadedBy,
+      fileUrl,
+      contentType,
+      format
+    } = req.body;
 
-    if (!fileUrl) {
-      return res.status(400).json({ success: false, message: 'No file URL provided' });
+    // Check if file URL exists
+    if (!fileUrl || typeof fileUrl !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'No file URL provided'
+      });
     }
 
+    // Validate required fields
     if (!name || !course || !semester || !subject || !types || !year || !category) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields'
+      });
     }
 
-    const resolvedContentType =
-      contentType === 'image'
-        ? `image/${format}`
-        : contentType === 'raw' && format === 'pdf'
-          ? 'application/pdf'
-          : 'application/octet-stream';
+    // Normalize and validate year
+    if (!/^\d{4}$/.test(year)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid year format'
+      });
+    }
 
+    // Resolve proper content type
+    let resolvedContentType;
+    if (contentType === 'image') {
+      resolvedContentType = `image/${format}`;
+    } else if (contentType === 'raw' && format === 'pdf') {
+      resolvedContentType = 'application/pdf';
+    } else if (contentType && contentType.startsWith('image/')) {
+      resolvedContentType = contentType;
+    } else if (contentType && contentType === 'application/pdf') {
+      resolvedContentType = 'application/pdf';
+    } else {
+      resolvedContentType = 'application/octet-stream';
+    }
+
+    // Validate file type
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
     if (!allowedTypes.includes(resolvedContentType)) {
-      return res.status(400).json({ success: false, message: 'Invalid file type. Only PDF, JPG, PNG are allowed' });
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid file type. Only PDF, JPG, PNG are allowed'
+      });
     }
 
-    if (!/^\d{4}$/.test(year)) {
-      return res.status(400).json({ success: false, message: 'Invalid year format' });
-    }
-
+    // Validate 'types' field
     const validTypes = ['image', 'document'];
     if (typeof types !== 'string' || !validTypes.includes(types.toLowerCase())) {
-      return res.status(400).json({ success: false, message: 'Invalid file type. Must be "image" or "document"' });
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid file type. Must be "image" or "document"'
+      });
     }
 
+    // Save file to DB
     const newFile = new File({
       name,
       type: types.toLowerCase(),
@@ -75,7 +115,11 @@ export const uploadFile = async (req, res) => {
     });
   } catch (err) {
     console.error('Upload error:', err);
-    res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
+    res.status(500).json({
+      success: false,
+      message: 'Upload failed',
+      error: err.message
+    });
   }
 };
 
