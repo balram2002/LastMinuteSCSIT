@@ -9,54 +9,37 @@ const API_URL = "https://lastminutescsit-api.vercel.app";
 
 export const uploadFile = async (req, res) => {
   try {
-    let { name, course, semester, subject, types, year, category, uploadedBy, cloudData } = req.body;
+    let { name, course, semester, subject, types, year, category, uploadedBy, fileUrl, contentType, format } = req.body;
 
-    // Parse cloudData if it's a string
-    if (typeof cloudData === "string") {
-      try {
-        cloudData = JSON.parse(cloudData);
-      } catch (e) {
-        return res.status(400).json({ success: false, message: "Invalid Cloudinary data format" });
-      }
-    }
-
-    const cloudinaryFile = cloudData;
-
-    // Basic checks
-    if (!cloudinaryFile?.secure_url) {
-      return res.status(400).json({ success: false, message: 'No file URL found in Cloudinary data' });
+    if (!fileUrl) {
+      return res.status(400).json({ success: false, message: 'No file URL provided' });
     }
 
     if (!name || !course || !semester || !subject || !types || !year || !category) {
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
-    // Build contentType
-    const contentType =
-      cloudinaryFile.resource_type === 'image'
-        ? `image/${cloudinaryFile.format}`
-        : cloudinaryFile.resource_type === 'raw' && cloudinaryFile.format === 'pdf'
+    const resolvedContentType =
+      contentType === 'image'
+        ? `image/${format}`
+        : contentType === 'raw' && format === 'pdf'
           ? 'application/pdf'
           : 'application/octet-stream';
 
-    // Validate allowed types
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-    if (!allowedTypes.includes(contentType)) {
+    if (!allowedTypes.includes(resolvedContentType)) {
       return res.status(400).json({ success: false, message: 'Invalid file type. Only PDF, JPG, PNG are allowed' });
     }
 
-    // Validate year format
     if (!/^\d{4}$/.test(year)) {
       return res.status(400).json({ success: false, message: 'Invalid year format' });
     }
 
-    // Validate types
     const validTypes = ['image', 'document'];
     if (typeof types !== 'string' || !validTypes.includes(types.toLowerCase())) {
       return res.status(400).json({ success: false, message: 'Invalid file type. Must be "image" or "document"' });
     }
 
-    // Save to MongoDB
     const newFile = new File({
       name,
       type: types.toLowerCase(),
@@ -65,15 +48,11 @@ export const uploadFile = async (req, res) => {
       semester,
       year,
       isFree: 'free',
-      fileUrl: cloudinaryFile.secure_url,
-      contentType,
+      fileUrl,
+      contentType: resolvedContentType,
       category,
       uploadedBy: uploadedBy || "anonymous",
-      publicId: cloudinaryFile.public_id,
-      assetId: cloudinaryFile.asset_id,
-      bytes: cloudinaryFile.bytes,
-      format: cloudinaryFile.format,
-      resourceType: cloudinaryFile.resource_type,
+      format
     });
 
     await newFile.save();
@@ -89,9 +68,8 @@ export const uploadFile = async (req, res) => {
         subject,
         year,
         types: types.toLowerCase(),
-        url: cloudinaryFile.secure_url,
-        public_id: cloudinaryFile.public_id,
-        asset_id: cloudinaryFile.asset_id,
+        url: fileUrl,
+        format,
         category
       },
     });
