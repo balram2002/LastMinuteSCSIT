@@ -9,52 +9,51 @@ const API_URL = "https://lastminutescsit-api.vercel.app";
 
 export const uploadFile = async (req, res) => {
   try {
-    const { name, course, semester, subject, types, year, category, uploadedBy } = req.body;
-    const file = req.file;
+    const { name, course, semester, subject, types, year, category, uploadedBy, cloudData } = req.body;
 
-    if (!file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+    // Parse Cloudinary object
+    let cloudinaryFile;
+    try {
+      cloudinaryFile = JSON.parse(cloudData);
+    } catch (err) {
+      return res.status(400).json({ success: false, message: 'Invalid Cloudinary data format' });
+    }
+
+    // Basic checks
+    if (!cloudinaryFile?.secure_url) {
+      return res.status(400).json({ success: false, message: 'No file URL found in Cloudinary data' });
+    }
 
     if (!name || !course || !semester || !subject || !types || !year || !category) {
-      fs.unlinkSync(file.path);
       return res.status(400).json({ success: false, message: 'Missing required fields' });
     }
 
+    // Build contentType from resource_type and format
+    const contentType =
+      cloudinaryFile.resource_type === 'image'
+        ? `image/${cloudinaryFile.format}`
+        : cloudinaryFile.resource_type === 'raw' && cloudinaryFile.format === 'pdf'
+          ? 'application/pdf'
+          : 'application/octet-stream';
+
+    // Validate allowed types
     const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-    if (!allowedTypes.includes(file.mimetype)) {
-      fs.unlinkSync(file.path);
+    if (!allowedTypes.includes(contentType)) {
       return res.status(400).json({ success: false, message: 'Invalid file type. Only PDF, JPG, PNG are allowed' });
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      fs.unlinkSync(file.path);
-      return res.status(400).json({ success: false, message: 'File size must be less than 10MB' });
-    }
-
+    // Validate year format
     if (!/^\d{4}$/.test(year)) {
-      fs.unlinkSync(file.path);
       return res.status(400).json({ success: false, message: 'Invalid year format' });
     }
 
-   const validTypes = ['image', 'document'];
+    // Validate file "types" field
+    const validTypes = ['image', 'document'];
     if (typeof types !== 'string' || !validTypes.includes(types.toLowerCase())) {
-      fs.unlinkSync(file.path);
       return res.status(400).json({ success: false, message: 'Invalid file type. Must be "image" or "document"' });
     }
 
-    // Determine resource_type for Cloudinary
-    const isPDF = file.mimetype === 'application/pdf';
-    const resourceType = isPDF ? 'raw' : 'image';
-
-    // Upload to Cloudinary
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: 'Uploads',
-      resource_type: resourceType,
-      access_mode: 'public',
-    });
-
-    fs.unlinkSync(file.path); // Clean up local file
-
-    // Save file metadata to MongoDB
+    // Save to MongoDB
     const newFile = new File({
       name,
       type: types.toLowerCase(),
@@ -63,17 +62,23 @@ export const uploadFile = async (req, res) => {
       semester,
       year,
       isFree: 'free',
-      fileUrl: result.secure_url,
-      contentType: file.mimetype,
+      fileUrl: cloudinaryFile.secure_url,
+      contentType,
       category,
       uploadedBy: uploadedBy || "anonymous",
+      publicId: cloudinaryFile.public_id,
+      assetId: cloudinaryFile.asset_id,
+      bytes: cloudinaryFile.bytes,
+      format: cloudinaryFile.format,
+      resourceType: cloudinaryFile.resource_type,
     });
 
     await newFile.save();
 
+    // Respond with success
     res.status(200).json({
       success: true,
-      message: 'File uploaded successfully',
+      message: 'File saved successfully',
       data: {
         fileId: newFile._id,
         name,
@@ -82,16 +87,13 @@ export const uploadFile = async (req, res) => {
         subject,
         year,
         types: types.toLowerCase(),
-        url: result.secure_url,
-        public_id: result.public_id,
-        asset_id: result.asset_id,
+        url: cloudinaryFile.secure_url,
+        public_id: cloudinaryFile.public_id,
+        asset_id: cloudinaryFile.asset_id,
         category
       },
     });
   } catch (err) {
-    if (req.file?.path && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
     console.error('Upload error:', err);
     res.status(500).json({ success: false, message: 'Upload failed', error: err.message });
   }
