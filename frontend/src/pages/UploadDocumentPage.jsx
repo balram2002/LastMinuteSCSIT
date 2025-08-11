@@ -278,105 +278,129 @@ const UploadDocumentPage = () => {
   }
 
   const handleUpload = async () => {
-    if (!user?.isAdmin || user?.isAdmin !== 'admin') {
-      setUploadStatus("error")
-      setUploadMessage("Only admins are authorized to upload documents.")
-      return
+  if (!user || !user.isAdmin || user.isAdmin !== 'admin') {
+    setUploadStatus("error");
+    setUploadMessage("Only admins are authorized to upload documents.");
+    return;
+  }
+
+  if (
+    !selectedFile ||
+    !fileName ||
+    !selectedCourse ||
+    !selectedSemester ||
+    !selectedSubject ||
+    !selectedTypes ||
+    !selectedCategory ||
+    !/^\d{4}$/.test(selectedYear)
+  ) {
+    setUploadStatus("error");
+    setUploadMessage("Please fill in all fields, select a file, choose a type, select a category, and enter a valid year");
+    return;
+  }
+
+  if (selectedCategory === "paper" && !["image/jpeg", "image/png", "image/jpg"].includes(selectedFile.type)) {
+    setUploadStatus("error");
+    setUploadMessage("Only image files (JPEG, PNG) are allowed for papers");
+    return;
+  }
+
+  if (selectedFile.size > 10 * 1024 * 1024) {
+    setUploadStatus("error");
+    setUploadMessage("File size exceeds 10MB limit");
+    return;
+  }
+
+  setIsUploading(true);
+  setUploadStatus("idle");
+
+  const resetForm = () => {
+    setSelectedFile(null);
+    setFileName("");
+    setSelectedCourse("");
+    setSelectedSemester("");
+    setSelectedSubject("");
+    setSelectedTypes(null);
+    setSelectedCategory(null);
+    setSelectedYear("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
-    if (!selectedFile || !fileName || !selectedCourse || !selectedSemester || !selectedSubject || !selectedTypes || !selectedCategory || !/^\d{4}$/.test(selectedYear)) {
-      setUploadStatus("error")
-      setUploadMessage("Please fill in all fields, select a file, choose a type, select a category, and enter a valid year")
-      return
-    }
-    if (selectedCategory === "paper" && !["image/jpeg", "image/png", "image/jpg"].includes(selectedFile.type)) {
-      setUploadStatus("error")
-      setUploadMessage("Only image files are allowed for papers")
-      return
-    }
-    setIsUploading(true)
-    setUploadStatus("idle")
-    try {
-   const cloudName = "dbf1lifdi"; // cloud name
-    const uploadPreset = "frontend_uploads"; //  unsigned preset
-   const resourceType = selectedFile.type === "application/pdf" ? "raw" : "auto";
+  };
+
+  try {
+    const cloudName = "dbf1lifdi";
+    const uploadPreset = "frontend_uploads";
+    const resourceType = selectedFile.type === "application/pdf" ? "raw" : "auto";
 
     const cloudFormData = new FormData();
     cloudFormData.append("file", selectedFile);
     cloudFormData.append("upload_preset", uploadPreset);
     cloudFormData.append("folder", "documents");
-    // cloudFormData.append("access_mode", "public");
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     const cloudRes = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
       {
         method: "POST",
         body: cloudFormData,
+        signal: controller.signal,
       }
     );
-     const cloudData = await cloudRes.json();
+
+    clearTimeout(timeoutId);
+
+    if (!cloudRes.ok) {
+      const errorData = await cloudRes.json();
+      throw new Error(errorData.error?.message || "Cloudinary upload failed");
+    }
+
+    const cloudData = await cloudRes.json();
 
     if (!cloudData.secure_url) {
-      throw new Error(cloudData.error?.message || "Cloudinary upload failed");
+      throw new Error("Cloudinary upload failed: No secure URL returned");
     }
-     const formData = new FormData()
 
-      formData.append("name", fileName)
-      formData.append("course", selectedCourse)
-      formData.append("semester", selectedSemester)
-      formData.append("subject", selectedSubject)
-      formData.append("types", selectedTypes)
-      formData.append("year", selectedYear)
-      formData.append("category", selectedCategory)
-      formData.append("uploadedBy", user?._id || user?.id)
-      formData.append("fileUrl", cloudData?.secure_url || cloudData?.url);
-      formData.append("contentType", cloudData?.resource_type);
-      formData.append("format", cloudData?.format);
-     const payload = {
-        name: fileName,
-        course: selectedCourse,
-        semester: selectedSemester,
-        subject: selectedSubject,
-        types: selectedTypes,
-        year: selectedYear,
-        category: selectedCategory,
-        uploadedBy: user?._id || user?.id,
-        fileUrl: cloudData?.secure_url || cloudData?.url,
-        contentType: cloudData?.resource_type,
-        format: cloudData?.format
-      }
+    const payload = {
+      name: fileName.trim(),
+      course: selectedCourse.trim(),
+      semester: selectedSemester.trim(),
+      subject: selectedSubject.trim(),
+      types: selectedTypes,
+      year: selectedYear,
+      category: selectedCategory,
+      uploadedBy: user._id || user.id,
+      fileUrl: cloudData.secure_url,
+      contentType: cloudData.resource_type,
+      format: cloudData.format,
+    };
 
-      const res = await fetch(${API_URL}/api/files/upload, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      })
+    const res = await fetch(`${API_URL}/api/files/upload`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+      signal: new AbortController().signal,
+    });
 
-      const json = await res?.json()
-      if (!res?.ok || !json?.success) {
-        throw new Error(json?.message || "Upload failed")
-      }
-      setSelectedFile(null)
-      setFileName("")
-      setSelectedCourse("")
-      setSelectedSemester("")
-      setSelectedSubject("")
-      setSelectedTypes(null)
-      setSelectedCategory(null)
-      setSelectedYear("")
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""
-      }
-      setUploadStatus("success")
-      setUploadMessage("File uploaded successfully!")
-       console.log("Cloudinary file URL:", cloudData.secure_url);
-    } catch (err) {
-      setUploadStatus("error")
-      setUploadMessage(err?.message || "Upload failed. Please try again.")
-    } finally {
-      setIsUploading(false)
+    const json = await res.json();
+
+    if (!res.ok || !json.success) {
+      throw new Error(json.message || "Failed to save file metadata");
     }
+
+    resetForm();
+    setUploadStatus("success");
+    setUploadMessage("File uploaded successfully!");
+  } catch (err) {
+    setUploadStatus("error");
+    setUploadMessage(err.message || "Upload failed. Please try again.");
+  } finally {
+    setIsUploading(false);
   }
+};
   
   const removeFile = () => {
     setSelectedFile(null)
