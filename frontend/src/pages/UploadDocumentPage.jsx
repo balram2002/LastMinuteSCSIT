@@ -277,7 +277,7 @@ const UploadDocumentPage = () => {
     }
   }
 
-    const handleUpload = async () => {
+const handleUpload = async () => {
     if (!user?.isAdmin || user?.isAdmin !== 'admin') {
       setUploadStatus("error")
       setUploadMessage("Only admins are authorized to upload documents.")
@@ -296,39 +296,31 @@ const UploadDocumentPage = () => {
     setIsUploading(true)
     setUploadStatus("idle")
     try {
-   const cloudName = "dbf1lifdi"; // cloud name
-    const uploadPreset = "frontend_uploads"; //  unsigned preset
+   const cloudName = "ddpz2khbx"; // cloud name
+    const uploadPreset = "scsit-uploads"; //  unsigned preset
+   const resourceType = selectedFile.type === "application/pdf" ? "raw" : "auto";
 
     const cloudFormData = new FormData();
     cloudFormData.append("file", selectedFile);
     cloudFormData.append("upload_preset", uploadPreset);
-    cloudFormData.append("folder", "documents");
+    //  cloudFormData.append("folder", "documents");
 
        const cloudRes = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
       {
         method: "POST",
         body: cloudFormData,
       }
     );
      const cloudData = await cloudRes.json();
+     
+     // Move the console.log here - AFTER cloudData is defined
+     console.log("cloudData :-> ", cloudData);
 
     if (!cloudData.secure_url) {
       throw new Error(cloudData.error?.message || "Cloudinary upload failed");
     }
-     const formData = new FormData()
 
-      formData.append("name", fileName)
-      formData.append("course", selectedCourse)
-      formData.append("semester", selectedSemester)
-      formData.append("subject", selectedSubject)
-      formData.append("types", selectedTypes)
-      formData.append("year", selectedYear)
-      formData.append("category", selectedCategory)
-      formData.append("uploadedBy", user?._id || user?.id)
-      formData.append("fileUrl", cloudData?.secure_url || cloudData?.url);
-      formData.append("contentType", cloudData?.resource_type);
-      formData.append("format", cloudData?.format);
      const payload = {
         name: fileName,
         course: selectedCourse,
@@ -374,8 +366,8 @@ const UploadDocumentPage = () => {
     } finally {
       setIsUploading(false)
     }
- }
-
+}
+  
   const removeFile = () => {
     setSelectedFile(null)
     setFileName("")
