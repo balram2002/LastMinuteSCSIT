@@ -174,7 +174,7 @@ export const fetchFilesCourseAndSemester = async (req, res) => {
         if (file.contentType === 'application/pdf' || file.format === 'pdf') {
           return {
             ...file,
-            fileUrl: file.fileUrl
+            fileUrl: `${API_URL}/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
           };
         }
       }

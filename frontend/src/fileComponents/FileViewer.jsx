@@ -131,7 +131,7 @@ const FileViewer = ({ file, onClose }) => {
         <div className="flex items-center space-x-3 min-w-0">
           <Eye className="w-5 h-5 text-green-400 flex-shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-white font-semibold text-sm sm:text-base truncate">{file.name || file.title}</p>
+            <p className="text-white font-semibold text-sm sm:text-base">{file.name || file.title}</p>
           </div>
         </div>
         <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">

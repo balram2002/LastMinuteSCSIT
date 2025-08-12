@@ -219,7 +219,7 @@ const MyFilesPage = () => {
                             <div>
                                 <h1 className="text-2xl font-bold text-white">{user?.name}</h1>
                                 <p className="text-green-400 flex items-center gap-2"><Mail size={16} /> {user?.email}</p>
-                                {user?.isAdmin && <p className="text-amber-400 flex items-center gap-2 mt-1 font-semibold"><ShieldCheck size={16} /> Admin Account</p>}
+                                {user?.isAdmin === 'admin' && <p className="text-amber-400 flex items-center gap-2 mt-1 font-semibold"><ShieldCheck size={16} /> Admin Account</p>}
                             </div>
                         </div>
                         <h2 className="text-4xl font-extrabold text-white text-center mb-10">Your Uploaded Files</h2>
