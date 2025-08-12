@@ -348,7 +348,7 @@ const DocumentsPage = () => {
                                             No {categories.find(cat => cat.value === selectedCategory)?.label.toLowerCase()} available for this subject yet.
                                         </div>
                                     )}
-                                      <span className="absolute bottom-2 right-4 cursor-pointer text-blue-400 text-sm" onClick={() => setShowAll(showAll == 6 ? null : 6)}>{showAll == 6 ? "Show All" : "Show Less"}</span>
+                                    {showAll > 6 && <span className="absolute bottom-2 right-4 cursor-pointer text-blue-400 text-sm" onClick={() => setShowAll(showAll == 6 ? null : 6)}>{showAll == 6 ? "Show All" : "Show Less"}</span>}
                                 </div>
                             </motion.div>
                         );
