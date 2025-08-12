@@ -1,10 +1,13 @@
 import { create } from "zustand";
 import axios from "axios";
 import { API_URL } from "../utils/urls";
+import { useNavigate } from "react-router-dom";
 
 const URL = `${API_URL}/api/auth`;
 
 axios.defaults.withCredentials = true;
+
+const navigate = useNavigate();
 
 export const useAuthStore = create((set) => ({
     user: localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")) || null,
@@ -71,6 +74,7 @@ export const useAuthStore = create((set) => ({
             await axios.post(`${URL}/logout`);
             localStorage.removeItem("user");
             set({ user: null, isAuthenticated: false, error: null, isLoading: false });
+            navigate("/login");
         } catch (error) {
             set({ error: "Error logging out", isLoading: false });
             throw error;
