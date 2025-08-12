@@ -44,18 +44,25 @@ export const uploadFile = async (req, res) => {
       });
     }
 
-    const lowerFormat = format? format.toLowerCase() : null;
     let resolvedContentType;
+    const lowerFormat = format? format.toLowerCase() : null;
 
-    if (lowerFormat === 'pdf') {
+    if (contentType === 'raw') {
       resolvedContentType = 'application/pdf';
-    } else if (lowerFormat && ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(lowerFormat)) {
-      resolvedContentType = `image/${lowerFormat === 'jpg'? 'jpeg' : lowerFormat}`;
-    } else {
-      resolvedContentType = 'application/octet-stream';
+    } else if (contentType === 'image' && lowerFormat) {
+      if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(lowerFormat)) {
+        resolvedContentType = `image/${lowerFormat === 'jpg'? 'jpeg' : lowerFormat}`;
+      }
     }
 
-    const allowedTypes = [
+    if (!resolvedContentType) {
+      return res.status(400).json({
+        success: false,
+        message: `Could not determine a valid file type. Received contentType: '${contentType}', format: '${format}'.`
+      });
+    }
+
+    const allowedMimeTypes = [
       'application/pdf',
       'image/jpeg',
       'image/png',
@@ -63,7 +70,7 @@ export const uploadFile = async (req, res) => {
       'image/webp'
     ];
 
-    if (!allowedTypes.includes(resolvedContentType)) {
+    if (!allowedMimeTypes.includes(resolvedContentType)) {
       return res.status(400).json({
         success: false,
         message: `Invalid file type: ${resolvedContentType}. Only PDF, JPG, PNG, GIF, WEBP are allowed`
@@ -74,21 +81,21 @@ export const uploadFile = async (req, res) => {
     if (typeof types!== 'string' ||!validTypes.includes(types.toLowerCase())) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid file type. Must be "image" or "document"'
+        message: 'Invalid type field. Must be "image" or "document"'
       });
     }
 
     if (resolvedContentType === 'application/pdf' && types.toLowerCase()!== 'document') {
       return res.status(400).json({
         success: false,
-        message: 'PDF files must be marked as "document" type'
+        message: 'PDF files must be categorized with type "document"'
       });
     }
 
     if (resolvedContentType.startsWith('image/') && types.toLowerCase()!== 'image') {
       return res.status(400).json({
         success: false,
-        message: 'Image files must be marked as "image" type'
+        message: 'Image files must be categorized with type "image"'
       });
     }
 
