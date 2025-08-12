@@ -43,7 +43,7 @@ const Header = () => {
     setIsSidebarOpen(false)
   }
 
- const navigationItems = useMemo(() => {
+  const navigationItems = useMemo(() => {
     const items = [
       { href: "/", label: "Home", icon: Home },
       { href: "/scsit/courses", label: "Courses", icon: GraduationCap },
@@ -61,14 +61,19 @@ const Header = () => {
     return items
   }, [user])
 
-const swipeHandlers = useSwipeable({
-  onSwipedLeft: () => closeSidebar(),
-  preventDefaultTouchmoveEvent: true,
-  trackMouse: true,
-  delta: 50,
-});
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => closeSidebar(),
+    preventDefaultTouchmoveEvent: true,
+    trackMouse: true,
+    delta: 50,
+  });
 
-
+  const handleLogout = async () => {
+    await logout()
+    closeSidebar()
+    localStorage.removeItem("user");
+    navigate("/login")
+  }
 
   return (
     <>
@@ -110,14 +115,14 @@ const swipeHandlers = useSwipeable({
 
       <AnimatePresence>
         {isSidebarOpen && (
-         <motion.div
-  {...swipeHandlers}
-  initial={{ x: "100%" }}
-  animate={{ x: 0 }}
-  exit={{ x: "100%" }}
-  transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
-  className="fixed top-0 right-0 h-full w-80 bg-slate-800 shadow-2xl z-50 flex flex-col"
->
+          <motion.div
+            {...swipeHandlers}
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
+            className="fixed top-0 right-0 h-full w-80 bg-slate-800 shadow-2xl z-50 flex flex-col"
+          >
 
             <div className="flex items-center justify-between p-6 border-b border-slate-700 flex-shrink-0">
               <div className="flex items-center space-x-3">
@@ -176,9 +181,7 @@ const swipeHandlers = useSwipeable({
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
-                        logout()
-                        closeSidebar()
-                        navigate("/login")
+                        handleLogout();
                       }}
                       className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200"
                     >
