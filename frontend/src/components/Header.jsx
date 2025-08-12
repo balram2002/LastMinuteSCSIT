@@ -62,7 +62,7 @@ const Header = () => {
   }, [user])
 
   const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => closeSidebar(),
+    onSwipedRight: () => closeSidebar(),
     preventDefaultTouchmoveEvent: true,
     trackMouse: true,
     delta: 50,

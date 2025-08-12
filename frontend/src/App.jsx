@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { Toaster } from "react-hot-toast";
@@ -45,18 +45,62 @@ const RedirectAuthenticatedUser = ({ children }) => {
 
 
 function App() {
-	const { isCheckingAuth, checkAuth } = useAuthStore();
+	const { isCheckingAuth, checkAuth, user } = useAuthStore();
 	const location = useLocation();
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		checkAuth();
 	}, [checkAuth]);
 
+	useEffect(() => {
+		const handleKeyDown = (e) => {
+			if (e.ctrlKey) {
+				switch (e.key.toLowerCase()) {
+					case 's':
+						e.preventDefault();
+						setIsSidebarOpen(prev => !prev);
+						break;
+					case 'p':
+						e.preventDefault();
+						navigate('/scsit/courses');
+						break;
+					case 'f':
+						e.preventDefault();
+						navigate('/allfiles');
+						break;
+					case 'c':
+						e.preventDefault();
+						navigate('/calculations/tools/cgpa');
+						break;
+					case 'h':
+						e.preventDefault();
+						navigate('/home');
+						break;
+					case 'a':
+						if (user?._id) {
+							e.preventDefault();
+							navigate(`/attendance/manager/user/${user._id}`);
+						}
+						break;
+					default:
+						break;
+				}
+			}
+		};
+
+		window.addEventListener('keydown', handleKeyDown);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [navigate, setIsSidebarOpen, user]);
+
 	if (isCheckingAuth) {
-        return <LoadingSpinner />;
-    }
+		return <LoadingSpinner />;
+	}
 
 	const floatingRoutes = [
 		"/login",
@@ -79,11 +123,10 @@ function App() {
 			<ValuesContext.Provider value={{ isSidebarOpen, setIsSidebarOpen }}>
 				<Header />
 				<div
-					className={`min-h-full flex items-center justify-center relative overflow-hidden ${
-						isFloatingPage
-							? "bg-gradient-to-br from-gray-900 via-blue-900 to-black-900"
-							: "bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900"
-					}`}
+					className={`min-h-full flex items-center justify-center relative overflow-hidden ${isFloatingPage
+						? "bg-gradient-to-br from-gray-900 via-blue-900 to-black-900"
+						: "bg-gradient-to-br from-gray-900 via-green-900 to-emerald-900"
+						}`}
 				>
 					{isFloatingPage && (
 						<>
@@ -94,30 +137,30 @@ function App() {
 					)}
 				</div>
 				<Routes>
-			<Route
-    path='/'
-    element={
-        <ProtectedRoute>
-            <Home />
-        </ProtectedRoute>
-    }
-/>
-<Route
-    path='/upload'
-    element={
-        <ProtectedRoute>
-            <UploadDocumentPage />
-        </ProtectedRoute>
-    }
-/>
-<Route
-    path='/scsit/courses'
-    element={
-        <ProtectedRoute>
-            <Courses/>
-        </ProtectedRoute>
-    }
-/>
+					<Route
+						path='/'
+						element={
+							<ProtectedRoute>
+								<Home />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path='/upload'
+						element={
+							<ProtectedRoute>
+								<UploadDocumentPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path='/scsit/courses'
+						element={
+							<ProtectedRoute>
+								<Courses />
+							</ProtectedRoute>
+						}
+					/>
 
 
 					<Route
