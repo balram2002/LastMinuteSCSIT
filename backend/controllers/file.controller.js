@@ -23,29 +23,20 @@ export const uploadFile = async (req, res) => {
       format
     } = req.body;
 
-    // Quick fix for invalid MIME types
-if (contentType === 'image/pdf' || (contentType === 'image' && format === 'pdf')) {
-  contentType = 'raw';
-  format = 'pdf';
-}
-
-    // Check if file URL exists
-    if (!fileUrl || typeof fileUrl !== 'string') {
+    if (!fileUrl || typeof fileUrl!== 'string') {
       return res.status(400).json({
         success: false,
         message: 'No file URL provided'
       });
     }
 
-    // Validate required fields
-    if (!name || !course || !semester || !subject || !types || !year || !category) {
+    if (!name ||!course ||!semester ||!subject ||!types ||!year ||!category) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields'
       });
     }
 
-    // Normalize and validate year
     if (!/^\d{4}$/.test(year)) {
       return res.status(400).json({
         success: false,
@@ -53,51 +44,25 @@ if (contentType === 'image/pdf' || (contentType === 'image' && format === 'pdf')
       });
     }
 
-    // Improved content type resolution
+    const lowerFormat = format? format.toLowerCase() : null;
     let resolvedContentType;
-    
-    // Handle different Cloudinary response formats
-    if (contentType === 'image' || (contentType && contentType.startsWith('image'))) {
-      // For images
-      if (format) {
-        resolvedContentType = `image/${format}`;
-      } else {
-        resolvedContentType = contentType.startsWith('image') ? contentType : 'image/jpeg';
-      }
-    } else if (contentType === 'raw' || contentType === 'application/pdf') {
-      // For PDFs (Cloudinary returns 'raw' for PDFs)
-      if (format === 'pdf' || contentType === 'application/pdf') {
-        resolvedContentType = 'application/pdf';
-      } else {
-        resolvedContentType = 'application/octet-stream';
-      }
+
+    if (lowerFormat === 'pdf') {
+      resolvedContentType = 'application/pdf';
+    } else if (lowerFormat && ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(lowerFormat)) {
+      resolvedContentType = `image/${lowerFormat === 'jpg'? 'jpeg' : lowerFormat}`;
     } else {
-      // Fallback: try to determine from format
-      if (format === 'pdf') {
-        resolvedContentType = 'application/pdf';
-      } else if (format && ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(format.toLowerCase())) {
-        resolvedContentType = `image/${format}`;
-      } else {
-        resolvedContentType = 'application/octet-stream';
-      }
+      resolvedContentType = 'application/octet-stream';
     }
 
-    console.log('Content type resolution:', {
-      original_contentType: contentType,
-      format: format,
-      resolved: resolvedContentType
-    });
-
-    // Validate file type - Updated allowed types
     const allowedTypes = [
       'application/pdf',
-      'image/jpeg', 
-      'image/jpg', 
-      'image/png', 
+      'image/jpeg',
+      'image/png',
       'image/gif',
       'image/webp'
     ];
-    
+
     if (!allowedTypes.includes(resolvedContentType)) {
       return res.status(400).json({
         success: false,
@@ -105,32 +70,28 @@ if (contentType === 'image/pdf' || (contentType === 'image' && format === 'pdf')
       });
     }
 
-    // Validate 'types' field
     const validTypes = ['image', 'document'];
-    if (typeof types !== 'string' || !validTypes.includes(types.toLowerCase())) {
+    if (typeof types!== 'string' ||!validTypes.includes(types.toLowerCase())) {
       return res.status(400).json({
         success: false,
         message: 'Invalid file type. Must be "image" or "document"'
       });
     }
 
-    // Additional validation: ensure PDFs are marked as documents
-    if (resolvedContentType === 'application/pdf' && types.toLowerCase() !== 'document') {
+    if (resolvedContentType === 'application/pdf' && types.toLowerCase()!== 'document') {
       return res.status(400).json({
         success: false,
         message: 'PDF files must be marked as "document" type'
       });
     }
 
-    // Additional validation: ensure images are marked correctly
-    if (resolvedContentType.startsWith('image/') && types.toLowerCase() !== 'image') {
+    if (resolvedContentType.startsWith('image/') && types.toLowerCase()!== 'image') {
       return res.status(400).json({
         success: false,
         message: 'Image files must be marked as "image" type'
       });
     }
 
-    // Save file to DB
     const newFile = new File({
       name,
       type: types.toLowerCase(),
@@ -143,7 +104,7 @@ if (contentType === 'image/pdf' || (contentType === 'image' && format === 'pdf')
       contentType: resolvedContentType,
       category,
       uploadedBy: uploadedBy || "anonymous",
-      format: format || (resolvedContentType === 'application/pdf' ? 'pdf' : 'unknown')
+      format: format || 'unknown'
     });
 
     await newFile.save();
@@ -160,7 +121,7 @@ if (contentType === 'image/pdf' || (contentType === 'image' && format === 'pdf')
         year,
         types: types.toLowerCase(),
         url: fileUrl,
-        format: format || (resolvedContentType === 'application/pdf' ? 'pdf' : 'unknown'),
+        format: format || 'unknown',
         category,
         contentType: resolvedContentType
       },
