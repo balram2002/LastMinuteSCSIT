@@ -68,7 +68,6 @@ export const useAuthStore = create((set) => ({
     logout: async () => {
         set({ isLoading: true, error: null });
         try {
-            await axios.post(`${URL}/logout`);
             localStorage.removeItem("user");
             set({ user: null, isAuthenticated: false, error: null, isLoading: false });
         } catch (error) {
