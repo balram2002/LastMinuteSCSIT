@@ -53,12 +53,12 @@ const Header = () => {
       { href: "/calculations/tools/cgpa", label: "Tools", icon: PanelTopClose },
       { href: `/attendance/manager/user/${user?.id}`, label: "Attendance Manager", icon: BookMarked },
       { href: "/planner/todos", label: "Task Planner", icon: Workflow },
-      { href: "/allfiles/admin", label: "Admin Files", icon: FileChartPie },
-      { href: "/allusers", label: "All Users", icon: Users },
     ]
 
-    if (user?.isAdmin) {
-      items.push({ href: "/profile/files", label: "Uploaded Files", icon: File })
+    if (user?.isAdmin==="admin") {
+      items.push({ href: "/profile/files", label: "My Files", icon: File })
+      items.push({ href: "/allfiles/admin", label: "Admin Uploads", icon: FileChartPie })
+      items.push({ href: "/allusers", label: "All Users", icon: Users })
     }
 
     return items

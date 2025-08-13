@@ -33,7 +33,7 @@ const UsersPage = () => {
 
     useEffect(() => {
         if (!user || user.isAdmin !== 'admin') {
-            toast.error('You must be AdminPro to Access this page.', {
+            toast.error('You must be Admin to Access this page.', {
                 style: {
                     border: '1px solid #713200',
                     padding: '16px',

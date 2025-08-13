@@ -10,6 +10,7 @@ import { Helmet } from "react-helmet-async"
 import { API_URL } from "../utils/urls"
 import { useSwipeable } from "react-swipeable"
 import { ValuesContext } from "../context/ValuesContext"
+import toast from "react-hot-toast"
 
 const UploadDocumentPage = () => {
   const navigate = useNavigate()
@@ -30,6 +31,19 @@ const UploadDocumentPage = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" })
+    if(user?.isAdmin && user.isAdmin !== 'admin'){
+      toast.error('User Must Be Admin to upload Resources!', {
+        style: {
+          border: '1px solid #713200',
+          padding: '16px',
+          color: '#713200',
+        },
+        iconTheme: {
+          primary: '#4ade80',
+          secondary: '#ffffff',
+        },
+      });
+    }
   }, [])
 
   useEffect(() => {
