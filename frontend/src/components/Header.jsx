@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useContext, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { BookOpen, User, LogOut, Menu, X, Home, Upload, GraduationCap, File, Files, PanelTopClose, BookMarked, Workflow, Edit } from "lucide-react"
+import { BookOpen, User, LogOut, Menu, X, Home, Upload, GraduationCap, File, Files, PanelTopClose, BookMarked, Workflow, Edit, FileChartPie, Users } from "lucide-react"
 import { useMatch, useNavigate } from "react-router-dom"
 import { useAuthStore } from "../store/authStore"
 import { ValuesContext } from "../context/ValuesContext"
@@ -53,6 +53,8 @@ const Header = () => {
       { href: "/calculations/tools/cgpa", label: "Tools", icon: PanelTopClose },
       { href: `/attendance/manager/user/${user?.id}`, label: "Attendance Manager", icon: BookMarked },
       { href: "/planner/todos", label: "Task Planner", icon: Workflow },
+      { href: "/allfiles/admin", label: "Admin Files", icon: FileChartPie },
+      { href: "/allusers", label: "All Users", icon: Users },
     ]
 
     if (user?.isAdmin) {
@@ -79,7 +81,7 @@ const Header = () => {
   const isSemestersPage = useMatch('/scsit/:course/semesters');
 
   const handleNavLinkClick = (href) => {
-    const noToastPages = ['/', '/about', '/scsit/courses', '/allfiles'];
+    const noToastPages = ['/', '/about', '/scsit/courses', '/allfiles',];
     if (!localStorage.getItem("user") && !noToastPages.includes(href) && !isSemestersPage) {
       toast.error('User Must Be Logged In.', {
         style: {

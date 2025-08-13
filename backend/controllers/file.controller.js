@@ -23,14 +23,14 @@ export const uploadFile = async (req, res) => {
       format
     } = req.body;
 
-    if (!fileUrl || typeof fileUrl!== 'string') {
+    if (!fileUrl || typeof fileUrl !== 'string') {
       return res.status(400).json({
         success: false,
         message: 'No file URL provided'
       });
     }
 
-    if (!name ||!course ||!semester ||!subject ||!types ||!year ||!category) {
+    if (!name || !course || !semester || !subject || !types || !year || !category) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields'
@@ -45,13 +45,13 @@ export const uploadFile = async (req, res) => {
     }
 
     let resolvedContentType;
-    const lowerFormat = format? format.toLowerCase() : null;
+    const lowerFormat = format ? format.toLowerCase() : null;
 
     if (contentType === 'raw') {
       resolvedContentType = 'application/pdf';
     } else if (contentType === 'image' && lowerFormat) {
       if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(lowerFormat)) {
-        resolvedContentType = `image/${lowerFormat === 'jpg'? 'jpeg' : lowerFormat}`;
+        resolvedContentType = `image/${lowerFormat === 'jpg' ? 'jpeg' : lowerFormat}`;
       }
     }
 
@@ -78,21 +78,21 @@ export const uploadFile = async (req, res) => {
     }
 
     const validTypes = ['image', 'document'];
-    if (typeof types!== 'string' ||!validTypes.includes(types.toLowerCase())) {
+    if (typeof types !== 'string' || !validTypes.includes(types.toLowerCase())) {
       return res.status(400).json({
         success: false,
         message: 'Invalid type field. Must be "image" or "document"'
       });
     }
 
-    if (resolvedContentType === 'application/pdf' && types.toLowerCase()!== 'document') {
+    if (resolvedContentType === 'application/pdf' && types.toLowerCase() !== 'document') {
       return res.status(400).json({
         success: false,
         message: 'PDF files must be categorized with type "document"'
       });
     }
 
-    if (resolvedContentType.startsWith('image/') && types.toLowerCase()!== 'image') {
+    if (resolvedContentType.startsWith('image/') && types.toLowerCase() !== 'image') {
       return res.status(400).json({
         success: false,
         message: 'Image files must be categorized with type "image"'
@@ -247,7 +247,7 @@ export const fetchAdminFiles = async (req, res) => {
 
     const files = await File.find({ uploadedBy: userId }).sort({ createdAt: -1 }).lean();;
 
-      const modifiedFiles = files.map(file => {
+    const modifiedFiles = files.map(file => {
       if (file.type === "document") {
         return {
           ...file,
@@ -378,5 +378,38 @@ export const deleteFile = async (req, res) => {
   } catch (err) {
     console.error('Delete file error:', err);
     res.status(500).json({ success: false, message: 'Failed to delete file', error: err.message });
+  }
+};
+
+export const fetchAdminsFiles = async (req, res) => {
+  try {
+    const userIdsToExclude = [
+      '6895f843be0be24cfae5f5ae',
+      '6895f86fbe0be24cfae5f5b1'
+    ];
+
+    const files = await File.find({ uploadedBy: { $nin: userIdsToExclude } })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const modifiedFiles = files.map(file => {
+      if (file.type === "document") {
+        return {
+          ...file,
+          fileUrl: `${API_URL}/api/files/proxy?url=${encodeURIComponent(file.fileUrl)}`
+        };
+      }
+      return file;
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Files retrieved successfully',
+      data: modifiedFiles,
+    });
+
+  } catch (err) {
+    console.error('Fetch all files error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch all files', error: err.message });
   }
 };

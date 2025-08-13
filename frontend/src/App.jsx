@@ -28,21 +28,20 @@ import CalculatorPage from "./pages/ToolsPage";
 import { useAuthStore } from "./store/authStore";
 import { ValuesContext } from "./context/ValuesContext";
 import PlannerPage from "./pages/PlannerPage";
+import AdminFilesPage from "./pages/AdminFilesPage";
+import UsersPage from "./pages/AllUsersPage";
 
 const ProtectedRoute = ({ children }) => {
-	const { isAuthenticated, user } = useAuthStore();
-	if (!isAuthenticated) return <Navigate to='/login' replace />;
-	if (!user?.isVerified) return <Navigate to='/verify-email' replace />;
+	const { user } = useAuthStore();
+	if (!user) return <Navigate to='/login' replace />;
 	return children;
 };
 
 const RedirectAuthenticatedUser = ({ children }) => {
-	const { isAuthenticated, user } = useAuthStore();
-	if (isAuthenticated && user?.isVerified) return <Navigate to='/' replace />;
+	const { user } = useAuthStore();
+	if (user) return <Navigate to='/' replace />;
 	return children;
 };
-// Only allow verified admin users
-
 
 function App() {
 	const { isCheckingAuth, checkAuth, user } = useAuthStore();
@@ -240,6 +239,22 @@ function App() {
 							<RedirectAuthenticatedUser>
 								<ResetPasswordPage />
 							</RedirectAuthenticatedUser>
+						}
+					/>
+						<Route
+						path='/allfiles/admin'
+						element={
+							<ProtectedRoute>
+								<AdminFilesPage />
+							</ProtectedRoute>
+						}
+					/>
+						<Route
+						path='/allusers'
+						element={
+							<ProtectedRoute>
+								<UsersPage />
+							</ProtectedRoute>
 						}
 					/>
 					<Route path='*' element={<Navigate to='/' replace />} />
