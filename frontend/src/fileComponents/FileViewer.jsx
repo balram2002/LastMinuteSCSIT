@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { X, ZoomIn, ZoomOut, RotateCw, Eye, Share2, RefreshCcw } from "lucide-react"
-import { useParams } from "react-router-dom"
+import { Navigate, useParams } from "react-router-dom"
 import { RWebShare } from "react-web-share"
 import Img from "../components/lazyLoadImage/Img"
 import { CLIENT_URL } from "../utils/urls"
@@ -38,6 +38,10 @@ const FileViewer = ({ file, onClose }) => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const mainRef = useRef(null);
+
+  if(!localStorage.getItem("user")){
+    return <Navigate to={'/login'} replace />
+  }
 
   useEffect(() => {
     const checkMobile = () => {

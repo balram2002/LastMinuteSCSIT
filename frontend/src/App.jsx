@@ -140,9 +140,7 @@ function App() {
 					<Route
 						path='/'
 						element={
-							<ProtectedRoute>
 								<Home />
-							</ProtectedRoute>
 						}
 					/>
 					<Route
@@ -156,13 +154,9 @@ function App() {
 					<Route
 						path='/scsit/courses'
 						element={
-							<ProtectedRoute>
 								<Courses />
-							</ProtectedRoute>
 						}
 					/>
-
-
 					<Route
 						path='/signup'
 						element={
@@ -180,27 +174,9 @@ function App() {
 						}
 					/>
 					<Route
-						path='/upload'
-						element={
-							<ProtectedRoute>
-								<UploadDocumentPage />
-							</ProtectedRoute>
-						}
-					/>
-					<Route
-						path='/scsit/courses'
-						element={
-							<ProtectedRoute>
-								<Courses />
-							</ProtectedRoute>
-						}
-					/>
-					<Route
 						path='/scsit/:course/semesters'
 						element={
-							<ProtectedRoute>
 								<SemestersPage />
-							</ProtectedRoute>
 						}
 					/>
 					<Route
@@ -223,9 +199,7 @@ function App() {
 					<Route
 						path='/allfiles'
 						element={
-							<ProtectedRoute>
 								<AllFilesPage />
-							</ProtectedRoute>
 						}
 					/>
 					<Route
@@ -248,9 +222,7 @@ function App() {
 					<Route
 						path='/about'
 						element={
-							<ProtectedRoute>
 								<AboutPage />
-							</ProtectedRoute>
 						}
 					/>
 					<Route path='/verify-email' element={<EmailVerificationPage />} />

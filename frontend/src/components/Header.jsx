@@ -3,11 +3,12 @@
 import { useState, useMemo, useContext, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { BookOpen, User, LogOut, Menu, X, Home, Upload, GraduationCap, File, Files, PanelTopClose, BookMarked, Workflow, Edit } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { useMatch, useNavigate } from "react-router-dom"
 import { useAuthStore } from "../store/authStore"
 import { ValuesContext } from "../context/ValuesContext"
 import { useSwipeable } from "react-swipeable"
 import { EditProfileModal } from "./EditProfileModal"
+import toast from "react-hot-toast"
 
 const Header = () => {
   const navigate = useNavigate()
@@ -73,6 +74,27 @@ const Header = () => {
     closeSidebar()
     localStorage.removeItem("user");
     navigate("/login")
+  }
+
+  const isSemestersPage = useMatch('/scsit/:course/semesters');
+
+  const handleNavLinkClick = (href) => {
+    const noToastPages = ['/', '/about', '/scsit/courses', '/allfiles'];
+    if (!localStorage.getItem("user") && !noToastPages.includes(href) && !isSemestersPage) {
+      toast.error('User Must Be Logged In.', {
+        style: {
+          border: '1px solid #713200',
+          padding: '16px',
+          color: '#713200',
+        },
+        iconTheme: {
+          primary: '#4ade80',
+          secondary: '#ffffff',
+        },
+      });
+    }
+    navigate(href);
+    closeSidebar();
   }
 
   return (
@@ -143,22 +165,19 @@ const Header = () => {
             <div className="flex-1 overflow-y-auto">
               <nav className="space-y-2 p-4">
                 {navigationItems.map((item, index) => (
-                  <motion.a
+                  <motion.div
                     key={item.href}
-                    href={item.href}
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05, type: "spring", stiffness: 100 }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(item.href);
-                      closeSidebar();
+                    onClick={() => {
+                      handleNavLinkClick(item.href);
                     }}
                     className="flex items-center space-x-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-slate-700 rounded-lg transition-all duration-200 group cursor-pointer"
                   >
                     <item.icon className="w-5 h-5 text-green-400 group-hover:text-green-300 transition-colors" />
                     <span className="font-medium">{item.label}</span>
-                  </motion.a>
+                  </motion.div>
                 ))}
               </nav>
             </div>
