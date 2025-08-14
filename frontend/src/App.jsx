@@ -67,7 +67,7 @@ function App() {
 						e.preventDefault();
 						navigate('/scsit/courses');
 						break;
-					case 'f':
+					case 'a':
 						e.preventDefault();
 						navigate('/allfiles');
 						break;
@@ -79,10 +79,16 @@ function App() {
 						e.preventDefault();
 						navigate('/home');
 						break;
-					case 'a':
+					case 'm':
 						if (user?._id) {
 							e.preventDefault();
-							navigate(`/attendance/manager/user/${user._id}`);
+							navigate(`/scsit/mca/semesters/3`);
+						}
+						break;
+					case 'b':
+						if (user?._id) {
+							e.preventDefault();
+							navigate(`/scsit/bca/semesters/1`);
 						}
 						break;
 					default:
