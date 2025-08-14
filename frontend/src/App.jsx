@@ -30,6 +30,7 @@ import { ValuesContext } from "./context/ValuesContext";
 import PlannerPage from "./pages/PlannerPage";
 import AdminFilesPage from "./pages/AdminFilesPage";
 import UsersPage from "./pages/AllUsersPage";
+import VerifyUserEmail from "./pages/VerifyEmailPage";
 
 const ProtectedRoute = ({ children }) => {
 	const { user } = useAuthStore();
@@ -97,10 +98,6 @@ function App() {
 		};
 	}, [navigate, setIsSidebarOpen, user]);
 
-	if (isCheckingAuth) {
-		return <LoadingSpinner />;
-	}
-
 	const floatingRoutes = [
 		"/login",
 		"/signup",
@@ -139,7 +136,7 @@ function App() {
 					<Route
 						path='/'
 						element={
-								<Home />
+							<Home />
 						}
 					/>
 					<Route
@@ -153,7 +150,7 @@ function App() {
 					<Route
 						path='/scsit/courses'
 						element={
-								<Courses />
+							<Courses />
 						}
 					/>
 					<Route
@@ -175,7 +172,7 @@ function App() {
 					<Route
 						path='/scsit/:course/semesters'
 						element={
-								<SemestersPage />
+							<SemestersPage />
 						}
 					/>
 					<Route
@@ -198,7 +195,7 @@ function App() {
 					<Route
 						path='/allfiles'
 						element={
-								<AllFilesPage />
+							<AllFilesPage />
 						}
 					/>
 					<Route
@@ -221,7 +218,7 @@ function App() {
 					<Route
 						path='/about'
 						element={
-								<AboutPage />
+							<AboutPage />
 						}
 					/>
 					<Route path='/verify-email' element={<EmailVerificationPage />} />
@@ -241,7 +238,7 @@ function App() {
 							</RedirectAuthenticatedUser>
 						}
 					/>
-						<Route
+					<Route
 						path='/allfiles/admin'
 						element={
 							<ProtectedRoute>
@@ -249,11 +246,19 @@ function App() {
 							</ProtectedRoute>
 						}
 					/>
-						<Route
+					<Route
 						path='/allusers'
 						element={
 							<ProtectedRoute>
 								<UsersPage />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path='/verify-user-email'
+						element={
+							<ProtectedRoute>
+								<VerifyUserEmail />
 							</ProtectedRoute>
 						}
 					/>

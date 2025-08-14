@@ -20,12 +20,14 @@ const UsersPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isVerified, setIsVerified] = useState(false);
-    const [filter, setFilter] = useState('all'); // all, admin, user, verified, unverified
+    const [filter, setFilter] = useState('all');
 
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isMakeAdminModalOpen, setIsMakeAdminModalOpen] = useState(false);
+    const [isRemoveAdminModalOpen, setIsRemoveAdminModalOpen] = useState(false);
     const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+    const [isUnverifyModalOpen, setIsUnverifyModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -132,6 +134,16 @@ const UsersPage = () => {
         setSelectedUser(null);
     };
 
+    const openRemoveAdminModal = (user) => {
+        setSelectedUser(user);
+        setIsRemoveAdminModalOpen(true);
+    };
+
+    const closeRemoveAdminModal = () => {
+        setIsRemoveAdminModalOpen(false);
+        setSelectedUser(null);
+    };
+
     const openVerifyModal = (user) => {
         setSelectedUser(user);
         setIsVerified(user.isVerified);
@@ -140,6 +152,16 @@ const UsersPage = () => {
 
     const closeVerifyModal = () => {
         setIsVerifyModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const openUnverifyModal = (user) => {
+        setSelectedUser(user);
+        setIsUnverifyModalOpen(true);
+    };
+
+    const closeUnverifyModal = () => {
+        setIsUnverifyModalOpen(false);
         setSelectedUser(null);
     };
 
@@ -162,7 +184,7 @@ const UsersPage = () => {
     };
 
     const handleDeleteUser = async (e) => {
-        e.preventDefault(); // Prevent form submission
+        e.preventDefault();
         if (!checkAdminPro()) return;
 
         setIsSubmitting(true);
@@ -196,7 +218,7 @@ const UsersPage = () => {
     };
 
     const handleUpdateUser = async (e) => {
-        e.preventDefault(); // Prevent form submission
+        e.preventDefault();
         if (!checkAdminPro()) return;
 
         setIsSubmitting(true);
@@ -211,7 +233,6 @@ const UsersPage = () => {
                 body: JSON.stringify({
                     userId: selectedUser._id,
                     isAdmin: 'admin',
-                    isVerified: isVerified ? true : false,
                 }),
             });
 
@@ -235,8 +256,47 @@ const UsersPage = () => {
         }
     };
 
+    const handleRemoveAdmin = async (e) => {
+        e.preventDefault();
+        if (!checkAdminPro()) return;
+
+        setIsSubmitting(true);
+        setModalError('');
+        try {
+            const response = await fetch(`${API_URL}/api/auth/update-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user._id}`,
+                },
+                body: JSON.stringify({
+                    userId: selectedUser._id,
+                    isAdmin: 'user',
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Failed to remove admin privileges.');
+            }
+
+            setUsers(users.map(u =>
+                u._id === selectedUser._id
+                    ? { ...u, isAdmin: 'user' }
+                    : u
+            ));
+            closeRemoveAdminModal();
+
+        } catch (err) {
+            setModalError(err.message || "An error occurred.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const handleVerifyUser = async (e) => {
-        e.preventDefault(); // Prevent form submission
+        e.preventDefault();
         if (!checkAdminPro()) return;
 
         setIsSubmitting(true);
@@ -266,6 +326,45 @@ const UsersPage = () => {
                     : u
             ));
             closeVerifyModal();
+
+        } catch (err) {
+            setModalError(err.message || "An error occurred.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleUnverifyUser = async (e) => {
+        e.preventDefault();
+        if (!checkAdminPro()) return;
+
+        setIsSubmitting(true);
+        setModalError('');
+        try {
+            const response = await fetch(`${API_URL}/api/auth/update-user`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user._id}`,
+                },
+                body: JSON.stringify({
+                    userId: selectedUser._id,
+                    isVerified: false,
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || 'Failed to unverify user.');
+            }
+
+            setUsers(users.map(u =>
+                u._id === selectedUser._id
+                    ? { ...u, isVerified: false }
+                    : u
+            ));
+            closeUnverifyModal();
 
         } catch (err) {
             setModalError(err.message || "An error occurred.");
@@ -368,19 +467,26 @@ const UsersPage = () => {
                             <h2 className="text-3xl md:text-4xl font-extrabold text-white text-center">
                                 Users Management
                             </h2>
-                            <div className="flex items-center gap-2 bg-gray-800/50 backdrop-filter backdrop-blur-xl rounded-xl border border-gray-700 px-4 py-2">
-                                <Filter size={20} className="text-gray-400" />
-                                <select
-                                    value={filter}
-                                    onChange={(e) => setFilter(e.target.value)}
-                                    className="bg-transparent text-white focus:outline-none cursor-pointer"
-                                >
-                                    <option value="all" className="bg-gray-800 text-white">All Users</option>
-                                    <option value="admin" className="bg-gray-800 text-white">Admin Only</option>
-                                    <option value="user" className="bg-gray-800 text-white">Regular Users</option>
-                                    <option value="verified" className="bg-gray-800 text-white">Verified Only</option>
-                                    <option value="unverified" className="bg-gray-800 text-white">Unverified Only</option>
-                                </select>
+                            <div className="relative">
+                                <div className="flex items-center gap-2 bg-gray-800/50 backdrop-filter backdrop-blur-xl rounded-xl border border-gray-700 px-4 py-2 cursor-pointer">
+                                    <Filter size={20} className="text-gray-400" />
+                                    <select
+                                        value={filter}
+                                        onChange={(e) => setFilter(e.target.value)}
+                                        className="bg-transparent text-white focus:outline-none cursor-pointer appearance-none pr-8"
+                                    >
+                                        <option value="all" className="bg-gray-800 text-white">All Users</option>
+                                        <option value="admin" className="bg-gray-800 text-white">Admin Only</option>
+                                        <option value="user" className="bg-gray-800 text-white">Regular Users</option>
+                                        <option value="verified" className="bg-gray-800 text-white">Verified Only</option>
+                                        <option value="unverified" className="bg-gray-800 text-white">Unverified Only</option>
+                                    </select>
+                                    <div className="absolute right-3 pointer-events-none">
+                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
@@ -454,6 +560,17 @@ const UsersPage = () => {
                                                 </motion.button>
                                             )}
 
+                                            {usr.isVerified && (
+                                                <motion.button
+                                                    onClick={() => openUnverifyModal(usr)}
+                                                    whileHover={{ scale: 1.03 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors"
+                                                >
+                                                    <Ban size={14} /> Unverify
+                                                </motion.button>
+                                            )}
+
                                             {usr.isAdmin !== 'admin' && (
                                                 <motion.button
                                                     onClick={() => openMakeAdminModal(usr)}
@@ -462,6 +579,17 @@ const UsersPage = () => {
                                                     className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors"
                                                 >
                                                     <Crown size={14} /> Admin
+                                                </motion.button>
+                                            )}
+
+                                            {usr.isAdmin === 'admin' && (
+                                                <motion.button
+                                                    onClick={() => openRemoveAdminModal(usr)}
+                                                    whileHover={{ scale: 1.03 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    className="flex items-center justify-center gap-2 px-3 py-2 text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                                                >
+                                                    <User size={14} /> Remove Admin
                                                 </motion.button>
                                             )}
 
@@ -676,6 +804,57 @@ const UsersPage = () => {
             </AnimatePresence>
 
             <AnimatePresence>
+                {isRemoveAdminModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700 shadow-2xl p-8 text-center"
+                        >
+                            <form onSubmit={handleRemoveAdmin}>
+                                <div className="mx-auto bg-purple-500/10 w-16 h-16 rounded-full flex items-center justify-center">
+                                    <User className="w-8 h-8 text-purple-500" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-white mt-4">Remove Admin?</h3>
+                                <p className="text-gray-300 mt-2">
+                                    Are you sure you want to remove admin privileges from <strong className="text-white">"{selectedUser?.name}"</strong>?
+                                    This will revoke their administrative access.
+                                </p>
+                                {modalError && <p className="text-red-400 text-sm mt-4">{modalError}</p>}
+                                <div className="mt-6 flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                                    <motion.button
+                                        type="button"
+                                        onClick={closeRemoveAdminModal}
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        disabled={isSubmitting}
+                                        className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        Cancel
+                                    </motion.button>
+                                    <motion.button
+                                        type="submit"
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        disabled={isSubmitting}
+                                        className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : 'Remove Admin'}
+                                    </motion.button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
                 {isVerifyModalOpen && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -718,6 +897,57 @@ const UsersPage = () => {
                                         className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
                                         {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : 'Verify'}
+                                    </motion.button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <AnimatePresence>
+                {isUnverifyModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-slate-800 rounded-2xl w-full max-w-md border border-slate-700 shadow-2xl p-8 text-center"
+                        >
+                            <form onSubmit={handleUnverifyUser}>
+                                <div className="mx-auto bg-orange-500/10 w-16 h-16 rounded-full flex items-center justify-center">
+                                    <Ban className="w-8 h-8 text-orange-500" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-white mt-4">Unverify User?</h3>
+                                <p className="text-gray-300 mt-2">
+                                    Are you sure you want to unverify <strong className="text-white">"{selectedUser?.name}"</strong>?
+                                    This will remove their verification status.
+                                </p>
+                                {modalError && <p className="text-red-400 text-sm mt-4">{modalError}</p>}
+                                <div className="mt-6 flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                                    <motion.button
+                                        type="button"
+                                        onClick={closeUnverifyModal}
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        disabled={isSubmitting}
+                                        className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        Cancel
+                                    </motion.button>
+                                    <motion.button
+                                        type="submit"
+                                        whileHover={{ scale: 1.03 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        disabled={isSubmitting}
+                                        className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        {isSubmitting ? <Loader className="w-5 h-5 animate-spin" /> : 'Unverify'}
                                     </motion.button>
                                 </div>
                             </form>
