@@ -51,6 +51,8 @@ const Header = () => {
       { href: "/upload", label: "Upload", icon: Upload },
       { href: "/allfiles", label: "All Files", icon: Files },
       { href: "/calculations/tools/cgpa", label: "Tools", icon: PanelTopClose },
+      { href: `/attendance/manager/user/${user?.id}`, label: "Attendance Manager", icon: BookMarked },
+      { href: "/planner/todos", label: "Task Planner", icon: Workflow },
     ]
 
     if (user?.isAdmin==="admin") {
