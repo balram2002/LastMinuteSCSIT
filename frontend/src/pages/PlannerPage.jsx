@@ -825,8 +825,8 @@ const generateRecurringTasks = useCallback((task, viewStart, viewEnd) => {
       }
     },
     onSwipedRight: () => {
-      if (isMobile && !isExcludedRoute && isSidebarOpen) {
-        setIsSidebarOpen(false);
+      if (isMobile && !isExcludedRoute) {
+        navigate('/scsit/mca/semesters/3');
       }
     },
     preventDefaultTouchmoveEvent: false,

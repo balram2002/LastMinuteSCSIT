@@ -256,7 +256,7 @@ const DocumentsPage = () => {
         return years.sort((a, b) => b - a);
     };
 
-    const isExcludedRoute = typeof window !== 'undefined' && 
+    const isExcludedRoute = typeof window !== 'undefined' &&
         (window.location.pathname.startsWith("/login") || window.location.pathname === "/signup");
     const isMobile = typeof window !== 'undefined' ? window.innerWidth <= 768 : false;
     const swipeHandlers = useSwipeable({
@@ -267,9 +267,8 @@ const DocumentsPage = () => {
             }
         },
         onSwipedRight: () => {
-            if (isMobile && !isExcludedRoute && isSidebarOpen) {
-                setIsSidebarOpen(false);
-                console.log("Swiped right - closing sidebar");
+            if (isMobile && !isExcludedRoute) {
+                navigate('/scsit/mca/semesters/3');
             }
         },
         preventDefaultTouchmoveEvent: false,
@@ -336,13 +335,13 @@ const DocumentsPage = () => {
                         const filteredPapers = subject.papers.filter(paper => paper.category === selectedCategory);
                         const years = getUniqueYears(filteredPapers);
                         const selectedYear = subjectFilters[subject.name];
-                        const displayPapers = selectedYear 
+                        const displayPapers = selectedYear
                             ? filteredPapers.filter(paper => paper.year == selectedYear)
                             : filteredPapers;
-                        
+
                         const showAll = showAllMap[subject.name];
-                        const papersToShow = showAll === null 
-                            ? displayPapers 
+                        const papersToShow = showAll === null
+                            ? displayPapers
                             : displayPapers.slice(0, showAll || 6);
 
                         return (
@@ -355,12 +354,12 @@ const DocumentsPage = () => {
                                                 {categoryDescriptions[selectedCategory]} • {displayPapers.length} Papers
                                             </p>
                                         </div>
-                                        
+
                                         {years.length > 0 && (
                                             <div className="flex items-center gap-2">
                                                 <Filter className="w-4 h-4 text-gray-400 hidden sm:block" />
                                                 <div className="relative">
-                                                    <select 
+                                                    <select
                                                         value={selectedYear || 'all'}
                                                         onChange={(e) => setSubjectYearFilter(subject.name, e.target.value)}
                                                         className="appearance-none bg-gray-700 text-white text-sm rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-green-500 focus:outline-none cursor-pointer w-full sm:w-auto"
@@ -372,7 +371,7 @@ const DocumentsPage = () => {
                                                     </select>
                                                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
                                                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                                                         </svg>
                                                     </div>
                                                 </div>
@@ -380,16 +379,16 @@ const DocumentsPage = () => {
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 <div className="p-4 sm:p-6">
                                     {displayPapers.length > 0 ? (
                                         <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             {papersToShow.map((paper, paperIndex) => (
-                                                <motion.div 
-                                                    key={`${paper._id || paperIndex}`} 
-                                                    whileHover={{ scale: 1.02, y: -2 }} 
-                                                    whileTap={{ scale: 0.98 }} 
-                                                    onClick={() => handleFileClick(paper)} 
+                                                <motion.div
+                                                    key={`${paper._id || paperIndex}`}
+                                                    whileHover={{ scale: 1.02, y: -2 }}
+                                                    whileTap={{ scale: 0.98 }}
+                                                    onClick={() => handleFileClick(paper)}
                                                     className="bg-gray-700 bg-opacity-50 rounded-xl p-3 sm:p-4 cursor-pointer border border-gray-600 hover:border-green-500 transition-all duration-300"
                                                 >
                                                     <div className="flex items-start space-x-3">
@@ -418,14 +417,14 @@ const DocumentsPage = () => {
                                             No {categories.find(cat => cat.value === selectedCategory)?.label.toLowerCase()} available for this subject {selectedYear ? `in ${selectedYear}` : ''}.
                                         </div>
                                     )}
-                                    
+
                                     {displayPapers.length > 6 && (
                                         <div className="flex justify-center mt-4">
-                                            <button 
+                                            <button
                                                 onClick={() => toggleShowAll(subject.name)}
                                                 className="text-green-400 hover:text-green-300 text-sm font-medium flex items-center gap-1"
                                             >
-                                                {showAll === null ? "Show Less" : "Show All"} 
+                                                {showAll === null ? "Show Less" : "Show All"}
                                                 <span className="bg-gray-700 rounded-full px-2 py-0.5 text-xs">
                                                     {displayPapers.length}
                                                 </span>

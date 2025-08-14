@@ -9,6 +9,7 @@ import FileViewer from "../fileComponents/FileViewer"
 import { API_URL } from "../utils/urls"
 import { useSwipeable } from "react-swipeable"
 import { ValuesContext } from "../context/ValuesContext"
+import { useNavigate } from "react-router-dom"
 
 const courses = [
     { value: "BCA", label: "BCA" },
@@ -94,6 +95,8 @@ const AllFilesPage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
 
+    const navigate = useNavigate();
+
     const [filters, setFilters] = useState({
         course: null, semester: null, subject: null, year: null, category: null, type: null
     });
@@ -133,9 +136,9 @@ const AllFilesPage = () => {
         setFilters(prevFilters => ({ ...prevFilters, [name]: selectedOption }));
     };
 
-     useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }, [])
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    }, [])
 
     const handleApplyFilters = () => {
         let filesToFilter = [...allFiles];
@@ -171,34 +174,33 @@ const AllFilesPage = () => {
         console.log("Selected file: on paper : ", file, subject);
     };
 
-     const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
-    
-      const isExcludedRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith("/login") || window.location.pathname === "/signup");
-      const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-      const swipeHandlers = useSwipeable({
+    const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
+
+    const isExcludedRoute = typeof window !== 'undefined' && (window.location.pathname.startsWith("/login") || window.location.pathname === "/signup");
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    const swipeHandlers = useSwipeable({
         onSwipedLeft: () => {
-          if (isMobile && !isExcludedRoute) {
-            setIsSidebarOpen(true);
-            console.log("Swiped left - opening sidebar");
-          }
+            if (isMobile && !isExcludedRoute) {
+                setIsSidebarOpen(true);
+                console.log("Swiped left - opening sidebar");
+            }
         },
         onSwipedRight: () => {
-          if (isMobile && !isExcludedRoute && isSidebarOpen) {
-            setIsSidebarOpen(false);
-            console.log("Swiped right - closing sidebar");
-          }
+            if (isMobile && !isExcludedRoute) {
+                navigate('/scsit/mca/semesters/3');
+            }
         },
         preventDefaultTouchmoveEvent: false,
         trackMouse: false,
         delta: 30,
-      });
+    });
 
     const stats = useMemo(() => {
         if (!allFiles.length) return { totalFiles: 0, totalCourses: 0, totalSubjects: 0, filteredCount: 0 };
-        
+
         const uniqueCourses = new Set(allFiles.map(f => f.course));
         const uniqueSubjects = new Set(allFiles.map(f => f.subject));
-        
+
         return {
             totalFiles: allFiles.length,
             totalCourses: uniqueCourses.size,
@@ -255,10 +257,10 @@ const AllFilesPage = () => {
                     </p>
                 </motion.div>
 
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }} 
-                    animate={{ opacity: 1, y: 0 }} 
-                    transition={{ duration: 0.5, delay: 0.2 }} 
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
                     className="bg-gray-800/50 backdrop-blur-xl rounded-2xl border border-gray-700 mb-10 overflow-hidden"
                 >
                     <div className="p-6">
@@ -274,7 +276,7 @@ const AllFilesPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="bg-gradient-to-r from-green-600/20 to-green-800/20 p-4 rounded-xl border border-green-700/30">
                                 <div className="flex items-center gap-3">
                                     <div className="bg-green-500/20 p-2 rounded-lg">
@@ -286,7 +288,7 @@ const AllFilesPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="bg-gradient-to-r from-purple-600/20 to-purple-800/20 p-4 rounded-xl border border-purple-700/30">
                                 <div className="flex items-center gap-3">
                                     <div className="bg-purple-500/20 p-2 rounded-lg">
@@ -298,7 +300,7 @@ const AllFilesPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="bg-gradient-to-r from-amber-600/20 to-amber-800/20 p-4 rounded-xl border border-amber-700/30">
                                 <div className="flex items-center gap-3">
                                     <div className="bg-amber-500/20 p-2 rounded-lg">
@@ -348,14 +350,14 @@ const AllFilesPage = () => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                            <button 
-                                onClick={handleApplyFilters} 
+                            <button
+                                onClick={handleApplyFilters}
                                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all py-3 px-4 shadow-lg hover:shadow-xl"
                             >
                                 <Filter size={18} /> Apply Filters
                             </button>
-                            <button 
-                                onClick={resetFilters} 
+                            <button
+                                onClick={resetFilters}
                                 className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold rounded-lg transition-all py-3 px-4 shadow-lg hover:shadow-xl"
                             >
                                 <X size={18} /> Reset Filters
@@ -370,17 +372,17 @@ const AllFilesPage = () => {
                     <div className="text-center text-red-400 bg-red-500/10 p-4 rounded-lg flex items-center justify-center gap-2"><AlertCircle /> {error}</div>
                 ) : (
                     <AnimatePresence>
-                         <div className="text-gray-400 block mb-4 text-center">{filteredFiles.length} Files Found</div>
+                        <div className="text-gray-400 block mb-4 text-center">{filteredFiles.length} Files Found</div>
                         {filteredFiles.length > 0 ? (
-                            <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">                
+                            <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {filteredFiles.map((file) => (
-                                    <motion.div 
-                                        layout 
-                                        key={file._id} 
-                                        initial={{ opacity: 0, scale: 0.9 }} 
-                                        animate={{ opacity: 1, scale: 1 }} 
-                                        exit={{ opacity: 0, scale: 0.9 }} 
-                                        transition={{ duration: 0.3 }} 
+                                    <motion.div
+                                        layout
+                                        key={file._id}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        transition={{ duration: 0.3 }}
                                         className="bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-700 overflow-hidden flex flex-col group hover:border-green-500/50 transition-all duration-300"
                                     >
                                         <div className="p-6 flex-grow">
@@ -402,9 +404,9 @@ const AllFilesPage = () => {
                                 ))}
                             </motion.div>
                         ) : (
-                            <motion.div 
-                                initial={{ opacity: 0 }} 
-                                animate={{ opacity: 1 }} 
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
                                 className="text-center py-16 bg-gray-800/30 rounded-2xl border border-gray-700"
                             >
                                 <div className="mx-auto bg-gray-800/50 w-24 h-24 rounded-full flex items-center justify-center border border-gray-700">
@@ -414,7 +416,7 @@ const AllFilesPage = () => {
                                 <p className="mt-2 text-gray-400 max-w-md mx-auto">
                                     {allFiles.length > 0 ? "No files match your current filter criteria." : "No files have been uploaded to the site yet."}
                                 </p>
-                                <button 
+                                <button
                                     onClick={resetFilters}
                                     className="mt-6 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg transition-all"
                                 >

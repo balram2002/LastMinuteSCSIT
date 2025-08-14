@@ -31,7 +31,7 @@ const UploadDocumentPage = () => {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" })
-    if(user?.isAdmin && user.isAdmin !== 'admin'){
+    if (user?.isAdmin && user.isAdmin !== 'admin') {
       toast.error('User Must Be Admin to upload Resources!', {
         style: {
           border: '1px solid #713200',
@@ -292,130 +292,130 @@ const UploadDocumentPage = () => {
   }
 
   const handleUpload = async () => {
-  if (!user || !user.isAdmin || user.isAdmin !== 'admin') {
-    setUploadStatus("error");
-    setUploadMessage("Only admins are authorized to upload documents.");
-    return;
-  }
+    if (!user || !user.isAdmin || user.isAdmin !== 'admin') {
+      setUploadStatus("error");
+      setUploadMessage("Only admins are authorized to upload documents.");
+      return;
+    }
 
-  if (
-    !selectedFile ||
-    !fileName ||
-    !selectedCourse ||
-    !selectedSemester ||
-    !selectedSubject ||
-    !selectedTypes ||
-    !selectedCategory ||
-    !/^\d{4}$/.test(selectedYear)
-  ) {
-    setUploadStatus("error");
-    setUploadMessage("Please fill in all fields, select a file, choose a type, select a category, and enter a valid year");
-    return;
-  }
+    if (
+      !selectedFile ||
+      !fileName ||
+      !selectedCourse ||
+      !selectedSemester ||
+      !selectedSubject ||
+      !selectedTypes ||
+      !selectedCategory ||
+      !/^\d{4}$/.test(selectedYear)
+    ) {
+      setUploadStatus("error");
+      setUploadMessage("Please fill in all fields, select a file, choose a type, select a category, and enter a valid year");
+      return;
+    }
 
-  if (selectedCategory === "paper" && !["image/jpeg", "image/png", "image/jpg"].includes(selectedFile.type)) {
-    setUploadStatus("error");
-    setUploadMessage("Only image files (JPEG, PNG) are allowed for papers");
-    return;
-  }
+    if (selectedCategory === "paper" && !["image/jpeg", "image/png", "image/jpg"].includes(selectedFile.type)) {
+      setUploadStatus("error");
+      setUploadMessage("Only image files (JPEG, PNG) are allowed for papers");
+      return;
+    }
 
-  if (selectedFile.size > 10 * 1024 * 1024) {
-    setUploadStatus("error");
-    setUploadMessage("File size exceeds 10MB limit");
-    return;
-  }
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      setUploadStatus("error");
+      setUploadMessage("File size exceeds 10MB limit");
+      return;
+    }
 
-  setIsUploading(true);
-  setUploadStatus("idle");
+    setIsUploading(true);
+    setUploadStatus("idle");
 
-  const resetForm = () => {
-    setSelectedFile(null);
-    setFileName("");
-    setSelectedCourse("");
-    setSelectedSemester("");
-    setSelectedSubject("");
-    setSelectedTypes(null);
-    setSelectedCategory(null);
-    setSelectedYear("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    const resetForm = () => {
+      setSelectedFile(null);
+      setFileName("");
+      setSelectedCourse("");
+      setSelectedSemester("");
+      setSelectedSubject("");
+      setSelectedTypes(null);
+      setSelectedCategory(null);
+      setSelectedYear("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    };
+
+    try {
+      const cloudName = "dbf1lifdi";
+      const uploadPreset = "frontend_uploads";
+      const resourceType = selectedFile.type === "application/pdf" ? "raw" : "auto";
+
+      const cloudFormData = new FormData();
+      cloudFormData.append("file", selectedFile);
+      cloudFormData.append("upload_preset", uploadPreset);
+      cloudFormData.append("folder", "documents");
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      const cloudRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+        {
+          method: "POST",
+          body: cloudFormData,
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!cloudRes.ok) {
+        const errorData = await cloudRes.json();
+        throw new Error(errorData.error?.message || "Cloudinary upload failed");
+      }
+
+      const cloudData = await cloudRes.json();
+
+      if (!cloudData.secure_url) {
+        throw new Error("Cloudinary upload failed: No secure URL returned");
+      }
+
+      const payload = {
+        name: fileName.trim(),
+        course: selectedCourse.trim(),
+        semester: selectedSemester.trim(),
+        subject: selectedSubject.trim(),
+        types: selectedTypes,
+        year: selectedYear,
+        category: selectedCategory,
+        uploadedBy: user._id || user.id,
+        fileUrl: cloudData.secure_url,
+        contentType: cloudData.resource_type,
+        format: cloudData.format,
+      };
+
+      const res = await fetch(`${API_URL}/api/files/upload`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+        signal: new AbortController().signal,
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || "Failed to save file metadata");
+      }
+
+      resetForm();
+      setUploadStatus("success");
+      setUploadMessage("File uploaded successfully!");
+    } catch (err) {
+      setUploadStatus("error");
+      setUploadMessage(err.message || "Upload failed. Please try again.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  try {
-    const cloudName = "dbf1lifdi";
-    const uploadPreset = "frontend_uploads";
-    const resourceType = selectedFile.type === "application/pdf" ? "raw" : "auto";
-
-    const cloudFormData = new FormData();
-    cloudFormData.append("file", selectedFile);
-    cloudFormData.append("upload_preset", uploadPreset);
-    cloudFormData.append("folder", "documents");
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-    const cloudRes = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
-      {
-        method: "POST",
-        body: cloudFormData,
-        signal: controller.signal,
-      }
-    );
-
-    clearTimeout(timeoutId);
-
-    if (!cloudRes.ok) {
-      const errorData = await cloudRes.json();
-      throw new Error(errorData.error?.message || "Cloudinary upload failed");
-    }
-
-    const cloudData = await cloudRes.json();
-
-    if (!cloudData.secure_url) {
-      throw new Error("Cloudinary upload failed: No secure URL returned");
-    }
-
-    const payload = {
-      name: fileName.trim(),
-      course: selectedCourse.trim(),
-      semester: selectedSemester.trim(),
-      subject: selectedSubject.trim(),
-      types: selectedTypes,
-      year: selectedYear,
-      category: selectedCategory,
-      uploadedBy: user._id || user.id,
-      fileUrl: cloudData.secure_url,
-      contentType: cloudData.resource_type,
-      format: cloudData.format,
-    };
-
-    const res = await fetch(`${API_URL}/api/files/upload`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(payload),
-      signal: new AbortController().signal,
-    });
-
-    const json = await res.json();
-
-    if (!res.ok || !json.success) {
-      throw new Error(json.message || "Failed to save file metadata");
-    }
-
-    resetForm();
-    setUploadStatus("success");
-    setUploadMessage("File uploaded successfully!");
-  } catch (err) {
-    setUploadStatus("error");
-    setUploadMessage(err.message || "Upload failed. Please try again.");
-  } finally {
-    setIsUploading(false);
-  }
-};
-  
   const removeFile = () => {
     setSelectedFile(null)
     setFileName("")
@@ -484,9 +484,8 @@ const UploadDocumentPage = () => {
       }
     },
     onSwipedRight: () => {
-      if (isMobile && !isExcludedRoute && isSidebarOpen) {
-        setIsSidebarOpen(false);
-        console.log("Swiped right - closing sidebar");
+      if (isMobile && !isExcludedRoute) {
+        navigate('/scsit/mca/semesters/3');
       }
     },
     preventDefaultTouchmoveEvent: false,

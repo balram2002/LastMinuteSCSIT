@@ -25,7 +25,7 @@ const MyFilesPage = () => {
     const [editFormData, setEditFormData] = useState({});
     const [selectedViewFile, setSelectedViewFile] = useState(null);
 
-    
+
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalError, setModalError] = useState('');
 
@@ -53,7 +53,7 @@ const MyFilesPage = () => {
                 if (!response.ok || !result.success) {
                     throw new Error(result.message || 'Failed to fetch files.');
                 }
-                
+
                 setFiles(result.data);
 
             } catch (err) {
@@ -140,7 +140,7 @@ const MyFilesPage = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.token}`,
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     id: selectedFile._id,
                     userId: user._id,
                 }),
@@ -153,11 +153,11 @@ const MyFilesPage = () => {
             }
 
             const result = await response.json();
-            
+
             if (!response.ok || !result.success) {
                 throw new Error(result.message || 'Failed to delete file.');
             }
-            
+
             setFiles(files.filter(f => f._id !== selectedFile._id));
             closeDeleteModal();
 
@@ -168,39 +168,38 @@ const MyFilesPage = () => {
         }
     };
 
-       const handleCloseViewer = () => {
+    const handleCloseViewer = () => {
         setSelectedViewFile(null);
     };
 
-     const handleFileClick = (file, subject) => {
+    const handleFileClick = (file, subject) => {
         setSelectedViewFile(file);
     };
 
-     useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }, [])
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" })
+    }, [])
 
-     const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
-    
-      const isExcludedRoute = location.pathname.startsWith("/login") || location.pathname === "/signup";
-      const isMobile = window.innerWidth <= 768;
-      const swipeHandlers = useSwipeable({
+    const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
+
+    const isExcludedRoute = location.pathname.startsWith("/login") || location.pathname === "/signup";
+    const isMobile = window.innerWidth <= 768;
+    const swipeHandlers = useSwipeable({
         onSwipedLeft: () => {
-          if (isMobile && !isExcludedRoute) {
-            setIsSidebarOpen(true);
-            console.log("Swiped left - opening sidebar");
-          }
+            if (isMobile && !isExcludedRoute) {
+                setIsSidebarOpen(true);
+                console.log("Swiped left - opening sidebar");
+            }
         },
         onSwipedRight: () => {
-          if (isMobile && !isExcludedRoute && isSidebarOpen) {
-            setIsSidebarOpen(false);
-            console.log("Swiped right - closing sidebar");
-          }
+            if (isMobile && !isExcludedRoute) {
+                navigate('/scsit/mca/semesters/3');
+            }
         },
         preventDefaultTouchmoveEvent: false,
         trackMouse: false,
         delta: 30,
-      });
+    });
 
     return (
         <>
@@ -231,7 +230,7 @@ const MyFilesPage = () => {
                         </div>
                     ) : error ? (
                         <div className="text-center text-red-400 bg-red-500/10 p-4 rounded-lg flex items-center justify-center gap-2">
-                             <AlertCircle /> {error}
+                            <AlertCircle /> {error}
                         </div>
                     ) : files.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -246,7 +245,7 @@ const MyFilesPage = () => {
                                     <div className="p-6 flex-grow">
                                         <h3 className="text-xl font-bold text-white mb-2">{file.name}</h3>
                                         <div className="space-y-2 text-gray-300 text-sm">
-                                             <p className="flex items-center gap-2"><BookDashed size={14} className="text-green-400" /> {file.course}</p>
+                                            <p className="flex items-center gap-2"><BookDashed size={14} className="text-green-400" /> {file.course}</p>
                                             <p className="flex items-center gap-2"><Book size={14} className="text-green-400" /> {file.subject}</p>
                                             <p className="flex items-center gap-2"><GraduationCap size={14} className="text-green-400" /> {file.course} - Sem {file.semester}</p>
                                             <p className="flex items-center gap-2"><Calendar size={14} className="text-green-400" /> Year: {file.year}</p>
@@ -254,7 +253,7 @@ const MyFilesPage = () => {
                                         </div>
                                     </div>
                                     <div className="bg-gray-900/50 p-4 flex justify-end space-x-3">
-                                      <motion.button onClick={() => handleFileClick(file)} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors">
+                                        <motion.button onClick={() => handleFileClick(file)} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors">
                                             <View size={14} /> View
                                         </motion.button>
                                         <motion.button onClick={() => openEditModal(file)} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
@@ -342,7 +341,7 @@ const MyFilesPage = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-            {selectedViewFile && <FileViewer file={selectedViewFile} onClose={handleCloseViewer} isAllFiles={true}/>}
+            {selectedViewFile && <FileViewer file={selectedViewFile} onClose={handleCloseViewer} isAllFiles={true} />}
         </>
     );
 };

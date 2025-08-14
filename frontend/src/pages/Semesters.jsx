@@ -147,10 +147,9 @@ const SemestersPage = () => {
         console.log("Swiped left - opening sidebar");
       }
     },
-    onSwipedRight: () => {
-      if (isMobile && !isExcludedRoute && isSidebarOpen) {
-        setIsSidebarOpen(false);
-        console.log("Swiped right - closing sidebar");
+     onSwipedRight: () => {
+      if (isMobile && !isExcludedRoute) {
+        navigate('/scsit/mca/semesters/3');
       }
     },
     preventDefaultTouchmoveEvent: false,
