@@ -72,8 +72,8 @@ const CustomSelect = ({ options, value, onChange, placeholder, disabled, icon: I
     );
 };
 
-export const EditProfileModal = ({ user, onClose }) => {
-    const { checkAuth, setUser } = useAuthStore();
+export const EditProfileModal = ({ onClose }) => {
+    const { checkAuth, setUser, user } = useAuthStore();
     const [userSemester, setUserSemester] = useState(null);
     const navigate = useNavigate();
 
@@ -188,7 +188,10 @@ export const EditProfileModal = ({ user, onClose }) => {
     const currentCourse = courseOptions.find(c => c.value === profileData.course) || courseOptions.find(c => c.value === user?.course?.toUpperCase());
     const currentSemester = semesterOptions.find(s => s.value === profileData.semester) || userSemester;
 
+    const [loadLoading, setLoadLoading] = useState(false);
+
     const handleProfileLoad = async () => {
+        setLoadLoading(true);
           try {
             const response = await axios.get(`${API_URL}/api/auth/fetchuser/${user._id}`);
             console.log("Fetched user:", response.data.user);
@@ -196,8 +199,11 @@ export const EditProfileModal = ({ user, onClose }) => {
                 localStorage.setItem("user", JSON.stringify(response.data.user));
                 setUser(response.data.user);
             }
+            setLoadLoading(false);
         } catch (error) {
            console.log(error);
+        }finally{
+            setLoadLoading(false);
         }
     }
 
@@ -262,7 +268,16 @@ export const EditProfileModal = ({ user, onClose }) => {
                             }}
                             className="px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:bg-gray-500 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
                         >
-                            New Changes <RotateCw size={18} />
+                            {loadLoading ? (
+                            <>
+                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                Loading new profile...
+                            </>
+                        ) : (
+                            <>
+                                New Changes <RotateCw size={18} />
+                            </>
+                        )}
                         </button>
                     {!user?.isVerified && (
                         <button

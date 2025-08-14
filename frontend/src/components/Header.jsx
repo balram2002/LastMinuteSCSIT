@@ -244,7 +244,6 @@ const Header = () => {
         <EditProfileModal
           isOpen={editModalOpen}
           onClose={() => setEditModalOpen(false)}
-          user={user}
         />
       )}
     </>
