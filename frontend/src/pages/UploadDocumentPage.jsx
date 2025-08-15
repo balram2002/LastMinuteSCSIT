@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useRef, useEffect, useContext } from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, Upload, FileText, Check, X, AlertCircle } from "lucide-react"
@@ -11,7 +10,7 @@ import { API_URL } from "../utils/urls"
 import { useSwipeable } from "react-swipeable"
 import { ValuesContext } from "../context/ValuesContext"
 import toast from "react-hot-toast"
-
+import { courses, ResourceTypes, semestersByCourse, subjectsByCourseAndSemester } from "../utils/Data"
 const UploadDocumentPage = () => {
   const navigate = useNavigate()
   const [fileName, setFileName] = useState("")
@@ -19,6 +18,7 @@ const UploadDocumentPage = () => {
   const [selectedSemester, setSelectedSemester] = useState("")
   const [selectedSubject, setSelectedSubject] = useState("")
   const [selectedTypes, setSelectedTypes] = useState(null)
+  const [selectedResourceType, setSelectedResourceType] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedYear, setSelectedYear] = useState("")
   const [selectedFile, setSelectedFile] = useState(null)
@@ -28,7 +28,6 @@ const UploadDocumentPage = () => {
   const [uploadMessage, setUploadMessage] = useState("")
   const fileInputRef = useRef(null)
   const { user } = useAuthStore()
-
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" })
     if (user?.isAdmin && user.isAdmin !== 'admin') {
@@ -45,7 +44,6 @@ const UploadDocumentPage = () => {
       });
     }
   }, [])
-
   useEffect(() => {
     if (selectedCategory === "paper") {
       setSelectedTypes("image")
@@ -53,183 +51,45 @@ const UploadDocumentPage = () => {
       setSelectedTypes(null)
     }
   }, [selectedCategory])
-
-  const courses = [
-    { value: "BCA", label: "Bachelor of Computer Applications (BCA)" },
-    { value: "MCA", label: "Master of Computer Applications (MCA)" },
-    { value: "BCA_INT", label: "BCA Integrated" },
-    { value: "MSC_INT_CS", label: "M.Sc. Integrated (Cyber Security)" },
-    { value: "MTECH_CS", label: "M.Tech(CS)" },
-    { value: "MTECH_CS_EXEC", label: "M.Tech(CS) Executive" },
-    { value: "MTECH_NM_IS", label: "M.Tech(NM & IS)" },
-    { value: "MTECH_IA_SE", label: "M.Tech(IA & SE)" },
-    { value: "PHD", label: "Doctor of Philosophy (PhD)" },
-    { value: "MSC_CS", label: "Master of Science (CS)" },
-    { value: "MSC_IT", label: "Master of Science (IT)" },
-    { value: "MBA_CM", label: "MBA (Computer Management)" },
-    { value: "PGDCA", label: "PG Diploma in Computer Applications (PGDCA)" },
-  ]
-
-  const semestersByCourse = {
-    "BCA": ["1", "2", "3", "4", "5", "6"],
-    "MCA": ["1", "2", "3", "4"],
-    "BCA_INT": ["1", "2", "3", "4", "5", "6", "7", "8"],
-    "MSC_INT_CS": ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],
-    "MTECH_CS": ["1", "2", "3", "4"],
-    "MTECH_CS_EXEC": ["1", "2", "3", "4"],
-    "MTECH_NM_IS": ["1", "2", "3", "4"],
-    "MTECH_IA_SE": ["1", "2", "3", "4"],
-    "PHD": ["1", "2", "3", "4", "5", "6"],
-    "MSC_CS": ["1", "2", "3", "4"],
-    "MSC_IT": ["1", "2", "3", "4"],
-    "MBA_CM": ["1", "2", "3", "4"],
-    "PGDCA": ["1", "2"],
-  }
-
-  const staticSemesterData = {
-    1: {
-      title: "1st Semester",
-      subjects: [
-        { name: "Computer Organisation and Architecture", papers: [] },
-        { name: "Mathematical Foundation for Computer Application", papers: [] },
-        { name: "Data Structures Using C++", papers: [] },
-        { name: "Operating System", papers: [] },
-        { name: "Communication Skills and Report Writing", papers: [] },
-      ],
-    },
-    2: {
-      title: "2nd Semester",
-      subjects: [
-        { name: "Software Engineering", papers: [] },
-        { name: "Database Management System", papers: [] },
-        { name: "Design and Analysis of Algorithms", papers: [] },
-        { name: "Computer Networks", papers: [] },
-        { name: "Internet and Web Technology", papers: [] },
-      ],
-    },
-    3: {
-      title: "3rd Semester",
-      subjects: [
-        { name: "Information Security", papers: [] },
-        { name: "Automata Theory and Compiler Constructions", papers: [] },
-        { name: "Artificial Intelligence and Machine Learning", papers: [] },
-        { name: "Cloud Computing", papers: [] },
-        { name: "Information Technology Project Management", papers: [] },
-      ],
-    },
-    4: {
-      title: "4th Semester",
-      subjects: [{ name: "Project Work", papers: [] }],
-    },
-  }
-
-  const subjectsByCourseAndSemester = {
-    "BCA": {
-      "1": ["Programming in C", "Mathematics for Computing", "Digital Electronics", "Communication Skills", "Computer Organization"],
-      "2": ["Data Structures", "Discrete Mathematics", "Web Development", "Object Oriented Programming", "Database Management Systems"],
-      "3": ["Operating Systems", "Computer Networks", "Java Programming", "Software Engineering", "Computer Graphics"],
-      "4": ["Advanced Database Systems", "Web Technologies", "Project Work"],
-      "5": ["Artificial Intelligence", "Cyber Security", "Mobile Application Development"],
-      "6": ["Cloud Computing", "Big Data Analytics", "Project Work"],
-    },
-    "MCA": staticSemesterData,
-    "BCA_INT": {
-      "1": ["Programming in C", "Mathematics for Computing", "Digital Electronics", "Communication Skills"],
-      "2": ["Data Structures", "Discrete Mathematics", "Web Development", "Computer Organization"],
-      "3": ["Operating Systems", "Object Oriented Programming", "Database Management Systems"],
-      "4": ["Computer Networks", "Java Programming", "Software Engineering"],
-      "5": ["Computer Graphics", "Web Technologies", "Advanced Database Systems"],
-      "6": ["Artificial Intelligence", "Cloud Computing", "Project Work"],
-      "7": ["Big Data Analytics", "Cyber Security", "Mobile Application Development"],
-      "8": ["Advanced Web Technologies", "Project Work"],
-    },
-    "MSC_INT_CS": {
-      "1": ["Fundamentals of IT & Programming", "Digital Logic", "Mathematics-I", "Communication Skills"],
-      "2": ["Data Structures", "Computer Organization", "Mathematics-II", "Intro to Cyber Security"],
-      "3": ["Object-Oriented Programming", "Operating Systems", "Database Management Systems", "Network Fundamentals"],
-      "4": ["Web Technologies", "Software Engineering", "Principles of Information Security", "Python for Security"],
-      "5": ["Computer Networks & Security", "Cryptography Basics", "Ethical Hacking Fundamentals", "Cyber Law & Ethics"],
-      "6": ["Secure Coding Practices", "Web Application Security", "Digital Forensics-I", "Minor Project-I"],
-      "7": ["Network Security & Firewalls", "Malware Analysis", "Intrusion Detection Systems", "Elective-I"],
-      "8": ["Cloud Security", "Mobile & Wireless Security", "Digital Forensics-II", "Elective-II"],
-      "9": ["Advanced Cryptography", "IoT Security", "Cyber Threat Intelligence", "Minor Project-II"],
-      "10": ["Major Project / Internship"],
-    },
-    "MTECH_CS": {
-      "1": ["Advanced Data Structures", "Theory of Computation", "Modern Computer Architecture", "Advanced Algorithms"],
-      "2": ["Machine Learning", "Advanced Database Systems", "Compiler Design", "Research Methodology"],
-      "3": ["Deep Learning", "Cloud Computing", "Minor Project"],
-      "4": ["Dissertation / Major Project"],
-    },
-    "MTECH_CS_EXEC": {
-      "1": ["Software Project Management", "Advanced Operating Systems", "Data Warehousing & Mining", "IT Strategy"],
-      "2": ["Agile Methodologies", "Information Systems Security", "Business Intelligence", "Cloud Services"],
-      "3": ["Big Data Analytics", "DevOps", "Case Studies Project"],
-      "4": ["Dissertation / Major Project"],
-    },
-    "MTECH_NM_IS": {
-      "1": ["Advanced Computer Networks", "Cryptography & Network Security", "Network Programming", "Wireless & Mobile Networks"],
-      "2": ["Information & System Security", "Network Management & Operations", "Ethical Hacking", "Research Methodology"],
-      "3": ["Cloud & Data Center Networking", "Intrusion Detection & Prevention Systems", "Digital Forensics", "Minor Project"],
-      "4": ["Dissertation / Major Project"],
-    },
-    "MTECH_IA_SE": {
-      "1": ["Advanced Software Engineering", "Information Architecture & Design", "Software Metrics & Quality Assurance", "Object-Oriented Analysis & Design"],
-      "2": ["Software Architecture & Patterns", "Component-Based Software Engineering", "User Experience (UX) Design", "Research Methodology"],
-      "3": ["Software Project & Risk Management", "Agile Software Development", "Service-Oriented Architecture", "Minor Project"],
-      "4": ["Dissertation / Major Project"],
-    },
-    "PHD": {
-      "1": ["Research Methodology", "Advanced Computing", "Statistical Methods"],
-      "2": ["Machine Learning", "Data Science", "Literature Review"],
-      "3": ["Artificial Intelligence", "Advanced Algorithms", "Big Data Analytics"],
-      "4": ["Cyber Security", "Cloud Computing", "Thesis Work"],
-      "5": ["Advanced Topics in Computing", "Research Seminar"],
-      "6": ["Thesis Work"],
-    },
-    "MSC_CS": {
-      "1": ["Advanced Data Structures", "Theory of Computation", "Advanced Algorithms", "Computer Systems and Networks"],
-      "2": ["Artificial Intelligence", "Compiler Design", "Advanced Database Systems", "Software Project Management"],
-      "3": ["Machine Learning", "Cryptography and Network Security", "Cloud Computing", "Elective I"],
-      "4": ["Major Project"],
-    },
-    "MSC_IT": {
-      "1": ["IT Fundamentals", "Web Technologies", "Object-Oriented Programming", "Network Essentials"],
-      "2": ["Data Warehousing and Mining", "Mobile Computing", "Information Security", "E-Commerce"],
-      "3": ["Big Data Technologies", "Internet of Things (IoT)", "Digital Image Processing", "Elective II"],
-      "4": ["Major Project"],
-    },
-    "MBA_CM": {
-      "1": ["Principles of Management", "Managerial Economics", "IT for Managers", "Accounting for Managers"],
-      "2": ["Marketing Management", "Human Resource Management", "Database Management Systems", "Business Communication"],
-      "3": ["Software Project Management", "E-Business Strategies", "Information Systems Security", "Strategic Management"],
-      "4": ["Internship and Project Report"],
-    },
-    "PGDCA": {
-      "1": ["Computer Fundamentals & PC Software", "Programming in 'C'", "Database Management using FoxPro", "System Analysis and Design"],
-      "2": ["GUI Programming with Visual Basic", "Web Design and Internet", "Object-Oriented Programming with C++", "Project Work"],
-    },
-  }
-
   const getOrdinalSuffix = (n) => {
     const s = ["th", "st", "nd", "rd"], v = n % 100
     return s[(v - 20) % 10] || s[v] || s[0]
   }
-
-  const availableSemesters = selectedCourse ? semestersByCourse?.[selectedCourse]?.map((sem) => ({ value: sem, label: `${sem}${getOrdinalSuffix(parseInt(sem, 10))} Semester` })) ?? [] : []
-
-  const availableSubjects = selectedCourse && selectedSemester ? (selectedCourse === "MCA" ? subjectsByCourseAndSemester?.[selectedCourse]?.[selectedSemester]?.subjects?.map(sub => ({ value: sub.name, label: sub.name })) ?? [] : subjectsByCourseAndSemester?.[selectedCourse]?.[selectedSemester]?.map(sub => ({ value: sub, label: sub })) ?? []) : []
-
+  const availableSemesters = selectedCourse
+    ? semestersByCourse?.[selectedCourse]?.map((sem) => ({
+      value: sem,
+      label: sem === "0" ? `Whole Course(${selectedCourse})` : `${sem}${getOrdinalSuffix(parseInt(sem, 10))} Semester`,
+    })) ?? []
+    : []
+  const getSubjectsForCourseAndSemester = (course, semester) => {
+    const semesterData = subjectsByCourseAndSemester?.[course]?.[semester]
+    if (Array.isArray(semesterData)) {
+      return semesterData
+    }
+    if (semesterData && typeof semesterData === 'object' && semesterData.subjects && Array.isArray(semesterData.subjects)) {
+      return semesterData.subjects.map(sub => sub.name || sub)
+    }
+    return []
+  }
+  const availableSubjects = selectedCourse && selectedSemester
+    ? getSubjectsForCourseAndSemester(selectedCourse, selectedSemester).map((sub) => ({
+      value: sub,
+      label: sub,
+    }))
+    : []
+  useEffect(() => {
+    if (selectedSemester === "0") {
+      setSelectedSubject("Whole Semester")
+    }
+  }, [selectedSemester])
   const handleDragOver = (e) => {
     e.preventDefault()
     setIsDragging(true)
   }
-
   const handleDragLeave = (e) => {
     e.preventDefault()
     setIsDragging(false)
   }
-
   const handleDrop = (e) => {
     e.preventDefault()
     setIsDragging(false)
@@ -238,7 +98,6 @@ const UploadDocumentPage = () => {
       handleFileSelect(files[0])
     }
   }
-
   const handleFileSelect = (file) => {
     let allowedTypes
     if (selectedCategory === "paper") {
@@ -260,14 +119,12 @@ const UploadDocumentPage = () => {
     setUploadStatus("idle")
     setUploadMessage("")
   }
-
   const handleFileInputChange = (e) => {
     const files = e.target?.files
     if (files?.length > 0) {
       handleFileSelect(files[0])
     }
   }
-
   const handleTypeChange = (type) => {
     if (selectedTypes === type) {
       setSelectedTypes(null)
@@ -275,7 +132,6 @@ const UploadDocumentPage = () => {
       setSelectedTypes(type)
     }
   }
-
   const handleCategoryChange = (category) => {
     if (selectedCategory === category) {
       setSelectedCategory(null)
@@ -283,28 +139,25 @@ const UploadDocumentPage = () => {
       setSelectedCategory(category)
     }
   }
-
   const handleYearChange = (e) => {
     const value = e.target?.value
     if (/^\d{0,4}$/.test(value ?? "")) {
       setSelectedYear(value ?? "")
     }
   }
-
   const handleUpload = async () => {
     if (!user || !user.isAdmin || user.isAdmin !== 'admin') {
       setUploadStatus("error");
       setUploadMessage("Only admins are authorized to upload documents.");
       return;
     }
-
     if (
       !selectedFile ||
       !fileName ||
       !selectedCourse ||
       !selectedSemester ||
       !selectedSubject ||
-      !selectedTypes ||
+      (selectedCategory === "paper" ? false : !selectedTypes) ||
       !selectedCategory ||
       !/^\d{4}$/.test(selectedYear)
     ) {
@@ -312,22 +165,18 @@ const UploadDocumentPage = () => {
       setUploadMessage("Please fill in all fields, select a file, choose a type, select a category, and enter a valid year");
       return;
     }
-
     if (selectedCategory === "paper" && !["image/jpeg", "image/png", "image/jpg"].includes(selectedFile.type)) {
       setUploadStatus("error");
       setUploadMessage("Only image files (JPEG, PNG) are allowed for papers");
       return;
     }
-
     if (selectedFile.size > 10 * 1024 * 1024) {
       setUploadStatus("error");
       setUploadMessage("File size exceeds 10MB limit");
       return;
     }
-
     setIsUploading(true);
     setUploadStatus("idle");
-
     const resetForm = () => {
       setSelectedFile(null);
       setFileName("");
@@ -341,7 +190,6 @@ const UploadDocumentPage = () => {
         fileInputRef.current.value = "";
       }
     };
-
     try {
       const cloudName = "dbf1lifdi";
       const uploadPreset = "frontend_uploads";
@@ -376,7 +224,6 @@ const UploadDocumentPage = () => {
       if (!cloudData.secure_url) {
         throw new Error("Cloudinary upload failed: No secure URL returned");
       }
-
       const payload = {
         name: fileName.trim(),
         course: selectedCourse.trim(),
@@ -389,22 +236,19 @@ const UploadDocumentPage = () => {
         fileUrl: cloudData.secure_url,
         contentType: cloudData.resource_type,
         format: cloudData.format,
+        resourceType: selectedResourceType || "none",
       };
-
       const res = await fetch(`${API_URL}/api/files/upload`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${user?._id}` },
         credentials: "include",
         body: JSON.stringify(payload),
         signal: new AbortController().signal,
       });
-
       const json = await res.json();
-
       if (!res.ok || !json.success) {
         throw new Error(json.message || "Failed to save file metadata");
       }
-
       resetForm();
       setUploadStatus("success");
       setUploadMessage("File uploaded successfully!");
@@ -415,7 +259,6 @@ const UploadDocumentPage = () => {
       setIsUploading(false);
     }
   };
-
   const removeFile = () => {
     setSelectedFile(null)
     setFileName("")
@@ -423,7 +266,6 @@ const UploadDocumentPage = () => {
       fileInputRef.current.value = ""
     }
   }
-
   const customSelectStyles = {
     control: (provided) => ({
       ...provided,
@@ -471,11 +313,9 @@ const UploadDocumentPage = () => {
       color: '#ffffff',
     }),
   }
-
   const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
-
-  const isExcludedRoute = location.pathname.startsWith("/login") || location.pathname === "/signup";
-  const isMobile = window.innerWidth <= 768;
+  const isExcludedRoute = typeof window !== 'undefined' ? window.location.pathname.startsWith("/login") || window.location.pathname === "/signup" : false;
+  const isMobile = typeof window !== 'undefined' ? window.innerWidth <= 768 : false;
   const swipeHandlers = useSwipeable({
     onSwipedLeft: () => {
       if (isMobile && !isExcludedRoute) {
@@ -487,7 +327,6 @@ const UploadDocumentPage = () => {
     trackMouse: false,
     delta: 30,
   });
-
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey) {
@@ -507,14 +346,13 @@ const UploadDocumentPage = () => {
         }
       }
     };
-
-    document.addEventListener('keydown', handleKeyDown, true);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown, true);
-    };
+    if (typeof window !== 'undefined') {
+      document.addEventListener('keydown', handleKeyDown, true);
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown, true);
+      };
+    }
   }, [user]);
-
   return (
     <div {...swipeHandlers} className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-blue-900 to-slate-500 flex flex-col items-center p-0 pb-4 pt-20 sm:pt-24">
       <Helmet>
@@ -544,7 +382,6 @@ const UploadDocumentPage = () => {
           </motion.button>
         </motion.div>
       </div>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -565,7 +402,6 @@ const UploadDocumentPage = () => {
                 className="w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-700 bg-opacity-50 rounded-lg border border-gray-600 focus:border-green-500 focus:bg-opacity-75 text-white placeholder-gray-400 transition duration-200 text-sm sm:text-base"
               />
             </div>
-
             <div>
               <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
                 Course
@@ -584,7 +420,6 @@ const UploadDocumentPage = () => {
                 isSearchable
               />
             </div>
-
             <div>
               <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
                 Semester
@@ -603,25 +438,25 @@ const UploadDocumentPage = () => {
                 isSearchable
               />
             </div>
-
-            <div>
-              <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
-                Subject
-              </label>
-              <Select
-                options={availableSubjects}
-                value={uploadStatus === "success" ? null : availableSubjects?.find(sub => sub?.value === selectedSubject)}
-                onChange={(option) => {
-                  setSelectedSubject(option?.value ?? "")
-                  setUploadStatus("idle")
-                }}
-                placeholder="Select Subject"
-                isDisabled={!selectedCourse || !selectedSemester}
-                styles={customSelectStyles}
-                isSearchable
-              />
-            </div>
-
+            {selectedSemester !== "0" &&
+              <div>
+                <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
+                  Subject
+                </label>
+                <Select
+                  options={availableSubjects}
+                  value={uploadStatus === "success" ? null : availableSubjects?.find(sub => sub?.value === selectedSubject)}
+                  onChange={(option) => {
+                    setSelectedSubject(option?.value ?? "")
+                    setUploadStatus("idle")
+                  }}
+                  placeholder="Select Subject"
+                  isDisabled={!selectedCourse || !selectedSemester || selectedSemester === "0"}
+                  styles={customSelectStyles}
+                  isSearchable
+                />
+              </div>
+            }
             <div className="flex flex-col sm:flex-row sm:space-x-4">
               <div className="flex-1 mb-4 sm:mb-0">
                 <label className="block text-sm sm:text-base font-medium text-gray-300">
@@ -679,11 +514,28 @@ const UploadDocumentPage = () => {
                 />
               </div>
             </div>
-
+            {selectedCategory === "paper" && (
+              <div>
+                <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
+                  Resource Type
+                </label>
+                <Select
+                  options={Object.values(ResourceTypes)}
+                  value={uploadStatus === "success" ? null : Object.values(ResourceTypes)?.find(type => type?.value === selectedResourceType)}
+                  onChange={(option) => {
+                    setSelectedResourceType(option?.value ?? "")
+                    setUploadStatus("idle")
+                  }}
+                  placeholder="Select Resource Type"
+                  styles={customSelectStyles}
+                  isSearchable
+                />
+              </div>
+            )}
             {selectedCategory !== "paper" && (
-              <div className="flex-1">
+              <div className="flex-1 w-full">
                 <label className="block text-sm sm:text-base font-medium text-gray-300">
-                  Type
+                  File Type
                 </label>
                 <div className="flex flex-wrap gap-2 sm:gap-3 pt-3 sm:pt-5">
                   <label className="flex items-center space-x-2 cursor-pointer">
@@ -713,7 +565,6 @@ const UploadDocumentPage = () => {
                 </div>
               </div>
             )}
-
             <div>
               <label className="block text-sm sm:text-base font-medium text-gray-300 mb-2">
                 Upload File
@@ -785,7 +636,6 @@ const UploadDocumentPage = () => {
                 )}
               </div>
             </div>
-
             {uploadMessage && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -804,12 +654,11 @@ const UploadDocumentPage = () => {
                 </span>
               </motion.div>
             )}
-
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleUpload}
-              disabled={isUploading || !selectedFile || !fileName || !selectedCourse || !selectedSemester || !selectedSubject || !selectedTypes || !selectedCategory || !/^\d{4}$/.test(selectedYear) || (selectedCategory === "paper" && selectedFile && !["image/jpeg", "image/png", "image/jpg"].includes(selectedFile.type))}
+              disabled={isUploading || !selectedFile || !fileName || !selectedCourse || !selectedSemester || !selectedSubject || (selectedCategory === "paper" ? false : !selectedTypes) || !selectedCategory || !/^\d{4}$/.test(selectedYear) || (selectedCategory === "paper" && selectedFile && !["image/jpeg", "image/png", "image/jpg"].includes(selectedFile.type))}
               className="w-full py-3 sm:py-4 px-4 sm:px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               {isUploading ? (
@@ -827,7 +676,6 @@ const UploadDocumentPage = () => {
           </div>
         </div>
       </motion.div>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -875,5 +723,4 @@ const UploadDocumentPage = () => {
     </div>
   )
 }
-
 export default UploadDocumentPage

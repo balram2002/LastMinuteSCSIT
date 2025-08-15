@@ -1,7 +1,7 @@
 "use client"
 
-import { motion } from "framer-motion";
-import { ArrowLeft, FileText, Calendar, Filter } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowLeft, FileText, Calendar, Filter, ChevronDown, Cross, X, Image } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import FileViewer from "../fileComponents/FileViewer";
@@ -10,117 +10,28 @@ import loadingGif from "../../public/loadinggif.gif";
 import { API_URL } from "../utils/urls";
 import { useSwipeable } from "react-swipeable";
 import { ValuesContext } from "../context/ValuesContext";
-
-const courses = [
-    { value: "BCA", label: "Bachelor of Computer Applications (BCA)" },
-    { value: "MCA", label: "Master of Computer Applications (MCA)" },
-    { value: "BCA_INT", label: "BCA Integrated" },
-    { value: "MSC_INT_CS", label: "M.Sc. Integrated (Cyber Security)" },
-    { value: "MTECH_CS", label: "M.Tech(CS)" },
-    { value: "MTECH_CS_EXEC", label: "M.Tech(CS) Executive" },
-    { value: "MTECH_NM_IS", label: "M.Tech(NM & IS)" },
-    { value: "MTECH_IA_SE", label: "M.Tech(IA & SE)" },
-    { value: "PHD", label: "Doctor of Philosophy (PhD)" },
-    { value: "MSC_CS", label: "Master of Science (CS)" },
-    { value: "MSC_IT", label: "Master of Science (IT)" },
-    { value: "MBA_CM", label: "MBA (Computer Management)" },
-    { value: "PGDCA", label: "PG Diploma in Computer Applications (PGDCA)" },
-];
+import { courses, semestersByCourse, subjectsByCourseAndSemester } from "../utils/Data";
 
 const createSemesterData = (subjects) => subjects.map(name => ({ name, papers: [] }));
 
-const ALL_SEMESTER_DATA = {
-    "BCA": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Programming in C", "Mathematics for Computing", "Digital Electronics", "Communication Skills", "Computer Organization"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Data Structures", "Discrete Mathematics", "Web Development", "Object Oriented Programming", "Database Management Systems"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Operating Systems", "Computer Networks", "Java Programming", "Software Engineering", "Computer Graphics"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Advanced Database Systems", "Web Technologies", "Project Work"]) },
-        "5": { title: "5th Semester", subjects: createSemesterData(["Artificial Intelligence", "Cyber Security", "Mobile Application Development"]) },
-        "6": { title: "6th Semester", subjects: createSemesterData(["Cloud Computing", "Big Data Analytics", "Project Work"]) },
-    },
-    "MCA": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Computer Organisation and Architecture", "Mathematical Foundation for Computer Application", "Data Structures Using C++", "Operating System", "Communication Skills and Report Writing"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Software Engineering", "Database Management System", "Design and Analysis of Algorithms", "Computer Networks", "Internet and Web Technology"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Information Security", "Automata Theory and Compiler Constructions", "Artificial Intelligence and Machine Learning", "Cloud Computing", "Information Technology Project Management"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Project Work"]) },
-    },
-    "BCA_INT": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Programming in C", "Mathematics for Computing", "Digital Electronics", "Communication Skills"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Data Structures", "Discrete Mathematics", "Web Development", "Computer Organization"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Operating Systems", "Object Oriented Programming", "Database Management Systems"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Computer Networks", "Java Programming", "Software Engineering"]) },
-        "5": { title: "5th Semester", subjects: createSemesterData(["Computer Graphics", "Web Technologies", "Advanced Database Systems"]) },
-        "6": { title: "6th Semester", subjects: createSemesterData(["Artificial Intelligence", "Cloud Computing", "Project Work"]) },
-        "7": { title: "7th Semester", subjects: createSemesterData(["Big Data Analytics", "Cyber Security", "Mobile Application Development"]) },
-        "8": { title: "8th Semester", subjects: createSemesterData(["Advanced Web Technologies", "Project Work"]) },
-    },
-    "MSC_INT_CS": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Fundamentals of IT & Programming", "Digital Logic", "Mathematics-I", "Communication Skills"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Data Structures", "Computer Organization", "Mathematics-II", "Intro to Cyber Security"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Object-Oriented Programming", "Operating Systems", "Database Management Systems", "Network Fundamentals"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Web Technologies", "Software Engineering", "Principles of Information Security", "Python for Security"]) },
-        "5": { title: "5th Semester", subjects: createSemesterData(["Computer Networks & Security", "Cryptography Basics", "Ethical Hacking Fundamentals", "Cyber Law & Ethics"]) },
-        "6": { title: "6th Semester", subjects: createSemesterData(["Secure Coding Practices", "Web Application Security", "Digital Forensics-I", "Minor Project-I"]) },
-        "7": { title: "7th Semester", subjects: createSemesterData(["Network Security & Firewalls", "Malware Analysis", "Intrusion Detection Systems", "Elective-I"]) },
-        "8": { title: "8th Semester", subjects: createSemesterData(["Cloud Security", "Mobile & Wireless Security", "Digital Forensics-II", "Elective-II"]) },
-        "9": { title: "9th Semester", subjects: createSemesterData(["Advanced Cryptography", "IoT Security", "Cyber Threat Intelligence", "Minor Project-II"]) },
-        "10": { title: "10th Semester", subjects: createSemesterData(["Major Project / Internship"]) },
-    },
-    "MTECH_CS": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Advanced Data Structures", "Theory of Computation", "Modern Computer Architecture", "Advanced Algorithms"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Machine Learning", "Advanced Database Systems", "Compiler Design", "Research Methodology"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Deep Learning", "Cloud Computing", "Minor Project"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Dissertation / Major Project"]) },
-    },
-    "MTECH_CS_EXEC": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Software Project Management", "Advanced Operating Systems", "Data Warehousing & Mining", "IT Strategy"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Agile Methodologies", "Information Systems Security", "Business Intelligence", "Cloud Services"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Big Data Analytics", "DevOps", "Case Studies Project"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Dissertation / Major Project"]) },
-    },
-    "MTECH_NM_IS": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Advanced Computer Networks", "Cryptography & Network Security", "Network Programming", "Wireless & Mobile Networks"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Information & System Security", "Network Management & Operations", "Ethical Hacking", "Research Methodology"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Cloud & Data Center Networking", "Intrusion Detection & Prevention Systems", "Digital Forensics", "Minor Project"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Dissertation / Major Project"]) },
-    },
-    "MTECH_IA_SE": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Advanced Software Engineering", "Information Architecture & Design", "Software Metrics & Quality Assurance", "Object-Oriented Analysis & Design"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Software Architecture & Patterns", "Component-Based Software Engineering", "User Experience (UX) Design", "Research Methodology"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Software Project & Risk Management", "Agile Software Development", "Service-Oriented Architecture", "Minor Project"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Dissertation / Major Project"]) },
-    },
-    "PHD": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Research Methodology", "Advanced Computing", "Statistical Methods"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Machine Learning", "Data Science", "Literature Review"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Artificial Intelligence", "Advanced Algorithms", "Big Data Analytics"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Cyber Security", "Cloud Computing", "Thesis Work"]) },
-        "5": { title: "5th Semester", subjects: createSemesterData(["Advanced Topics in Computing", "Research Seminar"]) },
-        "6": { title: "6th Semester", subjects: createSemesterData(["Thesis Work"]) },
-    },
-    "MSC_CS": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Advanced Data Structures", "Theory of Computation", "Advanced Algorithms", "Computer Systems and Networks"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Artificial Intelligence", "Compiler Design", "Advanced Database Systems", "Software Project Management"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Machine Learning", "Cryptography and Network Security", "Cloud Computing", "Elective I"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Major Project"]) },
-    },
-    "MSC_IT": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["IT Fundamentals", "Web Technologies", "Object-Oriented Programming", "Network Essentials"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Data Warehousing and Mining", "Mobile Computing", "Information Security", "E-Commerce"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Big Data Technologies", "Internet of Things (IoT)", "Digital Image Processing", "Elective II"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Major Project"]) },
-    },
-    "MBA_CM": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Principles of Management", "Managerial Economics", "IT for Managers", "Accounting for Managers"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["Marketing Management", "Human Resource Management", "Database Management Systems", "Business Communication"]) },
-        "3": { title: "3rd Semester", subjects: createSemesterData(["Software Project Management", "E-Business Strategies", "Information Systems Security", "Strategic Management"]) },
-        "4": { title: "4th Semester", subjects: createSemesterData(["Internship and Project Report"]) },
-    },
-    "PGDCA": {
-        "1": { title: "1st Semester", subjects: createSemesterData(["Computer Fundamentals & PC Software", "Programming in 'C'", "Database Management using FoxPro", "System Analysis and Design"]) },
-        "2": { title: "2nd Semester", subjects: createSemesterData(["GUI Programming with Visual Basic", "Web Design and Internet", "Object-Oriented Programming with C++", "Project Work"]) },
-    },
-};
+const ALL_SEMESTER_DATA = {};
+Object.keys(subjectsByCourseAndSemester).forEach(courseKey => {
+    ALL_SEMESTER_DATA[courseKey] = {};
+    const courseData = subjectsByCourseAndSemester[courseKey];
+    Object.keys(courseData).forEach(semesterKey => {
+        const subjectNames = courseData[semesterKey];
+        ALL_SEMESTER_DATA[courseKey][semesterKey] = {
+            title: `${semesterKey}${getOrdinalSuffix(parseInt(semesterKey))} Semester`,
+            subjects: createSemesterData(subjectNames)
+        };
+    });
+});
+
+function getOrdinalSuffix(n) {
+    if (n === 0) return "All";
+    const s = ["th", "st", "nd", "rd"], v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+}
 
 const DocumentsPage = () => {
     const { course, semesterId } = useParams();
@@ -132,6 +43,7 @@ const DocumentsPage = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState('paper');
     const [subjectFilters, setSubjectFilters] = useState({});
+    const [subjectTypeFilters, setSubjectTypeFilters] = useState({});
 
     const categories = [
         { value: 'paper', label: 'Question Papers' },
@@ -192,10 +104,17 @@ const DocumentsPage = () => {
 
                 const updatedSemester = {
                     ...baseSemesterStructure,
-                    subjects: baseSemesterStructure.subjects.map(subject => ({
-                        ...subject,
-                        papers: filesBySubject[subject.name] || [],
-                    })),
+                    subjects: baseSemesterStructure.subjects
+                        .filter(subject => {
+                            if (selectedCategory === 'paper' || selectedCategory === 'notes') {
+                                return subject.name !== 'Whole Semester';
+                            }
+                            return true;
+                        })
+                        .map(subject => ({
+                            ...subject,
+                            papers: filesBySubject[subject.name] || [],
+                        })),
                 };
 
                 setSemesterData(updatedSemester);
@@ -207,7 +126,7 @@ const DocumentsPage = () => {
         };
 
         fetchAndProcessFiles();
-    }, [course, semesterId]);
+    }, [course, semesterId, selectedCategory]);
 
     const handleFileClick = (file) => {
         setSelectedFile(file);
@@ -240,7 +159,7 @@ const DocumentsPage = () => {
     const toggleShowAll = (subjectName) => {
         setShowAllMap(prev => ({
             ...prev,
-            [subjectName]: prev[subjectName] === 6 ? null : 6
+            [subjectName]: !prev[subjectName]
         }));
     };
 
@@ -251,9 +170,22 @@ const DocumentsPage = () => {
         }));
     };
 
+    const setSubjectTypeFilter = (subjectName, type) => {
+        setSubjectTypeFilters(prev => ({
+            ...prev,
+            [subjectName]: type === 'all' ? null : type
+        }));
+    };
+
     const getUniqueYears = (papers) => {
         const years = [...new Set(papers.map(paper => paper.year).filter(Boolean))];
         return years.sort((a, b) => b - a);
+    };
+
+    const getUniqueTypes = (papers) => {
+        console.log(papers);
+        const types = [...new Set(papers.map(paper => paper.resourceType).filter(Boolean))];
+        return types.sort();
     };
 
     const isExcludedRoute = typeof window !== 'undefined' &&
@@ -275,6 +207,9 @@ const DocumentsPage = () => {
         trackMouse: false,
         delta: 30,
     });
+
+    const [isYearOptionsOpen, setIsYearOptionsOpen] = useState({});
+    const [isTypeOptionsOpen, setIsTypeOptionsOpen] = useState({});
 
     if (loading) {
         return (
@@ -332,17 +267,26 @@ const DocumentsPage = () => {
             <div className="space-y-6 sm:space-y-8 w-full px-4 sm:px-6 md:px-8 flex-1 my-8">
                 {semesterData.subjects.length > 0 ? (
                     semesterData.subjects.map((subject, subjectIndex) => {
+                        console.log(semesterData?.subjects);
                         const filteredPapers = subject.papers.filter(paper => paper.category === selectedCategory);
                         const years = getUniqueYears(filteredPapers);
+                        const types = getUniqueTypes(filteredPapers);
+                        console.log(types);
                         const selectedYear = subjectFilters[subject.name];
-                        const displayPapers = selectedYear
-                            ? filteredPapers.filter(paper => paper.year == selectedYear)
-                            : filteredPapers;
+                        const selectedType = subjectTypeFilters[subject.name];
+
+                        let displayPapers = filteredPapers;
+                        if (selectedYear) {
+                            displayPapers = displayPapers.filter(paper => paper.year == selectedYear);
+                        }
+                        if (selectedType) {
+                            displayPapers = displayPapers.filter(paper => paper.resourceType === selectedType);
+                        }
 
                         const showAll = showAllMap[subject.name];
-                        const papersToShow = showAll === null
+                        const papersToShow = showAll
                             ? displayPapers
-                            : displayPapers.slice(0, showAll || 6);
+                            : displayPapers.slice(0, 6);
 
                         return (
                             <motion.div key={subject.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 * subjectIndex }} className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl overflow-hidden border border-gray-700 pb-2">
@@ -351,32 +295,175 @@ const DocumentsPage = () => {
                                         <div>
                                             <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1">{subject.name}</h2>
                                             <p className="text-sm sm:text-base text-gray-300">
-                                                {categoryDescriptions[selectedCategory]} • {displayPapers.length} Papers
+                                                {categoryDescriptions[selectedCategory]} • {filteredPapers.length} Papers
                                             </p>
                                         </div>
 
-                                        {years.length > 0 && (
-                                            <div className="flex items-center gap-2">
-                                                <Filter className="w-4 h-4 text-gray-400 hidden sm:block" />
+                                        <div className="flex flex-wrap gap-2">
+                                            {years.length > 0 && (
                                                 <div className="relative">
-                                                    <select
-                                                        value={selectedYear || 'all'}
-                                                        onChange={(e) => setSubjectYearFilter(subject.name, e.target.value)}
-                                                        className="appearance-none bg-gray-700 text-white text-sm rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-green-500 focus:outline-none cursor-pointer w-full sm:w-auto"
-                                                    >
-                                                        <option value="all">All Years</option>
-                                                        {years.map(year => (
-                                                            <option key={year} value={year}>{year}</option>
-                                                        ))}
-                                                    </select>
-                                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                                                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                                        </svg>
+                                                    <div className="relative w-full">
+                                                        <button
+                                                            onClick={() => setIsYearOptionsOpen(prev => ({
+                                                                ...prev,
+                                                                [subject.name]: !prev[subject.name]
+                                                            }))}
+                                                            className="flex w-full items-center justify-between gap-2 bg-gray-800/50 backdrop-filter backdrop-blur-xl rounded-xl border border-gray-700 px-4 py-2 text-white hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200"
+                                                        >
+                                                            <div className="flex items-center gap-2 truncate">
+                                                                {selectedYear ? (
+                                                                    <X size={20} className="text-gray-400 cursor-pointer hover:text-gray-100 hover:scale-110 transition-all duration-200" onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        setSubjectYearFilter(subject.name, 'all');
+                                                                    }} />
+                                                                ) : (
+                                                                    <Filter size={20} className="text-gray-400" />
+                                                                )}
+                                                                <span className="capitalize truncate">
+                                                                    {selectedYear || 'all years'}
+                                                                </span>
+                                                            </div>
+                                                            <ChevronDown
+                                                                size={16}
+                                                                className={`text-gray-400 transition-transform duration-300 ${isYearOptionsOpen[subject.name] ? 'rotate-180' : ''}`}
+                                                            />
+                                                        </button>
+
+                                                        <AnimatePresence>
+                                                            {isYearOptionsOpen[subject.name] && (
+                                                                <motion.div
+                                                                    initial={{ opacity: 0, y: -10 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    exit={{ opacity: 0, y: -10 }}
+                                                                    transition={{ duration: 0.2 }}
+                                                                    className="absolute z-10 mt-2 w-full origin-top-right rounded-xl border border-gray-700 bg-gray-900/80 shadow-lg backdrop-blur-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                                                >
+                                                                    <ul className="p-1">
+                                                                        <li>
+                                                                            <a
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSubjectYearFilter(subject.name, 'all');
+                                                                                    setIsYearOptionsOpen(prev => ({
+                                                                                        ...prev,
+                                                                                        [subject.name]: false
+                                                                                    }));
+                                                                                }}
+                                                                                className="block rounded-lg px-4 py-2 text-white hover:bg-green-500/10 transition-colors"
+                                                                            >
+                                                                                All Years
+                                                                            </a>
+                                                                        </li>
+                                                                        {years.map((year) => (
+                                                                            <li key={year}>
+                                                                                <a
+                                                                                    href="#"
+                                                                                    onClick={(e) => {
+                                                                                        e.preventDefault();
+                                                                                        setSubjectYearFilter(subject.name, year);
+                                                                                        setIsYearOptionsOpen(prev => ({
+                                                                                            ...prev,
+                                                                                            [subject.name]: false
+                                                                                        }));
+                                                                                    }}
+                                                                                    className="block rounded-lg px-4 py-2 text-white capitalize hover:bg-green-500/10 transition-colors truncate"
+                                                                                >
+                                                                                    {year}
+                                                                                </a>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </motion.div>
+                                                            )}
+                                                        </AnimatePresence>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
+
+                                            {filteredPapers.length > 0 && types.length > 0 && selectedCategory === 'paper' && (
+                                                <div className="relative">
+                                                    <div className="relative w-full">
+                                                        <button
+                                                            onClick={() => setIsTypeOptionsOpen(prev => ({
+                                                                ...prev,
+                                                                [subject.name]: !prev[subject.name]
+                                                            }))}
+                                                            className="flex w-full items-center justify-between gap-2 bg-gray-800/50 backdrop-filter backdrop-blur-xl rounded-xl border border-gray-700 px-4 py-2 text-white hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200"
+                                                        >
+                                                            <div className="flex items-center gap-2 truncate">
+                                                                {selectedType ? (
+                                                                    <X size={20} className="text-gray-400 cursor-pointer hover:text-gray-100 hover:scale-110 transition-all duration-200" onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        setSubjectTypeFilter(subject.name, 'all');
+                                                                    }} />
+                                                                ) : (
+                                                                    <Filter size={20} className="text-gray-400" />
+                                                                )}
+                                                                <span className="capitalize truncate">
+                                                                    {selectedType || 'all types'}
+                                                                </span>
+                                                            </div>
+                                                            <ChevronDown
+                                                                size={16}
+                                                                className={`text-gray-400 transition-transform duration-300 ${isTypeOptionsOpen[subject.name] ? 'rotate-180' : ''}`}
+                                                            />
+                                                        </button>
+
+                                                        <AnimatePresence>
+                                                            {isTypeOptionsOpen[subject.name] && (
+                                                                <motion.div
+                                                                    initial={{ opacity: 0, y: -10 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    exit={{ opacity: 0, y: -10 }}
+                                                                    transition={{ duration: 0.2 }}
+                                                                    className="absolute z-10 mt-2 w-full origin-top-right rounded-xl border border-gray-700 bg-gray-900/80 shadow-lg backdrop-blur-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                                                >
+                                                                    <ul className="p-1">
+                                                                        <li>
+                                                                            <a
+                                                                                href="#"
+                                                                                onClick={(e) => {
+                                                                                    e.preventDefault();
+                                                                                    setSubjectTypeFilter(subject.name, 'all');
+                                                                                    setIsTypeOptionsOpen(prev => ({
+                                                                                        ...prev,
+                                                                                        [subject.name]: false
+                                                                                    }));
+                                                                                }}
+                                                                                className="block rounded-lg px-4 py-2 text-white hover:bg-green-500/10 transition-colors"
+                                                                            >
+                                                                                All Types
+                                                                            </a>
+                                                                        </li>
+                                                                        {types.map((type) => (
+                                                                            <li key={type}>
+                                                                                <a
+                                                                                    href="#"
+                                                                                    onClick={(e) => {
+                                                                                        e.preventDefault();
+                                                                                        setSubjectTypeFilter(subject.name, type);
+                                                                                        setIsTypeOptionsOpen(prev => ({
+                                                                                            ...prev,
+                                                                                            [subject.name]: false
+                                                                                        }));
+                                                                                    }}
+                                                                                    className="block rounded-lg px-4 py-2 text-white capitalize hover:bg-green-500/10 transition-colors truncate"
+                                                                                >
+                                                                                    {type}
+                                                                                </a>
+                                                                            </li>
+                                                                        ))}
+                                                                    </ul>
+                                                                </motion.div>
+                                                            )}
+                                                        </AnimatePresence>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -394,7 +481,7 @@ const DocumentsPage = () => {
                                                     <div className="flex items-start space-x-3">
                                                         <div className="flex-shrink-0">
                                                             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-                                                                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                                                                {paper?.type === "document" ? <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" /> : <Image className="w-4 h-4 sm:w-5 sm:h-5 text-white" />}
                                                             </div>
                                                         </div>
                                                         <div className="flex-1 min-w-0">
@@ -424,9 +511,9 @@ const DocumentsPage = () => {
                                                 onClick={() => toggleShowAll(subject.name)}
                                                 className="text-green-400 hover:text-green-300 text-sm font-medium flex items-center gap-1"
                                             >
-                                                {showAll === null ? "Show Less" : "Show All"}
+                                                {showAll ? "Show Less" : "Show All"}
                                                 <span className="bg-gray-700 rounded-full px-2 py-0.5 text-xs">
-                                                    {displayPapers.length}
+                                                    {showAll ? 6 : displayPapers.length}
                                                 </span>
                                             </button>
                                         </div>

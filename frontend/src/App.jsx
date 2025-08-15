@@ -31,6 +31,7 @@ import PlannerPage from "./pages/PlannerPage";
 import AdminFilesPage from "./pages/AdminFilesPage";
 import UsersPage from "./pages/AllUsersPage";
 import VerifyUserEmail from "./pages/VerifyEmailPage";
+import LeaderboardPage from "./pages/LeaderBoardPage";
 
 const ProtectedRoute = ({ children }) => {
 	const { user } = useAuthStore();
@@ -75,10 +76,10 @@ function App() {
 						e.preventDefault();
 						navigate('/allfiles');
 						break;
-					case 'c':
-						e.preventDefault();
-						navigate('/calculations/tools/cgpa');
-						break;
+					// case 'c':
+					// 	e.preventDefault();
+					// 	navigate('/calculations/tools/cgpa');
+					// 	break;
 					case 'h':
 						e.preventDefault();
 						navigate('/home');
@@ -249,7 +250,7 @@ function App() {
 						}
 					/>
 					<Route
-						path='/allfiles/admin'
+						path='/admin/allfiles'
 						element={
 							<ProtectedRoute>
 								<AdminFilesPage />
@@ -269,6 +270,14 @@ function App() {
 						element={
 							<ProtectedRoute>
 								<VerifyUserEmail />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path='/admins/leaderboard'
+						element={
+							<ProtectedRoute>
+								<LeaderboardPage />
 							</ProtectedRoute>
 						}
 					/>

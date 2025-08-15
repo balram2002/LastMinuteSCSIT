@@ -4,78 +4,27 @@ import { useState, useEffect, useMemo, useContext } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Helmet } from "react-helmet-async"
 import Select from "react-select"
-import { Loader, AlertCircle, Calendar, Book, Tag, GraduationCap, X, Search, File as FileIcon, Filter, BookDashed, FileText, FolderOpen } from "lucide-react"
+import { Loader, AlertCircle, Calendar, Book, Tag, GraduationCap, X, Search, File as FileIcon, Filter, BookDashed, FileText, FolderOpen, Eye, TrendingUp, TrendingDown, Clock } from "lucide-react"
 import FileViewer from "../fileComponents/FileViewer"
 import { API_URL } from "../utils/urls"
 import { useSwipeable } from "react-swipeable"
 import { ValuesContext } from "../context/ValuesContext"
 import { useNavigate } from "react-router-dom"
-
-const courses = [
-    { value: "BCA", label: "BCA" },
-    { value: "MCA", label: "MCA" },
-    { value: "BCA_INT", label: "BCA Integrated" },
-    { value: "MSC_INT_CS", label: "M.Sc. Integrated (CS)" },
-    { value: "MTECH_CS", label: "M.Tech(CS)" },
-    { value: "MTECH_CS_EXEC", label: "M.Tech(CS) Executive" },
-    { value: "MTECH_NM_IS", label: "M.Tech(NM & IS)" },
-    { value: "MTECH_IA_SE", label: "M.Tech(IA & SE)" },
-    { value: "PHD", label: "PhD" },
-    { value: "MSC_CS", label: "M.Sc. (CS)" },
-    { value: "MSC_IT", label: "M.Sc. (IT)" },
-    { value: "MBA_CM", label: "MBA (CM)" },
-    { value: "PGDCA", label: "PGDCA" },
-];
-
-const allSubjectOptions = [
-    'Accounting for Managers', 'Advanced Algorithms', 'Advanced Computing', 'Advanced Computer Networks',
-    'Advanced Database Systems', 'Advanced Operating Systems', 'Advanced Software Engineering',
-    'Advanced Topics in Computing', 'Advanced Web Technologies', 'Agile Methodologies',
-    'Agile Software Development', 'Artificial Intelligence', 'Artificial Intelligence and Machine Learning',
-    'Automata Theory and Compiler Constructions', 'Big Data Analytics', 'Big Data Technologies',
-    'Business Communication', 'Business Intelligence', 'Case Studies Project', 'Cloud & Data Center Networking',
-    'Cloud Computing', 'Cloud Security', 'Cloud Services', 'Communication Skills',
-    'Communication Skills and Report Writing', 'Compiler Design', 'Component-Based Software Engineering',
-    'Computer Fundamentals & PC Software', 'Computer Graphics', 'Computer Networks',
-    'Computer Networks & Security', 'Computer Organisation and Architecture', 'Computer Organization',
-    'Computer Systems and Networks', 'Cryptography and Network Security', 'Cryptography Basics',
-    'Cyber Law & Ethics', 'Cyber Security', 'Cyber Threat Intelligence', 'Data Science',
-    'Data Science & Analytics', 'Data Structures', 'Data Structures Using C++',
-    'Data Warehousing and Mining', 'Database Management System', 'Database Management Systems',
-    'Database Management using FoxPro', 'Deep Learning', 'Design and Analysis of Algorithms', 'DevOps',
-    'Digital Electronics', 'Digital Forensics-I', 'Digital Forensics-II', 'Digital Image Processing',
-    'Discrete Mathematics', 'Dissertation / Major Project', 'E-Business Strategies', 'E-Commerce',
-    'Elective I', 'Elective II', 'Ethical Hacking', 'Ethical Hacking Fundamentals', 'Fundamentals of IT & Programming',
-    'GUI Programming with Visual Basic', 'Human Resource Management', 'IT for Managers', 'IT Fundamentals',
-    'Information & System Security', 'Information Architecture & Design', 'Information Security',
-    'Information Systems Security', 'Information Technology Project Management', 'Internet and Web Technology',
-    'Internet of Things (IoT)', 'Internship and Project Report', 'Intrusion Detection Systems', 'Intro to Cyber Security',
-    'IoT Security', 'Java Programming', 'Literature Review', 'Machine Learning', 'Major Project',
-    'Major Project / Internship', 'Malware Analysis', 'Managerial Economics', 'Marketing Management',
-    'Mathematical Foundation for Computer Application', 'Mathematics for Computing', 'Mathematics-I',
-    'Mathematics-II', 'Minor Project', 'Minor Project-I', 'Minor Project-II', 'Mobile & Wireless Security',
-    'Mobile Application Development', 'Modern Computer Architecture', 'Network Essentials', 'Network Fundamentals',
-    'Network Management & Operations', 'Network Programming', 'Network Security & Firewalls',
-    'Object Oriented Programming', 'Object-Oriented Analysis & Design', 'Object-Oriented Programming',
-    'Object-Oriented Programming with C++', 'Operating System', 'Operating Systems', 'Principles of Information Security',
-    'Principles of Management', 'Programming in C', "Programming in 'C'", 'Project Work', 'Python for Security',
-    'Research Methodology', 'Research Seminar', 'Secure Coding Practices', 'Service-Oriented Architecture',
-    'Software Architecture & Patterns', 'Software Engineering', 'Software Metrics & Quality Assurance',
-    'Software Project & Risk Management', 'Software Project Management', 'Statistical Methods', 'Strategic Management',
-    'System Analysis and Design', 'Theory of Computation', 'Thesis Work', 'User Experience (UX) Design',
-    'Web Design and Internet', 'Web Development', 'Web Application Security', 'Web Technologies', 'Wireless & Mobile Networks'
-].map(s => ({ value: s, label: s }));
-
+import { courses, semestersByCourse, subjectsByCourseAndSemester, ResourceTypes } from "../utils/Data"
 
 const getOrdinalSuffix = (n) => {
     const s = ["th", "st", "nd", "rd"], v = n % 100;
     return s[(v - 20) % 10] || s[v] || s[0];
 };
 
-const semesterOptions = Array.from({ length: 10 }, (_, i) => ({
-    value: (i + 1).toString(),
-    label: `${i + 1}${getOrdinalSuffix(i + 1)} Semester`
-}));
+const sortOptions = [
+    { value: 'newest', label: 'Newest First' },
+    { value: 'oldest', label: 'Oldest First' },
+    { value: 'views_desc', label: 'Most Viewed' },
+    { value: 'views_asc', label: 'Least Viewed' },
+    { value: 'name_asc', label: 'Name (A-Z)' },
+    { value: 'name_desc', label: 'Name (Z-A)' }
+];
 
 const customSelectStyles = {
     control: (provided) => ({ ...provided, backgroundColor: 'rgba(55, 65, 81, 0.7)', borderColor: '#4b5563', borderRadius: '0.5rem', color: '#ffffff', boxShadow: 'none', '&:hover': { borderColor: '#10b981' } }),
@@ -98,16 +47,42 @@ const AllFilesPage = () => {
     const navigate = useNavigate();
 
     const [filters, setFilters] = useState({
-        course: null, semester: null, subject: null, year: null, category: null, type: null
+        course: null, 
+        semester: null, 
+        subject: null, 
+        year: null, 
+        category: null, 
+        type: null,
+        resourceType: null,
+        sortBy: null
     });
 
+    const semesterOptions = useMemo(() => {
+        if (!filters.course) return [];
+        const semesters = semestersByCourse[filters.course.value] || [];
+        return semesters.map(sem => ({
+            value: sem,
+            label: sem === "0" ? "Whole Course" : `${sem}${getOrdinalSuffix(parseInt(sem))} Semester`
+        }));
+    }, [filters.course]);
+
+    const subjectOptions = useMemo(() => {
+        if (!filters.course || !filters.semester) return [];
+        const subjects = subjectsByCourseAndSemester[filters.course.value]?.[filters.semester.value] || [];
+        return subjects.map(subject => ({
+            value: subject,
+            label: subject
+        }));
+    }, [filters.course, filters.semester]);
+
     const dropdownOptions = useMemo(() => {
-        if (!allFiles.length) return { years: [], categories: [], types: [] };
+        if (!allFiles.length) return { years: [], categories: [], types: [], resourceTypes: [] };
         const uniqueYears = [...new Set(allFiles.map(f => f.year))].sort((a, b) => b - a);
         return {
             years: uniqueYears.map(y => ({ value: y, label: y })),
             categories: [{ value: 'paper', label: 'Paper' }, { value: 'notes', label: 'Notes' }, { value: 'syllabus', label: 'Syllabus' }],
             types: [{ value: 'image', label: 'Image' }, { value: 'document', label: 'Document' }],
+            resourceTypes: Object.values(ResourceTypes)
         };
     }, [allFiles]);
 
@@ -133,36 +108,107 @@ const AllFilesPage = () => {
     }, []);
 
     const handleFilterChange = (name, selectedOption) => {
-        setFilters(prevFilters => ({ ...prevFilters, [name]: selectedOption }));
+        setFilters(prevFilters => {
+            const newFilters = { ...prevFilters, [name]: selectedOption };
+            
+            // Reset dependent filters
+            if (name === 'course') {
+                newFilters.semester = null;
+                newFilters.subject = null;
+            } else if (name === 'semester') {
+                newFilters.subject = null;
+            }
+            
+            return newFilters;
+        });
     };
 
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: "smooth" })
     }, [])
 
-    const handleApplyFilters = () => {
-        let filesToFilter = [...allFiles];
+    const handleApplyFilters = useMemo(() => {
+        return () => {
+            let filesToFilter = [...allFiles];
 
-        if (searchTerm.trim() !== '') {
-            filesToFilter = filesToFilter.filter(file =>
-                file.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
+            if (searchTerm.trim() !== '') {
+                filesToFilter = filesToFilter.filter(file =>
+                    file.name.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
 
-        if (filters.course) filesToFilter = filesToFilter.filter(f => f.course === filters.course.value);
-        if (filters.semester) filesToFilter = filesToFilter.filter(f => f.semester === filters.semester.value);
-        if (filters.subject) filesToFilter = filesToFilter.filter(f => f.subject === filters.subject.value);
-        if (filters.year) filesToFilter = filesToFilter.filter(f => f.year === filters.year.value);
-        if (filters.category) filesToFilter = filesToFilter.filter(f => f.category === filters.category.value);
-        if (filters.type) filesToFilter = filesToFilter.filter(f => f.type === filters.type.value);
+            if (filters.course) filesToFilter = filesToFilter.filter(f => f.course === filters.course.value);
+            if (filters.semester) filesToFilter = filesToFilter.filter(f => f.semester === filters.semester.value);
+            if (filters.subject) filesToFilter = filesToFilter.filter(f => f.subject === filters.subject.value);
+            if (filters.year) filesToFilter = filesToFilter.filter(f => f.year === filters.year.value);
+            if (filters.category) filesToFilter = filesToFilter.filter(f => f.category === filters.category.value);
+            if (filters.type) filesToFilter = filesToFilter.filter(f => f.type === filters.type.value);
+            if (filters.resourceType) filesToFilter = filesToFilter.filter(f => f.resourceType === filters.resourceType.value);
 
-        setFilteredFiles(filesToFilter);
-    };
+            // Sorting logic
+            if (filters.sortBy) {
+                switch (filters.sortBy.value) {
+                    case 'newest':
+                        filesToFilter.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                        break;
+                    case 'oldest':
+                        filesToFilter.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                        break;
+                    case 'views_desc':
+                        filesToFilter.sort((a, b) => {
+                            if (b.views !== a.views) {
+                                return b.views - a.views;
+                            }
+                            return new Date(b.createdAt) - new Date(a.createdAt);
+                        });
+                        break;
+                    case 'views_asc':
+                        filesToFilter.sort((a, b) => {
+                            if (b.views !== a.views) {
+                                return a.views - b.views;
+                            }
+                            return new Date(a.createdAt) - new Date(b.createdAt);
+                        });
+                        break;
+                    case 'name_asc':
+                        filesToFilter.sort((a, b) => {
+                            const nameComparison = a.name.localeCompare(b.name);
+                            if (nameComparison !== 0) return nameComparison;
+                            return new Date(b.createdAt) - new Date(a.createdAt);
+                        });
+                        break;
+                    case 'name_desc':
+                        filesToFilter.sort((a, b) => {
+                            const nameComparison = b.name.localeCompare(a.name);
+                            if (nameComparison !== 0) return nameComparison;
+                            return new Date(b.createdAt) - new Date(a.createdAt);
+                        });
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            setFilteredFiles(filesToFilter);
+        };
+    }, [allFiles, searchTerm, filters]);
+
+    useEffect(() => {
+        handleApplyFilters();
+    }, [handleApplyFilters]);
 
     const resetFilters = () => {
-        setFilters({ course: null, semester: null, subject: null, year: null, category: null, type: null });
+        setFilters({ 
+            course: null, 
+            semester: null, 
+            subject: null, 
+            year: null, 
+            category: null, 
+            type: null,
+            resourceType: null,
+            sortBy: null
+        });
         setSearchTerm('');
-        setFilteredFiles(allFiles);
     };
 
     const handleCloseViewer = () => {
@@ -232,7 +278,6 @@ const AllFilesPage = () => {
             const courseOption = courses.find(c => c.value === value);
             if (courseOption) {
                 setFilters(prev => ({ ...prev, course: courseOption }));
-                handleApplyFilters();
             }
         }
     };
@@ -318,7 +363,7 @@ const AllFilesPage = () => {
                                         onClick={() => handleStatClick('course', course)}
                                         className="px-3 py-1.5 bg-gray-700/50 hover:bg-gray-700 text-gray-300 hover:text-white rounded-full text-sm transition-colors border border-gray-600"
                                     >
-                                        {course} <span className="text-gray-400">({count})</span>
+                                        {courses.find(c => c.value === course)?.value || course} <span className="text-gray-400">({count})</span>
                                     </button>
                                 ))}
                             </div>
@@ -335,13 +380,15 @@ const AllFilesPage = () => {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                             <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No options"} placeholder="Filter by Course..." options={courses} value={filters.course} onChange={opt => handleFilterChange('course', opt)} styles={customSelectStyles} />
-                            <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No options"} placeholder="Filter by Semester..." options={semesterOptions} value={filters.semester} onChange={opt => handleFilterChange('semester', opt)} styles={customSelectStyles} />
-                            <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No subjects found"} placeholder="Filter by Subject..." options={allSubjectOptions} value={filters.subject} onChange={opt => handleFilterChange('subject', opt)} styles={customSelectStyles} />
+                            <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No options"} placeholder="Filter by Semester..." options={semesterOptions} value={filters.semester} onChange={opt => handleFilterChange('semester', opt)} styles={customSelectStyles} isDisabled={!filters.course} />
+                            <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No subjects found"} placeholder="Filter by Subject..." options={subjectOptions} value={filters.subject} onChange={opt => handleFilterChange('subject', opt)} styles={customSelectStyles} isDisabled={!filters.course || !filters.semester} />
                             <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No years found"} placeholder="Filter by Year..." options={dropdownOptions.years} value={filters.year} onChange={opt => handleFilterChange('year', opt)} styles={customSelectStyles} />
                             <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No options"} placeholder="Filter by Category..." options={dropdownOptions.categories} value={filters.category} onChange={opt => handleFilterChange('category', opt)} styles={customSelectStyles} />
                             <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No options"} placeholder="Filter by Type..." options={dropdownOptions.types} value={filters.type} onChange={opt => handleFilterChange('type', opt)} styles={customSelectStyles} />
+                            <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No options"} placeholder="Resource Type..." options={dropdownOptions.resourceTypes} value={filters.resourceType} onChange={opt => handleFilterChange('resourceType', opt)} styles={customSelectStyles} />
+                            <Select menuPortalTarget={document.body} isClearable noOptionsMessage={() => "No options"} placeholder="Sort By..." options={sortOptions} value={filters.sortBy} onChange={opt => handleFilterChange('sortBy', opt)} styles={customSelectStyles} />
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
@@ -388,6 +435,21 @@ const AllFilesPage = () => {
                                                 <p className="flex items-center gap-2.5"><GraduationCap size={15} className="text-green-400 flex-shrink-0" /> {file.course} - Sem {file.semester}</p>
                                                 <p className="flex items-center gap-2.5"><Calendar size={15} className="text-green-400 flex-shrink-0" /> Year: {file.year}</p>
                                                 <p className="flex items-center gap-2.5"><Tag size={15} className="text-green-400 flex-shrink-0" /> Category: <span className="font-semibold capitalize">{file.category}</span></p>
+                                                {file.resourceType && (
+                                                    <p className="flex items-center gap-2.5">
+                                                        <Clock size={15} className="text-green-400 flex-shrink-0" /> 
+                                                        Resource: <span className="font-semibold capitalize">{ResourceTypes[file.resourceType]?.label || file.resourceType}</span>
+                                                    </p>
+                                                )}
+                                                <p className="flex items-center gap-2.5">
+                                                    {file.views > 100 ? (
+                                                        <TrendingUp size={15} className="text-green-400 flex-shrink-0" />
+                                                    ) : (
+                                                        <TrendingDown size={15} className="text-amber-400 flex-shrink-0" />
+                                                    )}
+                                                    <Eye size={15} className="text-blue-400 flex-shrink-0" /> 
+                                                    {file.views || 0} views
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="bg-gray-900/50 p-4 mt-auto" onClick={() => handleFileClick(file, file.subject)}>

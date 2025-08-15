@@ -5,6 +5,7 @@ import { API_URL } from "../utils/urls";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { courses, semestersByCourse, subjectsByCourseAndSemester } from "../utils/Data";
 
 const Modal = ({ children, onClose, title }) => (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 z-50" onClick={onClose}>
@@ -77,39 +78,17 @@ export const EditProfileModal = ({ onClose }) => {
     const [userSemester, setUserSemester] = useState(null);
     const navigate = useNavigate();
 
-    const staticSemesterData = {
-        1: { title: "1st Semester" },
-        2: { title: "2nd Semester" },
-        3: { title: "3rd Semester" },
-        4: { title: "4th Semester" },
-    };
-
-    const subjectsByCourseAndSemester = {
-        "BCA": { "1": [], "2": [], "3": [], "4": [], "5": [], "6": [] },
-        "MCA": staticSemesterData,
-        "BCA_INT": { "1": [], "2": [], "3": [], "4": [], "5": [], "6": [], "7": [], "8": [] },
-        "MSC_INT_CS": { "1": [], "2": [], "3": [], "4": [], "5": [], "6": [], "7": [], "8": [], "9": [], "10": [] },
-        "MTECH_CS": { "1": [], "2": [], "3": [], "4": [] },
-        "MTECH_CS_EXEC": { "1": [], "2": [], "3": [], "4": [] },
-        "MTECH_NM_IS": { "1": [], "2": [], "3": [], "4": [] },
-        "MTECH_IA_SE": { "1": [], "2": [], "3": [], "4": [] },
-        "PHD": { "1": [], "2": [], "3": [], "4": [], "5": [], "6": [] },
-        "MSC_CS": { "1": [], "2": [], "3": [], "4": [] },
-        "MSC_IT": { "1": [], "2": [], "3": [], "4": [] },
-        "MBA_CM": { "1": [], "2": [], "3": [], "4": [] },
-        "PGDCA": { "1": [], "2": [] },
+    const getOrdinalSuffix = (n) => {
+        if (n === 0) return "All";
+        const s = ["th", "st", "nd", "rd"], v = n % 100;
+        return s[(v - 20) % 10] || s[v] || s[0];
     };
 
     useEffect(() => {
         const formatSemester = (semester) => {
             if (!semester) return null;
             const s = String(semester);
-            let label = `${s}${s === '1' ? 'st' : s === '2' ? 'nd' : s === '3' ? 'rd' : 'th'} Semester`;
-
-            if (user?.course === 'MCA' && staticSemesterData[semester]?.title) {
-                label = staticSemesterData[semester].title;
-            }
-
+            const label = `${s}${getOrdinalSuffix(parseInt(s))} Semester`;
             return { value: s, label };
         };
         setUserSemester(formatSemester(user?.semester));
@@ -150,21 +129,24 @@ export const EditProfileModal = ({ onClose }) => {
     };
 
     const courseOptions = useMemo(() =>
-        Object.keys(subjectsByCourseAndSemester).map(course => ({
-            value: course,
-            label: course.replace(/_/g, ' ')
+        courses.map(course => ({
+            value: course.value,
+            label: course.label
         })),
         []
     );
 
     const semesterOptions = useMemo(() => {
         if (!profileData.course) return [];
-        const courseData = subjectsByCourseAndSemester[profileData.course];
-        if (!courseData) return [];
-        return Object.keys(courseData).map(sem => {
-            let label = `${sem}${sem === '1' ? 'st' : sem === '2' ? 'nd' : sem === '3' ? 'rd' : 'th'} Semester`;
-            if (profileData.course === 'MCA' && courseData[sem]?.title) {
-                label = courseData[sem].title;
+        const semesters = semestersByCourse[profileData.course];
+        if (!semesters) return [];
+        return semesters.map(sem => {
+            const semesterNum = parseInt(sem);
+            let label;
+            if (semesterNum === 0) {
+                label = "All Semesters";
+            } else {
+                label = `${sem}${getOrdinalSuffix(semesterNum)} Semester`;
             }
             return { value: sem, label };
         });

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Helmet } from "react-helmet-async"
 import { useAuthStore } from "../store/authStore"
 import { useNavigate } from "react-router-dom"
-import { User, Mail, ShieldCheck, X, Loader, AlertCircle, FileX, View, Crown, Ban, CheckCircle, Trash2, Filter } from "lucide-react"
+import { User, Mail, ShieldCheck, X, Loader, AlertCircle, FileX, View, Crown, Ban, CheckCircle, Trash2, Filter, ChevronDown } from "lucide-react"
 import { API_URL } from "../utils/urls"
 import { useSwipeable } from "react-swipeable"
 import { ValuesContext } from "../context/ValuesContext"
@@ -378,6 +378,7 @@ const UsersPage = () => {
     }, [])
 
     const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
+    const [ isFilterOpen, setIsFilterOpen ] = useState(false);
 
     const isExcludedRoute = typeof window !== 'undefined' &&
         (window.location.pathname.startsWith("/login") || window.location.pathname === "/signup");
@@ -463,24 +464,106 @@ const UsersPage = () => {
                                 Users Management
                             </h2>
                             <div className="relative">
-                                <div className="flex items-center gap-2 bg-gray-800/50 backdrop-filter backdrop-blur-xl rounded-xl border border-gray-700 px-4 py-2 cursor-pointer">
-                                    <Filter size={20} className="text-gray-400" />
-                                    <select
-                                        value={filter}
-                                        onChange={(e) => setFilter(e.target.value)}
-                                        className="bg-transparent text-white focus:outline-none cursor-pointer appearance-none pr-8"
+                                <div className="relative w-full">
+                                    <button
+                                        onClick={() => setIsFilterOpen(!isFilterOpen)}
+                                        className="flex w-full items-center justify-between gap-2 bg-gray-800/50 backdrop-filter backdrop-blur-xl rounded-xl border border-gray-700 px-4 py-2 text-white hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200"
                                     >
-                                        <option value="all" className="bg-gray-800 text-white">All Users</option>
-                                        <option value="admin" className="bg-gray-800 text-white">Admin Only</option>
-                                        <option value="user" className="bg-gray-800 text-white">Regular Users</option>
-                                        <option value="verified" className="bg-gray-800 text-white">Verified Only</option>
-                                        <option value="unverified" className="bg-gray-800 text-white">Unverified Only</option>
-                                    </select>
-                                    <div className="absolute right-3 pointer-events-none">
-                                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </div>
+                                        <div className="flex items-center gap-2 truncate">
+                                            <Filter size={20} className="text-gray-400" />
+                                            <span className="capitalize truncate">
+                                                {filter === 'all' ? 'All Users' :
+                                                    filter === 'admin' ? 'Admin Only' :
+                                                        filter === 'user' ? 'Regular Users' :
+                                                            filter === 'verified' ? 'Verified Only' :
+                                                                filter === 'unverified' ? 'Unverified Only' : filter}
+                                            </span>
+                                        </div>
+                                        <ChevronDown
+                                            size={16}
+                                            className={`text-gray-400 transition-transform duration-300 ${isFilterOpen ? 'rotate-180' : ''}`}
+                                        />
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {isFilterOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="absolute z-10 mt-2 w-full origin-top-right rounded-xl border border-gray-700 bg-gray-900/80 shadow-lg backdrop-blur-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                            >
+                                                <ul className="p-1">
+                                                    <li>
+                                                        <a
+                                                            href="#"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setFilter('all');
+                                                                setIsFilterOpen(false);
+                                                            }}
+                                                            className="block rounded-lg px-4 py-2 text-white hover:bg-green-500/10 transition-colors"
+                                                        >
+                                                            All Users
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a
+                                                            href="#"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setFilter('admin');
+                                                                setIsFilterOpen(false);
+                                                            }}
+                                                            className="block rounded-lg px-4 py-2 text-white hover:bg-green-500/10 transition-colors"
+                                                        >
+                                                            Admin Only
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a
+                                                            href="#"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setFilter('user');
+                                                                setIsFilterOpen(false);
+                                                            }}
+                                                            className="block rounded-lg px-4 py-2 text-white hover:bg-green-500/10 transition-colors"
+                                                        >
+                                                            Regular Users
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a
+                                                            href="#"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setFilter('verified');
+                                                                setIsFilterOpen(false);
+                                                            }}
+                                                            className="block rounded-lg px-4 py-2 text-white hover:bg-green-500/10 transition-colors"
+                                                        >
+                                                            Verified Only
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a
+                                                            href="#"
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                setFilter('unverified');
+                                                                setIsFilterOpen(false);
+                                                            }}
+                                                            className="block rounded-lg px-4 py-2 text-white hover:bg-green-500/10 transition-colors"
+                                                        >
+                                                            Unverified Only
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </div>
                         </div>

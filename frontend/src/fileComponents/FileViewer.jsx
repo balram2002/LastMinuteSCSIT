@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { X, ZoomIn, ZoomOut, RotateCw, Eye, Share2, RefreshCcw, RefreshCcwDot } from "lucide-react"
+import { X, ZoomIn, ZoomOut, RotateCw, Eye, Share2, RefreshCcw, RefreshCcwDot, EyeIcon, File } from "lucide-react"
 import { Navigate } from "react-router-dom"
 import { RWebShare } from "react-web-share"
 import Img from "../components/lazyLoadImage/Img"
-import { CLIENT_URL } from "../utils/urls"
+import { API_URL, CLIENT_URL } from "../utils/urls"
 
 const Watermark = () => {
   const watermarkText = "© LastMinute SCSIT";
@@ -43,6 +43,33 @@ const FileViewer = ({ file, onClose }) => {
   if (!localStorage.getItem("user")) {
     return <Navigate to={'/login'} replace />;
   }
+
+  useEffect(() => {
+    const increaseViews = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/files/increasefileviews`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id: file._id }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('View count increased:', result);
+      } catch (error) {
+        console.error('Error increasing file views:', error);
+      }
+    };
+
+    if (file && file._id) {
+      increaseViews();
+    }
+  }, [file]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -154,6 +181,8 @@ const FileViewer = ({ file, onClose }) => {
     }
   };
 
+  console.log(file)
+
   const contentStyle = {
     transform: `scale(${zoom}) rotate(${rotation}deg)`,
     transformOrigin: 'center center',
@@ -168,12 +197,23 @@ const FileViewer = ({ file, onClose }) => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-gray-900 z-50 grid grid-rows-[auto_1fr_auto] h-screen overflow-hidden">
       <header className="bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl border-b border-gray-700 p-2 sm:p-4 flex items-center justify-between gap-2 z-30">
         <div className="flex items-center space-x-3 min-w-0">
-          <Eye className="w-5 h-5 text-green-400 flex-shrink-0" />
+          <File className="w-5 h-5 text-green-400 flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-white font-semibold text-sm sm:text-base">{file.name || file.title}</p>
           </div>
         </div>
         <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+            <motion.div
+              whileHover={{ scale: 1.1, y: -2 }}
+              whileTap={{ scale: 0.95 }}
+              title={`${file?.views || 0} Views`}
+              className="group flex cursor-pointer items-center justify-center gap-x-1.5 rounded-full border border-white/10 bg-black/20 backdrop-blur-sm px-3 py-2 text-sm font-medium shadow-lg shadow-black/20 transition-all duration-300 ease-out hover:border-green-400/40 hover:bg-green-500/15 hover:shadow-xl hover:shadow-green-500/20 active:shadow-md min-w-[70px]"
+            >
+              <Eye className="h-4 w-4 text-green-400 transition-all duration-300 group-hover:text-green-300 group-hover:drop-shadow-sm flex-shrink-0" />
+              <span className="font-semibold tracking-wider text-green-300 transition-all duration-300 group-hover:text-green-200 group-hover:drop-shadow-sm leading-none tabular-nums">
+                {file?.views || 0}
+              </span>
+            </motion.div>
           <div className="hidden sm:flex items-center space-x-1 bg-gray-700 rounded-lg p-1">
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleZoomOut} className="p-2 text-gray-300 hover:text-white hover:bg-gray-600 rounded transition-colors" disabled={zoom <= 0.5}>
               <ZoomOut className="w-4 h-4" />
@@ -263,7 +303,7 @@ const FileViewer = ({ file, onClose }) => {
           )}
         </div>
         <div className="hidden sm:block bg-gray-800 bg-opacity-90 backdrop-filter backdrop-blur-xl border-t border-gray-700 p-2">
-          <div className="max-w-7xl mx-auto text-center text-gray-400 text-xs flex items-center" style={{justifyContent: file.type === 'document' ? 'space-between' : 'center'}}>
+          <div className="max-w-7xl mx-auto text-center text-gray-400 text-xs flex items-center" style={{ justifyContent: file.type === 'document' ? 'space-between' : 'center' }}>
             <p>Use zoom and rotate controls to adjust the view. Right-click and downloads are disabled for security.</p>
             {file?.type === 'document' && (
               <div className="flex items-center space-x-2">

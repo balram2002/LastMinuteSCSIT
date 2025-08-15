@@ -48,6 +48,16 @@ const fileSchema = new mongoose.Schema(
         uploadedBy:{
             type: String,
             ref: "users",
+        },
+        resourceType: {
+            type: String,
+            required: true,
+            enum: ['endsem', 'test1', 'test2', 'test3', 'practical', 'quiz', 'none'],
+            default: 'none',
+        },
+        views: {
+            type: Number,
+            default: 0,
         }
     },
     { timestamps: true }
