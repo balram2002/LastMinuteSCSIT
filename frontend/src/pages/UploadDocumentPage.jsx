@@ -483,15 +483,37 @@ const UploadDocumentPage = () => {
         console.log("Swiped left - opening sidebar");
       }
     },
-    onSwipedRight: () => {
-      if (isMobile && !isExcludedRoute) {
-        navigate('/scsit/mca/semesters/3');
-      }
-    },
     preventDefaultTouchmoveEvent: false,
     trackMouse: false,
     delta: 30,
   });
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey) {
+        switch (e.key.toLowerCase()) {
+          case 's':
+          case 'p':
+          case 'a':
+          case 'c':
+          case 'h':
+          case 'm':
+          case 'b':
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          default:
+            break;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown, true);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [user]);
 
   return (
     <div {...swipeHandlers} className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-blue-900 to-slate-500 flex flex-col items-center p-0 pb-4 pt-20 sm:pt-24">

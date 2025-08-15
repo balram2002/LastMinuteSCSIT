@@ -67,6 +67,10 @@ function App() {
 						e.preventDefault();
 						navigate('/scsit/courses');
 						break;
+					case 'u':
+						e.preventDefault();
+						navigate('/upload');
+						break;
 					case 'a':
 						e.preventDefault();
 						navigate('/allfiles');

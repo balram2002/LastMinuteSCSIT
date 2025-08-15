@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Helmet } from "react-helmet-async"
 import { useAuthStore } from "../store/authStore"
 import { useNavigate } from "react-router-dom"
-import { User, Mail, FileText, Calendar, Book, Tag, Edit, Trash2, X, Loader, AlertCircle, ShieldCheck, GraduationCap, FileX, Upload, View, BookDashed } from "lucide-react"
+import { User, Mail, FileText, Calendar, Book, Tag, Edit, Trash2, X, Loader, AlertCircle, ShieldCheck, GraduationCap, FileX, Upload, View, BookDashed, FolderOpen, CalendarClock, BookOpen } from "lucide-react"
 import FileViewer from "../fileComponents/FileViewer"
 import { API_URL } from "../utils/urls"
 import { useSwipeable } from "react-swipeable"
@@ -191,15 +191,19 @@ const MyFilesPage = () => {
                 console.log("Swiped left - opening sidebar");
             }
         },
-        onSwipedRight: () => {
-            if (isMobile && !isExcludedRoute) {
-                navigate('/scsit/mca/semesters/3');
-            }
-        },
         preventDefaultTouchmoveEvent: false,
         trackMouse: false,
         delta: 30,
     });
+
+    // Calculate statistics
+    const totalFiles = files.length;
+    const courses = [...new Set(files.map(file => file.course))];
+    const totalCourses = courses.length;
+    const semesters = [...new Set(files.map(file => `Sem ${file.semester}`))];
+    const totalSemesters = semesters.length;
+    const subjects = [...new Set(files.map(file => file.subject))];
+    const totalSubjects = subjects.length;
 
     return (
         <>
@@ -211,14 +215,36 @@ const MyFilesPage = () => {
 
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                        <div className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl border border-gray-700 p-6 mb-8 flex items-center space-x-4">
-                            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                        <div className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl border border-gray-700 p-6 mb-8 flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                            <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold text-3xl">
                                 {user?.name?.split(" ").map(n => n[0]).join("").toUpperCase() || <User size={32} />}
                             </div>
-                            <div>
+                            <div className="flex-grow text-center md:text-left">
                                 <h1 className="text-2xl font-bold text-white">{user?.name}</h1>
-                                <p className="text-green-400 flex items-center gap-2"><Mail size={16} /> {user?.email}</p>
-                                {user?.isAdmin === 'admin' && <p className="text-amber-400 flex items-center gap-2 mt-1 font-semibold"><ShieldCheck size={16} /> Admin Account</p>}
+                                <p className="text-green-400 flex items-center justify-center md:justify-start gap-2 mt-1"><Mail size={16} /> {user?.email}</p>
+                                {user?.isAdmin === 'admin' && <p className="text-amber-400 flex items-center justify-center md:justify-start gap-2 mt-1 font-semibold"><ShieldCheck size={16} /> Admin Account</p>}
+                            </div>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto">
+                                <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700 flex flex-col items-center">
+                                    <FolderOpen className="text-green-400 mb-1" size={20} />
+                                    <span className="text-xs text-gray-400">Files</span>
+                                    <span className="text-lg font-bold text-white">{totalFiles}</span>
+                                </div>
+                                <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700 flex flex-col items-center">
+                                    <BookOpen className="text-blue-400 mb-1" size={20} />
+                                    <span className="text-xs text-gray-400">Courses</span>
+                                    <span className="text-lg font-bold text-white">{totalCourses}</span>
+                                </div>
+                                <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700 flex flex-col items-center">
+                                    <GraduationCap className="text-amber-400 mb-1" size={20} />
+                                    <span className="text-xs text-gray-400">Semesters</span>
+                                    <span className="text-lg font-bold text-white">{totalSemesters}</span>
+                                </div>
+                                <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700 flex flex-col items-center">
+                                    <Book className="text-purple-400 mb-1" size={20} />
+                                    <span className="text-xs text-gray-400">Subjects</span>
+                                    <span className="text-lg font-bold text-white">{totalSubjects}</span>
+                                </div>
                             </div>
                         </div>
                         <h2 className="text-4xl font-extrabold text-white text-center mb-10">Your Uploaded Files</h2>

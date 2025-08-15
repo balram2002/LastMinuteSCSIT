@@ -185,11 +185,6 @@ const AllFilesPage = () => {
                 console.log("Swiped left - opening sidebar");
             }
         },
-        onSwipedRight: () => {
-            if (isMobile && !isExcludedRoute) {
-                navigate('/scsit/mca/semesters/3');
-            }
-        },
         preventDefaultTouchmoveEvent: false,
         trackMouse: false,
         delta: 30,

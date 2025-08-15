@@ -388,11 +388,6 @@ const UsersPage = () => {
                 setIsSidebarOpen(true);
             }
         },
-        onSwipedRight: () => {
-            if (isMobile && !isExcludedRoute) {
-                navigate('/scsit/mca/semesters/3');
-            }
-        },
         preventDefaultTouchmoveEvent: false,
         trackMouse: false,
         delta: 30,
