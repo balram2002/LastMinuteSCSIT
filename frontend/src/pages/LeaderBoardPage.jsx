@@ -268,13 +268,14 @@ const FileLeaderboard = () => {
             case "video":
                 return <FileText className="w-5 h-5 text-red-400" />;
             case "image":
-                return <FileText className="w-5 h-5 text-green-400" />;
+                return <Image className="w-5 h-5 text-green-400" />;
             default:
                 return <FileText className="w-5 h-5 text-gray-400" />;
         }
     };
 
     const formatViews = (views) => {
+        if (!views) return 0;
         if (views >= 1000000) {
             return `${(views / 1000000).toFixed(1)}M`;
         }
@@ -377,7 +378,7 @@ const FileLeaderboard = () => {
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <Eye size={14} />
-                                            <span className="font-bold">{formatViews(file.views)}</span>
+                                            <span className="font-bold">{formatViews(file.views) || 0}</span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <User size={14} />
@@ -428,7 +429,7 @@ const FileLeaderboard = () => {
                                     <div className="text-right">
                                         <div className="flex items-center gap-2 text-white">
                                             <Eye size={16} />
-                                            <span className="font-bold">{formatViews(file.views)}</span>
+                                            <span className="font-bold">{formatViews(file.views) || 0}</span>
                                         </div>
                                         <div className="text-xs text-gray-400">Views</div>
                                     </div>
