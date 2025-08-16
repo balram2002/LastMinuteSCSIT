@@ -48,19 +48,32 @@ export const uploadTestimonial = async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields." });
         }
 
-        const newTestimonial = new Testimonials({
-            text,
-            rating,
-            userId,
-            username,
-            userEmail,
-            course,
-            semester: Number(semester),
-            isUserAdmin: isUserAdmin || false,
-        });
+        if (course && semester) {
+            const newTestimonial = new Testimonials({
+                text,
+                rating,
+                userId,
+                username,
+                userEmail,
+                course,
+                semester: Number(semester),
+                isUserAdmin: isUserAdmin || false,
+            });
 
-        await newTestimonial.save();
-        res.status(201).json({ success: true, testimonial: newTestimonial });
+            await newTestimonial.save();
+            res.status(201).json({ success: true, testimonial: newTestimonial });
+        } else {
+            const newTestimonial = new Testimonials({
+                text,
+                rating,
+                userId,
+                username,
+                userEmail,
+                isUserAdmin: isUserAdmin || false,
+            });
+            await newTestimonial.save();
+            res.status(201).json({ success: true, testimonial: newTestimonial });
+        }
     } catch (error) {
         if (error.name === 'ValidationError') {
             return res.status(400).json({ success: false, message: error.message });
