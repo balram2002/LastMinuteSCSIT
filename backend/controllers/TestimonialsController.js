@@ -55,7 +55,7 @@ export const uploadTestimonial = async (req, res) => {
             username,
             userEmail,
             course,
-            semester,
+            semester: Number(semester),
             isUserAdmin: isUserAdmin || false,
         });
 
@@ -72,7 +72,7 @@ export const uploadTestimonial = async (req, res) => {
 export const updateTestimonial = async (req, res) => {
     const { course, semester, text, rating } = req.body;
     try {
-        
+
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ success: false, message: 'Invalid testimonial ID' });
         }
@@ -81,7 +81,7 @@ export const updateTestimonial = async (req, res) => {
         if (text) updateData.text = text;
         if (rating) updateData.rating = rating;
         if (course) updateData.course = course;
-        if (semester) updateData.semester = semester;
+        if (semester) updateData.semester = Number(semester);
 
         const updatedTestimonial = await Testimonials.findByIdAndUpdate(
             req.params.id,
