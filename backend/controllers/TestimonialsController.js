@@ -48,32 +48,27 @@ export const uploadTestimonial = async (req, res) => {
             return res.status(400).json({ success: false, message: "Missing required fields." });
         }
 
-        if (course && semester) {
-            const newTestimonial = new Testimonials({
-                text,
-                rating,
-                userId,
-                username,
-                userEmail,
-                course,
-                semester: Number(semester),
-                isUserAdmin: isUserAdmin || false,
-            });
+        const testimonialData = {
+            text,
+            rating,
+            userId,
+            username,
+            userEmail,
+            isUserAdmin: isUserAdmin || false,
+        };
 
-            await newTestimonial.save();
-            res.status(201).json({ success: true, testimonial: newTestimonial });
-        } else {
-            const newTestimonial = new Testimonials({
-                text,
-                rating,
-                userId,
-                username,
-                userEmail,
-                isUserAdmin: isUserAdmin || false,
-            });
-            await newTestimonial.save();
-            res.status(201).json({ success: true, testimonial: newTestimonial });
+        if (course) {
+            testimonialData.course = course;
         }
+        if (semester && !isNaN(Number(semester))) {
+            testimonialData.semester = Number(semester);
+        }
+
+        const newTestimonial = new Testimonials(testimonialData);
+        await newTestimonial.save();
+        
+        res.status(201).json({ success: true, testimonial: newTestimonial });
+
     } catch (error) {
         if (error.name === 'ValidationError') {
             return res.status(400).json({ success: false, message: error.message });
@@ -83,18 +78,17 @@ export const uploadTestimonial = async (req, res) => {
 };
 
 export const updateTestimonial = async (req, res) => {
-    const { course, semester, text, rating } = req.body;
     try {
-
-        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ success: false, message: 'Invalid testimonial ID' });
-        }
-
+        const { text, rating, course, semester } = req.body;
+        
         const updateData = {};
+
         if (text) updateData.text = text;
         if (rating) updateData.rating = rating;
         if (course) updateData.course = course;
-        if (semester) updateData.semester = Number(semester);
+        if (semester && !isNaN(Number(semester))) {
+            updateData.semester = Number(semester);
+        }
 
         const updatedTestimonial = await Testimonials.findByIdAndUpdate(
             req.params.id,
