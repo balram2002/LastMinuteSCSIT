@@ -101,16 +101,9 @@ const Header = () => {
     closeSidebar();
   }
 
-  // Function to check if a link is active
   const isActiveLink = (href) => {
-    // Special handling for home page
     if (href === "/" && location.pathname === "/") return true;
-    
-    // For other paths, check if current path starts with the href
-    // and it's not the home page (to avoid false positives)
     if (href !== "/" && location.pathname.startsWith(href)) return true;
-    
-    // Special case for exact matches
     return location.pathname === href;
   }
 

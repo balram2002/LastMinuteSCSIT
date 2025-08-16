@@ -382,9 +382,18 @@ export const fetchfileById = async (req, res) => {
 
 export const updateFile = async (req, res) => {
   try {
-    const { id } = req.body;
-    const { name, year } = req.body;
-    const { userId } = req.body;
+    const {
+      id,
+      name,
+      year,
+      course,
+      semester,
+      subject,
+      category,
+      type,
+      resourceType,
+      userId,
+    } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(404).json({ success: false, message: 'Invalid file ID' });
@@ -408,8 +417,14 @@ export const updateFile = async (req, res) => {
       return res.status(403).json({ success: false, message: 'User not authorized to edit this file' });
     }
 
-    file.name = name;
-    file.year = year;
+    if (name !== undefined) file.name = name.trim();
+    if (year !== undefined) file.year = year;
+    if (course !== undefined) file.course = course.trim();
+    if (semester !== undefined) file.semester = semester.trim();
+    if (subject !== undefined) file.subject = subject.trim();
+    if (category !== undefined) file.category = category;
+    if (type !== undefined) file.type = type;
+    if (resourceType !== undefined) file.resourceType = resourceType;
 
     await file.save();
 

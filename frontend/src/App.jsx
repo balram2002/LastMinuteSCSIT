@@ -76,24 +76,28 @@ function App() {
 						e.preventDefault();
 						navigate('/allfiles');
 						break;
-					// case 'c':
-					// 	e.preventDefault();
-					// 	navigate('/calculations/tools/cgpa');
-					// 	break;
+					case 'q':
+						e.preventDefault();
+						navigate('/calculations/tools/cgpa');
+						break;
 					case 'h':
 						e.preventDefault();
 						navigate('/home');
 						break;
-					case 'm':
+					case 'd':
 						if (user?._id) {
 							e.preventDefault();
-							navigate(`/scsit/mca/semesters/3`);
+							if(user?.course && user?.semester) {
+								navigate(`/scsit/${user.course}/semesters/${user.semester}`);
+							}else {
+								navigate(`/scsit/mca/semesters/3`);
+							}
 						}
 						break;
-					case 'b':
+					case 'l':
 						if (user?._id) {
 							e.preventDefault();
-							navigate(`/scsit/bca/semesters/1`);
+							navigate(`/admins/leaderboard`);
 						}
 						break;
 					default:

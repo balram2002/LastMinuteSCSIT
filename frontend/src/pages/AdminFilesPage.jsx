@@ -24,6 +24,7 @@ import {
     Check,
     ChevronDown,
     BookDashed,
+    Crown,
 } from "lucide-react";
 import FileViewer from "../fileComponents/FileViewer";
 import { API_URL } from "../utils/urls";
@@ -231,7 +232,7 @@ const AdminFilesPage = () => {
 
     const checkAdminPro = () => {
         if (!creatorEmails.has(user?.email)) {
-            toast.error("You must be an Admin Pro to perform this action.");
+            toast.error("You must be an Creator to perform this action.");
             return false;
         }
         return true;
@@ -469,14 +470,31 @@ const AdminFilesPage = () => {
 
     return (
         <>
+            <div className="fixed top-1/2 -translate-y-1/2 right-2 md:right-4 z-10 pointer-events-none">
+                <div
+                    className="flex flex-col items-center rounded-full border border-amber-400/30 bg-black/30 backdrop-blur-lg px-1.5 py-4 md:px-2 md:py-5"
+                >
+                    <Crown className="h-5 w-5 text-amber-400 md:h-6 md:w-6 mb-2" />
+                    {"CREATORS".split("").map((char, index) => (
+                        <span
+                            key={index}
+                            className="font-mono text-xs font-bold uppercase text-amber-300/80 md:text-xl"
+                        >
+                            {char}
+                        </span>
+                    ))}
+                </div>
+            </div>
+
             <div
                 {...swipeHandlers}
-                className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-blue-900 to-slate-500 flex flex-col items-center p-0 pb-8 pt-24"
+                className="min-h-screen  w-full bg-gradient-to-br from-gray-900 via-blue-900 to-slate-500 flex flex-col items-center p-0 pb-8 pt-24"
             >
                 <Helmet>
-                    <title>Admin Files - Admin Panel</title>
+                    <title>Admin Files - Creator Panel</title>
                     <meta name="description" content="Manage all available files." />
                 </Helmet>
+
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
@@ -627,12 +645,10 @@ const AdminFilesPage = () => {
                                             <p className="flex items-center gap-2 flex-wrap">
                                                 <User size={16} className="text-green-400 shrink-0" />
                                                 <span className="font-semibold truncate">
-                                                    {file.uploadedBy?.name === "Itops Balram"
-                                                        ? "Balram Dhakad"
-                                                        : file.uploadedBy?.name || "Unknown User"}
+                                                    {file.uploadedBy?.name}
                                                 </span>
-                                                {(file?.uploadedBy?.name === "Itops Balram" ||
-                                                    file?.uploadedBy?.name === "Admin") && (
+                                                {(file?.uploadedBy?.email === "bdhakad886@gmail.com" ||
+                                                    file?.uploadedBy?.email === "pratikajbe40@gmail.com") && (
                                                         <span className="text-green-500 bg-gray-900 rounded-full px-3 py-1 text-xs font-bold whitespace-nowrap">
                                                             Creator
                                                         </span>

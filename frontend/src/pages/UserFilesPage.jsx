@@ -24,17 +24,19 @@ import {
     View,
     BookDashed,
     FolderOpen,
-    CalendarClock,
     BookOpen,
     Filter,
     ChevronDown,
+    Check,
 } from "lucide-react";
 import FileViewer from "../fileComponents/FileViewer";
 import { API_URL } from "../utils/urls";
 import { useSwipeable } from "react-swipeable";
 import { ValuesContext } from "../context/ValuesContext";
 import { toast } from "react-hot-toast";
+import Select from "react-select";
 import {
+    ResourceTypes,
     courses as courseOptions,
     semestersByCourse,
     subjectsByCourseAndSemester,
@@ -130,7 +132,6 @@ const UserFilesPage = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
-    const [editFormData, setEditFormData] = useState({});
     const [selectedViewFile, setSelectedViewFile] = useState(null);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -139,6 +140,42 @@ const UserFilesPage = () => {
     const [categoryFilter, setCategoryFilter] = useState("all");
     const [courseFilter, setCourseFilter] = useState("all");
     const [subjectFilter, setSubjectFilter] = useState("all");
+
+    const [fileName, setFileName] = useState("");
+    const [selectedCourse, setSelectedCourse] = useState("");
+    const [selectedSemester, setSelectedSemester] = useState("");
+    const [selectedSubject, setSelectedSubject] = useState("");
+    const [selectedTypes, setSelectedTypes] = useState(null);
+    const [selectedResourceType, setSelectedResourceType] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedYear, setSelectedYear] = useState("");
+
+    const customSelectStyles = {
+        control: (provided, state) => ({
+            ...provided,
+            backgroundColor: '#37415180',
+            borderColor: state.isFocused ? '#22c55e' : '#4b5563',
+            borderRadius: '0.5rem',
+            padding: '0.35rem',
+            boxShadow: 'none',
+            '&:hover': { borderColor: '#22c55e' }
+        }),
+        menu: (provided) => ({
+            ...provided,
+            backgroundColor: '#1f2937',
+            borderColor: '#4b5563',
+            borderRadius: '0.5rem'
+        }),
+        option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.isSelected ? '#16a34a' : state.isFocused ? '#22c55e33' : 'transparent',
+            color: 'white',
+            '&:active': { backgroundColor: '#15803d' }
+        }),
+        singleValue: (provided) => ({ ...provided, color: 'white' }),
+        input: (provided) => ({ ...provided, color: 'white' }),
+        placeholder: (provided) => ({ ...provided, color: '#9ca3af' })
+    };
 
     useEffect(() => {
         if (!user || !user.isAdmin) {
@@ -216,14 +253,14 @@ const UserFilesPage = () => {
 
     const openEditModal = (file) => {
         setSelectedFile(file);
-        setEditFormData({
-            name: file.name ?? "",
-            course: file.course ?? "",
-            semester: file.semester ?? "",
-            subject: file.subject ?? (file.semester === "0" ? "Whole Semester" : ""),
-            year: file.year ?? "",
-            category: file.category ?? null,
-        });
+        setFileName(file.name ?? "");
+        setSelectedCourse(file.course ?? "");
+        setSelectedSemester(file.semester ?? "");
+        setSelectedSubject(file.subject ?? (file.semester === "0" ? "Whole Semester" : ""));
+        setSelectedCategory(file.category ?? null);
+        setSelectedYear(file.year ?? "");
+        setSelectedResourceType(file?.resourceType || "");
+        setSelectedTypes(file?.type ?? null);
         setModalError('');
         setIsEditModalOpen(true);
     };
@@ -246,9 +283,17 @@ const UserFilesPage = () => {
         setSelectedFile(null);
     };
 
-    const handleEditFormChange = (e) => {
-        const { name, value } = e.target;
-        setEditFormData(prev => ({ ...prev, [name]: value }));
+    const handleCategoryChange = (category) => {
+        setSelectedCategory(prev => prev === category ? null : category);
+    };
+    const handleTypeChange = (type) => {
+        setSelectedTypes(prev => prev === type ? null : type);
+    };
+    const handleYearChange = (e) => {
+        const value = e.target.value;
+        if (/^\d{0,4}$/.test(value)) {
+            setSelectedYear(value);
+        }
     };
 
     const handleUpdateFile = async (e) => {
@@ -258,13 +303,15 @@ const UserFilesPage = () => {
         try {
             const payload = {
                 id: selectedFile?._id,
-                name: editFormData.name?.trim(),
-                course: editFormData.course,
-                semester: editFormData.semester,
-                subject: editFormData.subject,
-                year: editFormData.year,
-                category: editFormData.category,
+                name: fileName.trim(),
+                course: selectedCourse,
+                semester: selectedSemester,
+                subject: selectedSubject,
+                year: selectedYear,
+                category: selectedCategory,
                 userId: user?._id,
+                type: selectedTypes,
+                resourceType: selectedResourceType,
             };
 
             const response = await fetch(`${API_URL}/api/files/update`, {
@@ -344,15 +391,14 @@ const UserFilesPage = () => {
         window.scrollTo({ top: 0, behavior: "smooth" })
     }, [])
 
-    const { isSidebarOpen, setIsSidebarOpen } = useContext(ValuesContext);
+    const { setIsSidebarOpen } = useContext(ValuesContext);
 
     const isExcludedRoute = location.pathname.startsWith("/login") || location.pathname === "/signup";
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
     const swipeHandlers = useSwipeable({
         onSwipedLeft: () => {
             if (isMobile && !isExcludedRoute) {
                 setIsSidebarOpen(true);
-                console.log("Swiped left - opening sidebar");
             }
         },
         preventDefaultTouchmoveEvent: false,
@@ -366,13 +412,10 @@ const UserFilesPage = () => {
         return s[(v - 20) % 10] || s[v] || s[0];
     };
 
-    const availableSemesters = editFormData.course
-        ? (semestersByCourse?.[editFormData.course]?.map((sem) => ({
+    const availableSemesters = selectedCourse
+        ? (semestersByCourse?.[selectedCourse]?.map((sem) => ({
             value: sem,
-            label:
-                sem === "0"
-                    ? "All Semesters"
-                    : `${sem}${getOrdinalSuffix(parseInt(sem, 10))} Semester`,
+            label: sem === "0" ? "All Semesters" : `${sem}${getOrdinalSuffix(parseInt(sem, 10))} Semester`,
         })) ?? [])
         : [];
 
@@ -385,17 +428,17 @@ const UserFilesPage = () => {
     };
 
     const availableSubjects =
-        editFormData.course && editFormData.semester
-            ? getSubjectsForCourseAndSemester(editFormData.course, editFormData.semester).map(
+        selectedCourse && selectedSemester
+            ? getSubjectsForCourseAndSemester(selectedCourse, selectedSemester).map(
                 (sub) => ({ value: sub, label: sub }),
             )
             : [];
 
     useEffect(() => {
-        if (editFormData.semester === "0") {
-            setEditFormData(prev => ({ ...prev, subject: "Whole Semester" }));
+        if (selectedSemester === "0") {
+            setSelectedSubject("Whole Semester");
         }
-    }, [editFormData.semester]);
+    }, [selectedSemester]);
 
     return (
         <>
@@ -631,9 +674,8 @@ const UserFilesPage = () => {
                                     </label>
                                     <input
                                         type="text"
-                                        name="name"
-                                        value={editFormData.name || ''}
-                                        onChange={handleEditFormChange}
+                                        value={fileName}
+                                        onChange={(e) => setFileName(e.target?.value ?? "")}
                                         placeholder="Enter paper name"
                                         className="w-full px-4 py-3 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-green-500 text-white placeholder-gray-400"
                                     />
@@ -642,62 +684,60 @@ const UserFilesPage = () => {
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Course
                                     </label>
-                                    <select
-                                        name="course"
-                                        value={editFormData.course || ''}
-                                        onChange={handleEditFormChange}
-                                        className="w-full px-4 py-3 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-green-500 text-white"
-                                    >
-                                        <option value="">Select Course</option>
-                                        {courseOptions.map((course) => (
-                                            <option key={course.value} value={course.value}>
-                                                {course.label}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <Select
+                                        options={courseOptions}
+                                        value={courseOptions?.find(
+                                            (c) => c.value === selectedCourse,
+                                        )}
+                                        onChange={(o) => {
+                                            setSelectedCourse(o.value);
+                                            setSelectedSemester("");
+                                            setSelectedSubject("");
+                                        }}
+                                        placeholder="Select Course"
+                                        styles={customSelectStyles}
+                                        isSearchable
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-300 mb-2">
                                         Semester
                                     </label>
-                                    <select
-                                        name="semester"
-                                        value={editFormData.semester || ''}
-                                        onChange={handleEditFormChange}
-                                        disabled={!editFormData.course}
-                                        className="w-full px-4 py-3 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-green-500 text-white disabled:opacity-50"
-                                    >
-                                        <option value="">Select Semester</option>
-                                        {availableSemesters.map((sem) => (
-                                            <option key={sem.value} value={sem.value}>
-                                                {sem.label}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <Select
+                                        options={availableSemesters}
+                                        value={availableSemesters?.find(
+                                            (s) => s.value === selectedSemester,
+                                        )}
+                                        onChange={(o) => {
+                                            setSelectedSemester(o.value);
+                                            setSelectedSubject("");
+                                        }}
+                                        placeholder="Select Semester"
+                                        isDisabled={!selectedCourse}
+                                        styles={customSelectStyles}
+                                        isSearchable
+                                    />
                                 </div>
-                                {editFormData.semester !== "0" && (
+                                {selectedSemester !== "0" && (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-300 mb-2">
                                             Subject
                                         </label>
-                                        <select
-                                            name="subject"
-                                            value={editFormData.subject || ''}
-                                            onChange={handleEditFormChange}
-                                            disabled={
-                                                !editFormData.course ||
-                                                !editFormData.semester ||
-                                                editFormData.semester === "0"
+                                        <Select
+                                            options={availableSubjects}
+                                            value={availableSubjects?.find(
+                                                (s) => s.value === selectedSubject,
+                                            )}
+                                            onChange={(o) => setSelectedSubject(o.value)}
+                                            placeholder="Select Subject"
+                                            isDisabled={
+                                                !selectedCourse ||
+                                                !selectedSemester ||
+                                                selectedSemester === "0"
                                             }
-                                            className="w-full px-4 py-3 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-green-500 text-white disabled:opacity-50"
-                                        >
-                                            <option value="">Select Subject</option>
-                                            {availableSubjects.map((sub) => (
-                                                <option key={sub.value} value={sub.value}>
-                                                    {sub.label}
-                                                </option>
-                                            ))}
-                                        </select>
+                                            styles={customSelectStyles}
+                                            isSearchable
+                                        />
                                     </div>
                                 )}
                                 <div className="flex flex-col sm:flex-row sm:space-x-4">
@@ -705,17 +745,71 @@ const UserFilesPage = () => {
                                         <label className="block text-sm font-medium text-gray-300">
                                             Category
                                         </label>
-                                        <select
-                                            name="category"
-                                            value={editFormData.category || ''}
-                                            onChange={handleEditFormChange}
-                                            className="w-full px-4 py-3 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-green-500 text-white mt-2"
-                                        >
-                                            <option value="">Select Category</option>
-                                            <option value="paper">Paper</option>
-                                            <option value="notes">Notes</option>
-                                            <option value="syllabus">Syllabus</option>
-                                        </select>
+                                        <div className="flex flex-wrap gap-3 pt-3">
+                                            <label className="flex items-center space-x-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedCategory === "paper"}
+                                                    onChange={() => handleCategoryChange("paper")}
+                                                    className="hidden peer"
+                                                />
+                                                <span className="w-6 h-6 bg-gray-700 border border-gray-600 rounded-md flex items-center justify-center peer-checked:bg-green-500 peer-checked:border-green-500">
+                                                    <AnimatePresence>
+                                                        {selectedCategory === "paper" && (
+                                                            <motion.div
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                            >
+                                                                <Check className="w-4 h-4 text-white" />
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </span>
+                                                <span className="text-gray-300">Paper</span>
+                                            </label>
+                                            <label className="flex items-center space-x-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedCategory === "notes"}
+                                                    onChange={() => handleCategoryChange("notes")}
+                                                    className="hidden peer"
+                                                />
+                                                <span className="w-6 h-6 bg-gray-700 border border-gray-600 rounded-md flex items-center justify-center peer-checked:bg-green-500 peer-checked:border-green-500">
+                                                    <AnimatePresence>
+                                                        {selectedCategory === "notes" && (
+                                                            <motion.div
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                            >
+                                                                <Check className="w-4 h-4 text-white" />
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </span>
+                                                <span className="text-gray-300">Notes</span>
+                                            </label>
+                                            <label className="flex items-center space-x-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedCategory === "syllabus"}
+                                                    onChange={() => handleCategoryChange("syllabus")}
+                                                    className="hidden peer"
+                                                />
+                                                <span className="w-6 h-6 bg-gray-700 border border-gray-600 rounded-md flex items-center justify-center peer-checked:bg-green-500 peer-checked:border-green-500">
+                                                    <AnimatePresence>
+                                                        {selectedCategory === "syllabus" && (
+                                                            <motion.div
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                            >
+                                                                <Check className="w-4 h-4 text-white" />
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </span>
+                                                <span className="text-gray-300">Syllabus</span>
+                                            </label>
+                                        </div>
                                     </div>
                                     <div className="flex-1">
                                         <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -723,14 +817,81 @@ const UserFilesPage = () => {
                                         </label>
                                         <input
                                             type="text"
-                                            name="year"
-                                            value={editFormData.year || ''}
-                                            onChange={handleEditFormChange}
+                                            value={selectedYear}
+                                            onChange={handleYearChange}
                                             placeholder="e.g., 2023"
                                             className="w-full px-4 py-3 bg-gray-700/50 rounded-lg border border-gray-600 focus:border-green-500 text-white placeholder-gray-400"
                                         />
                                     </div>
                                 </div>
+                                {selectedCategory === "paper" && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            Resource Type
+                                        </label>
+                                        <Select
+                                            options={Object.values(ResourceTypes)}
+                                            value={Object.values(ResourceTypes)?.find(
+                                                (type) => type.value === selectedResourceType,
+                                            )}
+                                            onChange={(o) => setSelectedResourceType(o.value)}
+                                            placeholder="Select Resource Type"
+                                            styles={customSelectStyles}
+                                            isSearchable
+                                        />
+                                    </div>
+                                )}
+                                {selectedCategory !== "paper" && (
+                                    <div className="flex-1 w-full">
+                                        <label className="block text-sm font-medium text-gray-300 mb-2">
+                                            File Type
+                                        </label>
+                                        <div className="flex flex-wrap gap-3 pt-3">
+                                            <label className="flex items-center space-x-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedTypes === "image"}
+                                                    onChange={() => handleTypeChange("image")}
+                                                    className="hidden peer"
+                                                />
+                                                <span className="w-6 h-6 bg-gray-700 border border-gray-600 rounded-md flex items-center justify-center peer-checked:bg-green-500 peer-checked:border-green-500">
+                                                    <AnimatePresence>
+                                                        {selectedTypes === "image" && (
+                                                            <motion.div
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                            >
+                                                                <Check className="w-4 h-4 text-white" />
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </span>
+                                                <span className="text-gray-300">Image</span>
+                                            </label>
+                                            <label className="flex items-center space-x-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedTypes === "document"}
+                                                    onChange={() => handleTypeChange("document")}
+                                                    className="hidden peer"
+                                                />
+                                                <span className="w-6 h-6 bg-gray-700 border border-gray-600 rounded-md flex items-center justify-center peer-checked:bg-green-500 peer-checked:border-green-500">
+                                                    <AnimatePresence>
+                                                        {selectedTypes === "document" && (
+                                                            <motion.div
+                                                                initial={{ scale: 0 }}
+                                                                animate={{ scale: 1 }}
+                                                            >
+                                                                <Check className="w-4 h-4 text-white" />
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </span>
+                                                <span className="text-gray-300">Document</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                )}
                                 {modalError && (
                                     <motion.div
                                         initial={{ opacity: 0, y: 10 }}
@@ -754,18 +915,19 @@ const UserFilesPage = () => {
                                     Cancel
                                 </motion.button>
                                 <motion.button
-                                    type="submit"
+                                    type="button"
                                     onClick={handleUpdateFile}
                                     whileHover={{ scale: 1.03 }}
                                     whileTap={{ scale: 0.98 }}
                                     disabled={
                                         isSubmitting ||
-                                        !editFormData.name ||
-                                        !editFormData.course ||
-                                        !editFormData.semester ||
-                                        !editFormData.subject ||
-                                        !editFormData.category ||
-                                        !/^\d{4}$/.test(editFormData.year || "")
+                                        !fileName ||
+                                        !selectedCourse ||
+                                        !selectedSemester ||
+                                        !selectedSubject ||
+                                        !selectedCategory ||
+                                        !/^\d{4}$/.test(selectedYear) ||
+                                        (selectedCategory !== "paper" && !selectedTypes)
                                     }
                                     className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg flex items-center justify-center disabled:opacity-50"
                                 >
