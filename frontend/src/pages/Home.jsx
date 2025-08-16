@@ -396,7 +396,7 @@ const HomePage = () => {
                         Quick Dashboard
                         <kbd className="px-2 py-1 text-xs font-sans font-semibold text-gray-300 bg-gray-500/20 border border-gray-500/30 rounded-md">Ctrl + D</kbd>
                       </h4>
-                      <p className="text-gray-400 text-sm mt-1">Access Your current Course/semester files directly from anywhere.</p>
+                      <p className="text-gray-400 text-sm mt-1">Access Your current Course/semester{`${user?.course ? ', in your case ' + user?.course + ' - Sem ' + user?.semester : ''}`} files directly from anywhere.</p>
                     </div>
                   </div>
                   <button
